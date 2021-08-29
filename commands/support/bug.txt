@@ -1,0 +1,33 @@
+const Discord = require('discord.js');
+
+module.exports = {
+  config: {
+    name: 'bug',
+    description: 'Report a bug in the bot.',
+    aliases: ['issue'],
+    usage: '<text>',
+    category: 'support',
+    accessableby: ''
+  },
+  run: async (bot, message, args) => {
+
+    const guild = bot.guilds.get('728682867860701305');
+    const channel = guild.channels.get('730792981925462169');
+    const bug = args.join(' ');
+
+    const embed = new Discord.RichEmbed()
+    .setTitle('Bug Report')
+    .setAuthor(message.author.tag, message.author.displayAvatarURL)
+    .setThumbnail(message.author.displayAvatarURL)
+    .setDescription(bug)
+    .setColor('DARKBLUE')
+    .setFooter(`Reported by ${message.author.tag}`)
+    .setTimestamp();
+
+    message.delete(1000);
+    channel.send(embed);
+
+    message.channel.send(`<:greentick:732759504441180260> Your bug has been submitted and sent to the support server. Thanks for using ${bot.user.username}!`);
+    message.delete(1000);
+}
+}
