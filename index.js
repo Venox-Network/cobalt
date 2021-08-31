@@ -163,6 +163,7 @@ bot.on("guildMemberAdd", member => {
 });
 //GIVES VERIFICATION ROLE^^^
 
+/*
 bot.on("message", message => {
   if (message.content.startsWith("v!verify Aj0akCWfebex8n3o")) {
     if (!message.member.roles.has("728682867860701308")) {
@@ -177,7 +178,7 @@ bot.on("message", message => {
   }
 });
 //VERIFICATION^^
-
+*/
 
 bot.on("ready", () => {
   bot.user.setStatus("dnd");
