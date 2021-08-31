@@ -18,9 +18,9 @@ module.exports = {
 }
 
 const interactions = require("discord-slash-commands-client");
-const auth = require('../auth.json');
+
 const bot = new interactions.Client(
-  auth.token,
+  "NzMxNjUwODAyMjk2NDIyNDcw.XwpI6A.qz2a8Gw1ubU5ZVy1sSnGMk081Ys",
   "731650802296422470"
 );
 
