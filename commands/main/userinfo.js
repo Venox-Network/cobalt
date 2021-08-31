@@ -15,11 +15,9 @@ module.exports = {
 
     const user = message.mentions.users.first() || bot.users.cache.get(args[0]) || message.author; // message.author; //message.guild.members.get()
     if(!user) return message.channel.send('Couldn\'t find that user :(');
-    let color = user.displayHexColor;
-    if (color == '#000000') color = user.hoistRole.hexColor;
     const member = message.guild.member(user);
       const embed = new MessageEmbed()
-        .setColor(color)
+        .setColor('0070c0')
         .setAuthor(user.tag)
         .setDescription(`${user}`)
         .setThumbnail(user.displayAvatarURL)
