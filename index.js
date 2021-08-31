@@ -29,30 +29,9 @@ message.channel.send('Howdy!')};
 
 
 
-/*bot.on('message', message => {
-    const content = message.content.split(' ');
-    const tabHello = ['Bonjour','Salut','Hello', 'Guten tag', 'Buenos Dias'];
-    const tabAnsw = ['Bonjour votre majesté.','Salutations jeune Douzien !','Ouais, ouais. T\'es qui déjà ?', 'Bonjour ' + message.author + ', comment vas-tu aujourd\'hui ?'];
 
 
-    for(var x = 0; x < content.length; x++){
-        if(tabHello.includes(content[x]) && message.isMentioned(bot.user)){
-            var row = Math.floor(Math.random() * tabAnsw.length);
-            message.channel.send(tabAnsw[row]);
-        }
-    }});
-*/
 
-bot.on('message', message => {
-    if (message.content === "!sendgmsg") {
-        var guildList = bot.guilds.array();
-        try {
-            guildList.forEach(guild => guild.defaultChannel.send("yo"));
-        } catch (err) {
-            console.log("Could not send message to one of the guilds");// + guild.name
-        }
-    }
-});
 
 
 // now we do events, bot events
@@ -153,7 +132,7 @@ bot.on("guildMemberRemove", member => {
 
 */
 
-
+/*
 bot.on("guildMemberAdd", member => {
   console.log(
     "User" + member.user.username + "has joined the server. Welcome!"
@@ -162,7 +141,7 @@ bot.on("guildMemberAdd", member => {
   member.addRole('728682867860701308');
 });
 //GIVES VERIFICATION ROLE^^^
-
+*/
 /*
 bot.on("message", message => {
   if (message.content.startsWith("v!verify Aj0akCWfebex8n3o")) {
@@ -198,7 +177,7 @@ bot.on("ready", () => {
   const status = [
     `${bot.guilds.size} servers and ${bot.users.size} users!`,
     `the prefix: v!`,
-    'the support server: discord.gg/KB5KxTS',
+    'the support server: dsc.gg/vboy',
 
 
   ]; // type here ur status how to do the variable ${bot.guilds.size}
@@ -209,7 +188,6 @@ bot.on("ready", () => {
   }, 10000);
 });
 
-// message event ?
 
 bot.on("message", message => {
   if (message.author.bot || message.channel.type === "dm") return; // ignore bots and dms
