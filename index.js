@@ -230,7 +230,7 @@ bot.on("message", message => {
   if (commandfile) commandfile.run(bot, message, args);
 });
 
-
+/*
 bot.on("message", message => {
 
   if (message.channel.name === "suggestions") {
@@ -266,7 +266,7 @@ bot.on("message", message => {
     message.react("❔");
   }
 });
-
+*/
 
 /*const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://tekresbot:venoxisdabest@venox-alpha.cj3sm.mongodb.net/tekresbot?retryWrites=true&w=majority";
@@ -337,7 +337,7 @@ bot.on("guildCreate", guild => {
 
 
 //-----------------------------------------logs-------------------------------------\\
-
+/*
 
 bot.on('message', async (message) => {
  if (message.content.startsWith("v!createlogs")) {
@@ -384,6 +384,7 @@ const embed = new Discord.RichEmbed()
 
 }) */
 
+/*
 bot.on("channelCreate", channel => {
     const logs = channel.guild.channels.find(channel => channel.name === "logs");
 
@@ -412,6 +413,8 @@ bot.on("channelDelete", channel => {
       logs.send(embed);
 
   });
+
+  */
 
   //keepAlive()
 
