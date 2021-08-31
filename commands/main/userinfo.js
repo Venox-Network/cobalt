@@ -1,9 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const { Attachment } = require("discord.js");
 
-let color = message.member.displayHexColor;
-if (color == '#000000') color = message.member.hoistRole.hexColor;
-
 module.exports = {
   config: {
     name: "userinfo",
@@ -15,6 +12,8 @@ module.exports = {
  },
 
   run: async (bot, message, args) => {
+    let color = message.member.displayHexColor;
+if (color == '#000000') color = message.member.hoistRole.hexColor;
     const user = message.mentions.users.first() || bot.users.get(args[0]) || message.author; // message.author; //message.guild.members.get()
     if(!user) return message.channel.send('Couldn\'t find that user :(');
     const member = message.guild.member(user);
