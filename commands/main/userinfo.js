@@ -25,7 +25,7 @@ if (color == '#000000') color = message.member.hoistRole.hexColor;
        	.addField('Join Date:', `${member.joinedAt}`, true)
         .addField("Account Creation Date:", member.user.createdAt, true)
         .addField("Nickname:", `${member.nickname !== null ? `${member.nickname}` : 'None'}`, true)
-        .addField("Roles:", member.roles.map(roles => `${roles}`).join(', '), true)
+        .addField("Roles:", member.cache.roles.map(roles => `${roles}`).join(', '), true)
         .addField("Custom Status:", `${user.presence.game ? user.presence.game.name : 'None'}`, true)
         .addField("Status:", `${user.presence.status}`, true)
         .addField('User\'s ID:', user.id, true)
