@@ -29,8 +29,24 @@ message.channel.send('Howdy!')};
 
 
 
+bot.api.applications(bot.user.id).guilds('879734848946847774').commands.post({data: {
+  name: 'ping1',
+  description: 'ping pong!'
+}})
+
+bot.ws.on('INTERACTION_CREATE', async interaction => {
+  
+  bot.api.interactions(interaction.id, interaction.token).callback.post({data: {
+    type: 4,
+    data: {
+      content: 'hello world!'
+    }
+  }})
+
+  new Discord.WebhookClient(bot.user.id, interaction.token).send('hello world')
 
 
+})
 
 
 
