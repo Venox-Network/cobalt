@@ -165,7 +165,7 @@ bot.on("ready", () => {
   // this event means, that it will do something when the bot is online
   // i will log in the console that the bot is online when its online
   console.log(
-    `${bot.user.username} is ready to watch ${bot.guilds.size} servers!`
+    `${bot.user.username} is ready to watch ${bot.guilds.cache.size} servers!`
   ); /* ${bot.guilds.reduce(
       (prev, val) => val.memberCount + prev,
       0
@@ -175,7 +175,7 @@ bot.on("ready", () => {
   // activity
 
   const status = [
-    `${bot.guilds.size} servers and ${bot.users.size} users!`,
+    `${bot.guilds.cache.size} servers and ${bot.users.cache.size} users!`,
     `the prefix: v!`,
     'the support server: dsc.gg/vboy',
 
