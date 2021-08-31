@@ -1,4 +1,4 @@
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { Attachment } = require("discord.js");
 
 let color = message.member.displayHexColor;
@@ -18,7 +18,7 @@ module.exports = {
     const user = message.mentions.users.first() || bot.users.get(args[0]) || message.author; // message.author; //message.guild.members.get()
     if(!user) return message.channel.send('Couldn\'t find that user :(');
     const member = message.guild.member(user);
-      const embed = new RichEmbed()
+      const embed = new MessageEmbed()
         .setColor(color)
         .setAuthor(user.tag)
         .setDescription(`${user}`)

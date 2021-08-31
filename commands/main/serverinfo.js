@@ -1,4 +1,4 @@
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const { Attachment } = require("discord.js");
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
   run: async (bot, message, args) => {
     const user = message.mentions.users.first() || message.guild.members.get(args[0]); //message.author
     const member = message.guild.member(user);
-      const embed = new RichEmbed()
+      const embed = new MessageEmbed()
         .setColor("0087ef")
         .setAuthor(message.guild.name, message.guild.iconURL)
         .addField("Name:", message.guild.name, true)

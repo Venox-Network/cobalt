@@ -6,9 +6,10 @@ Array.prototype.random = function() {
 const express = require('express');
 //const Canvas = require('canvas');
 const app = express();
+//const keepAlive = require("./keepalive.js");
 const auth = require('./auth.json');
 const Discord = require("discord.js");
-const bot = new Discord.Client();
+const bot = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", "GUILD_MEMBERS", "GUILD_WEBHOOKS", "GUILD_PRESENCES", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING"] });
 const mongoose = require('mongoose');
 ["commands", "aliases"].forEach(x => (bot[x] = new Discord.Collection()));
 ["command"].forEach(x => require(`./handlers/${x}`)(bot));
@@ -185,11 +186,13 @@ bot.on("ready", () => {
   // this event means, that it will do something when the bot is online
   // i will log in the console that the bot is online when its online
   console.log(
-    `${bot.user.username} is ready to watch ${bot.guilds.reduce(
+    `${bot.user.username} is ready to watch ${bot.guilds.size} servers!`
+  ); /* ${bot.guilds.reduce(
       (prev, val) => val.memberCount + prev,
       0
-    )} users and ${bot.guilds.size} servers!`
-  );
+    )} users and*/ 
+
+    
   // activity
 
   const status = [
@@ -410,5 +413,7 @@ bot.on("channelDelete", channel => {
       logs.send(embed);
 
   });
+
+  //keepAlive()
 
 bot.login(auth.token) 

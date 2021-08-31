@@ -1,5 +1,5 @@
 const { readdirSync } = require('fs');
-const { RichEmbed } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 
 module.exports = {
   config: {
@@ -13,7 +13,7 @@ module.exports = {
   run: async (bot, message, args) => {
 
 
-    const embed = new RichEmbed()
+    const embed = new MessageEmbed()
 		.setColor('0070c0')
 		.setAuthor(`${message.guild.me.displayName} Help`, message.guild.iconURL)
 		.setThumbnail(bot.user.displayAvatarURL);
@@ -21,7 +21,7 @@ module.exports = {
     if(!args[0]) {
       const categories = readdirSync('./commands/');
 
-      embed.setDescription(`These are the avaliable commands for ${message.guild.me.displayName}\nThe prefix for this server is: \`v!\`\n **dsc.gg/venox**`); //Want a further description of the commands? Do \`v!help <spec-ific command>\`*/\n\n
+      embed.setDescription(`These are the avaliable commands for ${message.guild.me.displayName}\nThe prefix for this server is: \`v!\``); //Want a further description of the commands? Do \`v!help <spec-ific command>\`*/\n\n
       embed.setFooter(`© ${message.guild.me.displayName} | Total Commands: ${bot.commands.size}`, bot.user.displayAvatarURL);
 
       categories.forEach(category => {
