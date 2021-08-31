@@ -16,3 +16,21 @@ module.exports = {
 
   }
 }
+
+const interactions = require("discord-slash-commands-client");
+
+const bot = new interactions.Client(
+  auth.token,
+  "731650802296422470"
+);
+
+
+bot.createCommand({
+  name: "test",
+  description: "description for this command",
+})
+
+message.channel.send('srnyx is cringe eggsdee')
+
+.catch(console.error)
+.then(console.log);
