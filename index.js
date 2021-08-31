@@ -178,7 +178,7 @@ bot.on("ready", () => {
     `${bot.guilds.cache.size} servers and ${bot.users.cache.size} users!`,
     `the prefix: v!`,
     'the support server: dsc.gg/vboy',
-
+    'the Spiderman No Way Home movie 🍿'
 
   ]; // type here ur status how to do the variable ${bot.guilds.size}
   // it can be users too ok  ok
