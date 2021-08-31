@@ -49,7 +49,7 @@ bot.on('message', message => {
         try {
             guildList.forEach(guild => guild.defaultChannel.send("yo"));
         } catch (err) {
-            console.log("<:redtick:732759534891958322> Could not send message to one of the guilds");// + guild.name
+            console.log("Could not send message to one of the guilds");// + guild.name
         }
     }
 });
@@ -167,12 +167,12 @@ bot.on("message", message => {
   if (message.content.startsWith("v!verify Aj0akCWfebex8n3o")) {
     if (!message.member.roles.has("728682867860701308")) {
       message.channel.send(
-        "<:redtick:732759534891958322> Either you are already verified or you are not in the correct server to use this command. This command can only be used in the support server of the bot."
+        "Either you are already verified or you are not in the correct server to use this command. This command can only be used in the support server of the bot."
       );
     } else {
       message.member.addRole("728682867860701313");
       message.member.removeRole("728682867860701308");
-      message.channel.send("You have been verified! <:greentick:732759504441180260>");
+      message.channel.send("You have been verified!");
     }
   }
 });
@@ -344,13 +344,13 @@ bot.on('message', async (message) => {
   const logs = message.guild.channels.find(channel => channel.name === "logs");
   if (message.guild.me.hasPermission('MANAGE_CHANNELS') && !logs) {
     message.guild.createChannel('logs', 'text');
-    await logs.send(`<:greentick:732759504441180260> **Channel Created!**`);
+    await logs.send(`**Channel Created!**`);
   }
   if (!message.guild.me.hasPermission('MANAGE_CHANNELS') && !logs) {
     console.log('The logs channel does not exist and tried to create the channel but I am lacking permissions')
   }
   //hi
-  message.reply(`<:redtick:732759534891958322> Either there is already a **logs** channel, or you do not have permission to use this command.`);
+  message.reply(`Either there is already a **logs** channel, or you do not have permission to use this command.`);
 }})
 
 //-----------------
