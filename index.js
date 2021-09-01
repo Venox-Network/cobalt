@@ -12,7 +12,7 @@ const Discord = require("discord.js");
 const bot = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", "GUILD_MEMBERS", "GUILD_WEBHOOKS", "GUILD_PRESENCES", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING"] });
 ["commands", "aliases"].forEach(x => (bot[x] = new Discord.Collection()));
 ["command"].forEach(x => require(`./handlers/${x}`)(bot));
-require("./handler")(bot);
+require("./handlers")(bot);
 
 const discord = require('discord.js');
 
