@@ -16,7 +16,6 @@ module.exports = (bot) => {
 const { glob } = require("glob");
 const { promisify } = require("util");
 const { Client } = require("discord.js");
-const mongoose = require("mongoose");
 
 const globPromise = promisify(glob);
 
