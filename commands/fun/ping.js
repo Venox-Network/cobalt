@@ -12,7 +12,7 @@ module.exports = {
 
     const ping = msg.createdTimestamp - message.createdTimestamp;
 
-    msg.edit(`PingPong sucks but ok :p\n**Bot latency is ${ping}ms, API latency is ${Math.round(bot.ping)}ms.**`);
+    msg.edit(`PingPong sucks but ok :p\n**Bot latency is ${ping}ms, API latency is ${bot.ws.ping}ms.**`);
 
   }
 }
