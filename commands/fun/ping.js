@@ -8,7 +8,7 @@ module.exports = {
     accessableby: 'anyone'
   },
   run: async (bot, message, args) => {
-    const msg = await message.channel.send('Pinging...');
+    const msg = await message.channel.send('PingPong sucks but ok :p\nPinging...');
 
     const ping = msg.createdTimestamp - message.createdTimestamp;
 
