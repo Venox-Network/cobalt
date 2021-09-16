@@ -1,9 +1,17 @@
 {
-  "devDependencies": {
-    "node": "^16.6.1"
-  },
-  "dependencies": {
-    "discord.js": "^12.5.3",
-    "express": "^4.17.1"
-  }
+    "name": "djs",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "nodemon index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "discord.js": "^13.1.0",
+        "glob": "^7.1.7"
+    }
 }
