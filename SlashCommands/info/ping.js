@@ -6,11 +6,11 @@ module.exports = {
     type: 'CHAT_INPUT',
     /**
      *
-     * @param {Client} bot
+     * @param {Client} client
      * @param {CommandInteraction} interaction
      * @param {String[]} args
      */
-    run: async (bot, interaction, args) => {
-        interaction.followUp({ content: `${bot.ws.ping}ms!` });
+    run: async (client, interaction, args) => {
+        interaction.followUp({ content: `${client.ws.ping}ms!` });
     },
 };

@@ -5,11 +5,11 @@ module.exports = {
     aliases: ['p'],
     /**
      *
-     * @param {Client} bot
+     * @param {Client} client
      * @param {Message} message
      * @param {String[]} args
      */
-    run: async (bot, message, args) => {
+    run: async (client, message, args) => {
         message.channel.send(`${client.ws.ping} ws ping`);
     },
 };

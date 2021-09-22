@@ -11,9 +11,9 @@ const bot = new Discord.Client({
 const globPromise = promisify(glob);
 
 /**
- * @param {Client} bot
+ * @param {Client} client
  */
-module.exports = async (bot) => {
+module.exports = async (client) => {
     // Commands
     const commandFiles = await globPromise(`${process.cwd()}/commands/**/*.js`);
     commandFiles.map((value) => {
@@ -23,7 +23,7 @@ module.exports = async (bot) => {
 
         if (file.name) {
             const properties = { directory, ...file };
-            bot.commands.set(file.name, properties);
+            client.commands.set(file.name, properties);
         }
     });
 
@@ -40,19 +40,19 @@ module.exports = async (bot) => {
     slashCommands.map((value) => {
         const file = require(value);
         if (!file?.name) return;
-        bot.slashCommands.set(file.name, file);
+        client.slashCommands.set(file.name, file);
 
         if (["MESSAGE", "USER"].includes(file.type)) delete file.description;
         arrayOfSlashCommands.push(file);
     });
-    bot.on("ready", async () => {
+    client.on("ready", async () => {
         // Register for a single guild
-        await bot.guilds.cache
+        await client.guilds.cache
             .get("replace this with your guild id")
             .commands.set(arrayOfSlashCommands);
 
-        // Register for all the guilds the bot is in
-        // await bot.application.commands.set(arrayOfSlashCommands);
+        // Register for all the guilds the client is in
+        // await client.application.commands.set(arrayOfSlashCommands);
     });
 
 };

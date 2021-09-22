@@ -1,5 +1,5 @@
-const bot = require("../index");
+const client = require("../index");
 
-bot.on("ready", () =>
-    console.log(`${bot.user.tag} is up and ready to go!`)
+client.on("ready", () =>
+    console.log(`${client.user.tag} is up and ready to go!`)
 );

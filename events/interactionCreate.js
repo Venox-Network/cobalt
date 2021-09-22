@@ -1,11 +1,11 @@
-const bot = require("../index");
+const client = require("../index");
 
-bot.on("interactionCreate", async (interaction) => {
+client.on("interactionCreate", async (interaction) => {
     // Slash Command Handling
     if (interaction.isCommand()) {
         await interaction.deferReply({ ephemeral: false }).catch(() => {});
 
-        const cmd = bot.slashCommands.get(interaction.commandName);
+        const cmd = client.slashCommands.get(interaction.commandName); 
         if (!cmd)
             return interaction.followUp({ content: "An error has occured " });
 
@@ -21,13 +21,13 @@ bot.on("interactionCreate", async (interaction) => {
         }
         interaction.member = interaction.guild.members.cache.get(interaction.user.id);
 
-        cmd.run(bot, interaction, args);
+        cmd.run(client, interaction, args);
     }
 
     // Context Menu Handling
     if (interaction.isContextMenu()) {
         await interaction.deferReply({ ephemeral: false });
-        const command = bot.slashCommands.get(interaction.commandName);
-        if (command) command.run(bot, interaction);
+        const command = client.slashCommands.get(interaction.commandName);
+        if (command) command.run(client, interaction);
     }
 });

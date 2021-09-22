@@ -1,17 +1,16 @@
 const { Client, Collection } = require("discord.js");
 
-const Discord = require("discord.js");
-const bot = new Discord.Client({
+const client = new Client({
     intents: 32767,
 });
-module.exports = bot;
+module.exports = client;
 
 // Global Variables
-bot.commands = new Collection();
-bot.slashCommands = new Collection();
-bot.config = require("./config.json");
+client.commands = new Collection();
+client.slashCommands = new Collection();
+client.config = require("./config.json");
 
 // Initializing the project
-require("./handler")(bot);
+require("./handler")(client);
 
-bot.login(bot.config.token);
+client.login(client.config.token);
