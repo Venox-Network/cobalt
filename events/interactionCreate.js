@@ -1,6 +1,6 @@
 const client = require("../index.js");
 
-bro.on("interactionCreate", async (interaction) => {
+client.on("interactionCreate", async (interaction) => {
     // Slash Command Handling
     if (interaction.isCommand()) {
         await interaction.deferReply({ ephemeral: false }).catch(() => {});
