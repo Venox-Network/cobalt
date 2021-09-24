@@ -4,10 +4,26 @@ const { Client } = require("discord.js");
 const express = require('express');
 const app = express();
 const Discord = require("discord.js");
-const bot = new Discord.Client({
+//const client = new Discord.Client({ ws: { intents: 32509 }));
+/*const { Client, Intents } = require('discord.js');
+const myIntents = new Intents();
+myIntents.add(
+    Intents.FLAGS.GUILD_PRESENCES, 
+    Intents.FLAGS.GUILD_MEMBERS,
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_INTEGRATIONS,
+    Intents.FLAGS.GUILD_WEBHOOKS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    Intents.FLAGS.GUILD_MESSAGE_TYPING
+             );*/
+
+//const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", /*"GUILD_MEMBERS", "GUILD_PRESENCES",*/ "GUILD_WEBHOOKS", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING"] }); //new Client({ intents: myIntents });
+
+/*const bot = new Discord.Client({
     intents: 32767,
 });
-
+*/
 const globPromise = promisify(glob);
 
 /**
@@ -47,12 +63,12 @@ module.exports = async (client) => {
     });
     client.on("ready", async () => {
         // Register for a single guild
-        await client.guilds.cache
-            .get("replace this with your guild id")
-            .commands.set(arrayOfSlashCommands);
+        /*await client.guilds.cache
+            .get("879734848946847774")
+            .commands.set(arrayOfSlashCommands);*/
 
         // Register for all the guilds the client is in
-        // await client.application.commands.set(arrayOfSlashCommands);
+        await client.application.commands.set(arrayOfSlashCommands);
     });
 
 };
