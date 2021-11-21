@@ -29,7 +29,7 @@ const globPromise = promisify(glob);
 /**
  * @param {Client} client
  */
-module.exports = async (client) => {
+module.exports = async(client) => {
     // Commands
     const commandFiles = await globPromise(`${process.cwd()}/commands/**/*.js`);
     commandFiles.map((value) => {
@@ -61,7 +61,7 @@ module.exports = async (client) => {
         if (["MESSAGE", "USER"].includes(file.type)) delete file.description;
         arrayOfSlashCommands.push(file);
     });
-    client.on("ready", async () => {
+    client.on("ready", async() => {
         // Register for a single guild
         /*await client.guilds.cache
             .get("879734848946847774")

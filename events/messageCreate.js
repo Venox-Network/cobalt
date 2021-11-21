@@ -1,20 +1,20 @@
-const client = require("../index");
+const bot = require("../index");
 
-client.on("messageCreate", async (message) => {
+bot.on("messageCreate", async (message) => {
     if (
-        message.author.client ||
+        message.author.bot ||
         !message.guild ||
-        !message.content.toLowerCase().startsWith(client.config.prefix)
+        !message.content.toLowerCase().startsWith(bot.config.prefix)
     )
         return;
 
     const [cmd, ...args] = message.content
-        .slice(client.config.prefix.length)
+        .slice(bot.config.prefix.length)
         .trim()
         .split(" ");
 
-    const command = client.commands.get(cmd.toLowerCase()) || client.commands.find(c => c.aliases?.includes(cmd.toLowerCase()));
+    const command = bot.commands.get(cmd.toLowerCase()) || bot.commands.find(c => c.aliases?.includes(cmd.toLowerCase()));
 
     if (!command) return;
-    await command.run(client, message, args);
+    await command.run(bot, message, args);
 });
