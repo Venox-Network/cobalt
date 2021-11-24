@@ -1,0 +1,106 @@
+const { Message, Client, MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js");
+
+module.exports = {
+    name: "help",
+    aliases: ['p'],
+    description: "lists all the commands",
+    /**
+     *  
+     * @param {Client} client
+     * @param {Message} message
+     * @param {String[]} args
+     */
+    run: async (client, message, args) => {
+        const directories = [
+            ...new Set(client.commands.map(cmd => cmd.directory))
+        ];
+
+        const formatStr = (str) => 
+            `${str[0].toUpperCase()}${str.slice(1).toLowerCase()})`;
+
+        const categories = directories.map((dir) => {
+            const getCmd = client.commands.filter(
+                (cmd) => cmd.directory === dir
+        ).map(cmd => {
+            return {
+                name: cmd.name || `null`,
+                description: cmd.description || `null`,
+
+            }
+        });
+
+        return {
+            directory: formatStr(dir),
+            commands: getCmd,
+        };
+
+
+    });
+
+//console.log(categories);
+const embed = new MessageEmbed().setDescription(
+    "Choose a category"
+);
+
+const components = (state) => [
+    new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+        .setCustomId('help-menu')
+        .setPlaceholder('Select a category')
+        .setDisabled(state)
+        .addOptions(
+            categories.map((cmd) => {
+                return {
+                    label: cmd.directory,
+                    value: cmd.directory.toLowerCase(),
+                    description: `${cmd.directory} category` 
+                };
+            })
+        )
+    ),
+];
+
+const initialMessage = await message.channel.send({
+    embeds: [embed],
+    components: components(false),
+});
+
+const filter = (interaction) => interaction.user.id === message.author.id;
+
+const collector = message.channel.createMessageComponentCollector({ 
+    filter, 
+    componentType: 'SELECT_MENU', 
+    time: 5000,
+});
+
+collector.on('collect', (interaction) => {
+    const [ directory ] = interaction.values;
+
+    const category = categories.find(
+        (x) => x.directories.toLowerCase() === directory
+    );
+
+    const categoryEmbed = new MessageEmbed()
+    .setTitle(`${directory} commands`)
+    .setDescription('Command List')
+    .addFields(
+        category.commands.map((cmd) => {
+            return {
+                name: `\`${cmd.name}\``,
+                value: cmd.description,
+            inline: true,
+        };
+    }));
+
+
+
+    interaction.update({embeds: [categoryEmbed]})
+
+});
+
+collector.on('end', () => {
+    initialMessage.edit({components: components(true)});
+})
+
+},
+};
