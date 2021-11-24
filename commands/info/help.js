@@ -70,7 +70,7 @@ const filter = (interaction) => interaction.user.id === message.author.id;
 const collector = message.channel.createMessageComponentCollector({ 
     filter, 
     componentType: 'SELECT_MENU', 
-    time: 5000,
+   // time: 5000,
 });
 
 collector.on('collect', (interaction) => {
