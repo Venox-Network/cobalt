@@ -60,7 +60,7 @@ const components = (state) => [
                     value: cmd.directory.toLowerCase(),
                     description: `${cmd.directory} category`,
                     emoji: 
-                        emojis[cmd.directory.toLocaleLowerCase()] || null,
+                        emojis[cmd.directory.toLowerCase()] || null,
                 };
             })
         )
@@ -88,12 +88,13 @@ collector.on('collect', (interaction) => {
     );
 
     const categoryEmbed = new MessageEmbed()
-    .setTitle(`${directory} commands`)
+    .setTitle(`${directory.toUpperCase()} commands`)
+    
     .setDescription('Command List')
     .addFields(
         category.commands.map((cmd) => {
             return {
-                name: `**${cmd.name}**`,
+                name: `\`${cmd.name}\``,
                 value: `${cmd.description}`,
             inline: true,
         };
