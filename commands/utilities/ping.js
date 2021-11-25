@@ -3,7 +3,7 @@ const { Message, Client } = require("discord.js");
 module.exports = {
     name: "ping",
     description: "returns websocket ping",
-    alias: ['p'],
+    aliases: ['p'],
     /**
      *
      * @param {Client} client

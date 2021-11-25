@@ -2,7 +2,7 @@ const { Message, Client, MessageEmbed, MessageActionRow, MessageSelectMenu } = r
 
 module.exports = {
     name: "help",
-    aliases: ['p'],
+    aliases: ['h'],
     description: "lists all the commands",
     /**
      *  
@@ -11,6 +11,11 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, message, args) => {
+        const emojis = {
+            info: 'ℹ',
+            utilities: '🔧',
+        };
+
         const directories = [
             ...new Set(client.commands.map(cmd => cmd.directory))
         ];
@@ -54,6 +59,8 @@ const components = (state) => [
                     label: cmd.directory,
                     value: cmd.directory.toLowerCase(),
                     description: `${cmd.directory} category`,
+                    emoji: 
+                        emojis[cmd.directory.toLocaleLowerCase()] || null,
                 };
             })
         )
@@ -86,8 +93,8 @@ collector.on('collect', (interaction) => {
     .addFields(
         category.commands.map((cmd) => {
             return {
-                name: `\`${cmd.name}\``,
-                value: cmd.description,
+                name: `**${cmd.name}**`,
+                value: `${cmd.description}`,
             inline: true,
         };
     }));
