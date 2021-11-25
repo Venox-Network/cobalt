@@ -16,7 +16,7 @@ module.exports = {
         ];
 
         const formatStr = (str) => 
-            `${str[0].toUpperCase()}${str.slice(1).toLowerCase()})`;
+            `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
 
         const categories = directories.map((dir) => {
             const getCmd = client.commands.filter(
@@ -53,7 +53,7 @@ const components = (state) => [
                 return {
                     label: cmd.directory,
                     value: cmd.directory.toLowerCase(),
-                    description: `**${cmd.directory}** category`,
+                    description: `${cmd.directory} category`,
                 };
             })
         )
