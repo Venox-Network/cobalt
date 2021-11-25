@@ -1,4 +1,5 @@
 const { Message, Client, MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js");
+require('../handler');
 
 module.exports = {
     name: "help",
@@ -88,7 +89,7 @@ collector.on('collect', (interaction) => {
     );
 
     const categoryEmbed = new MessageEmbed()
-    .setTitle(`${directory.toUpperCase()} commands`)
+    .setTitle(`${directory.toUpperCase()}`)
     .setColor('0070c0')
    // .setDescription('Command List')
     .addFields(
