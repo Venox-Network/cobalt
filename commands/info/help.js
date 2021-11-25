@@ -53,7 +53,7 @@ const components = (state) => [
                 return {
                     label: cmd.directory,
                     value: cmd.directory.toLowerCase(),
-                    description: `${cmd.directory} category`,
+                    description: `**${cmd.directory}** category`,
                 };
             })
         )
