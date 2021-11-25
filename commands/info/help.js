@@ -102,18 +102,18 @@ collector.on('collect', (interaction) => {
 
 
 
-   // interaction.update({embeds: [categoryEmbed]})
+    interaction.update({embeds: [categoryEmbed]})
 
-   interaction.reply({embeds: [categoryEmbed], ephermal: true})
+  // interaction.reply({embeds: [categoryEmbed], ephermal: true})
 
 });
 
 
-/*
+
 collector.on('end', () => {
     initialMessage.edit({components: components(true)});
 })
-*/
+
 
 },
 };
