@@ -1,5 +1,4 @@
 const { Message, Client, MessageEmbed, MessageActionRow, MessageSelectMenu } = require("discord.js");
-require('../handler');
 
 module.exports = {
     name: "help",
