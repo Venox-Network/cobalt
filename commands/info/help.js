@@ -43,7 +43,7 @@ module.exports = {
     });
 
 //console.log(categories);
-const embed = new MessageEmbed().setDescription(
+const embed = new MessageEmbed().setColor('0070c0').setTitle('Venox Commands').setDescription(
     "Choose a category"
 );
 
