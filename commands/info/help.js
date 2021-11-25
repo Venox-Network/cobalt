@@ -89,8 +89,8 @@ collector.on('collect', (interaction) => {
 
     const categoryEmbed = new MessageEmbed()
     .setTitle(`${directory.toUpperCase()} commands`)
-    
-    .setDescription('Command List')
+    .setColor('0070c0')
+   // .setDescription('Command List')
     .addFields(
         category.commands.map((cmd) => {
             return {
