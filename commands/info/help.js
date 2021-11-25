@@ -77,7 +77,7 @@ collector.on('collect', (interaction) => {
     const [ directory ] = interaction.values;
 
     const category = categories.find(
-        (x) => x.directories.toLowerCase() === directory
+        (x) => x.directory.toLowerCase() === directory
     );
 
     const categoryEmbed = new MessageEmbed()
