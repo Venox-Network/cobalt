@@ -11,8 +11,9 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        interaction.followUp({ content: 
-            "Work in progress :(" 
+        interaction.reply({ 
+            content: "Work in progress :(", 
+            ephemeral: true 
         
         
         });
