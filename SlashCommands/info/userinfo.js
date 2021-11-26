@@ -11,7 +11,7 @@ module.exports = {
      * @param {Message} message
      * @param {String[]} args
      */
-    run: async (client, interaction, args) => {
+    run: async (client, interaction, message, args) => {
 
         const user = message.author || client.users.cache.get(args[0]); //|| message.author; //message.guild.members.get()
         if(!user) return message.channel.send('Couldn\'t find that user :(');
