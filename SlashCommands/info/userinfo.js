@@ -8,6 +8,7 @@ module.exports = {
      *
      * @param {Client} client
      * @param {CommandInteraction} interaction
+     * @param {Message} message
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
