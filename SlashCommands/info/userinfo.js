@@ -11,11 +11,11 @@ module.exports = {
      * @param {String[]} args
      */
     run: async (client, interaction, args) => {
-        interaction.followUp({ 
+        interaction.reply({ 
             content: "Work in progress :(", 
             ephemeral: true 
         
         
-        });
+        }).catch(console.error);
     },
 };
