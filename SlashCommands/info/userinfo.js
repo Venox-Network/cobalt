@@ -13,7 +13,7 @@ module.exports = {
      */
     run: async (client, interaction, message, args) => {
 
-        const user = message.author || client.users.cache.get(args[0]); //|| message.author; //message.guild.members.get()
+        const user = message.author; //|| message.author; //message.guild.members.get() ||  || client.users.cache.get(args[0])
         if(!user) return message.channel.send('Couldn\'t find that user :(');
         const member = message.guild.member(user);
           const embed = new MessageEmbed()
