@@ -2,7 +2,7 @@ const { Client, ContextMenuInteraction } = require("discord.js");
 
 module.exports = {
   name: "replytomsg",
-  type: "CHAT_INPUT",
+  type: "MESSAGE",
   /**
    *
    * @param {Client} client
