@@ -19,35 +19,26 @@ module.exports = {
   run: async (client, message, args) => {
     //console.log(categories);
     const embed = new MessageEmbed()
-      .setColor("0070c0")
-      .setTitle("ello :)")
-      .setDescription("Choose a category");
+      .setColor("2f3136")
+      .setTitle("FAQ")
+      .setDescription("Frequently Asked Questions");
 
     const components = new MessageActionRow().addComponents(
       new MessageSelectMenu()
-        .setCustomId("help-menu")
-        .setPlaceholder("Select a category")
+        .setCustomId("faq-menu")
+        .setPlaceholder("Choose a question")
         .addOptions([
           {
-            label: "first option",
-            value: "first",
-            description: "first boi",
+            label: "FAQ #1",
+            value: ">>> This is a hub server for <@273538684526264320>'s and <@242385234992037888>'s administration and moderation, as well as their bots.",
+            description: "What is this place?!",
           },
           {
-            label: "second option",
-            value: "second",
-            description: "second boi",
+            label: "FAQ #2",
+            value: ">>> <#888249592762740777> - List of servers <@242385234992037888> and <@273538684526264320> administrate/moderate.\n<#888249592762740777> - Information about <@731650802296422470>.\n<#888249592762740777> - Information about <@633461362734923811>.\n<#888249592762740777> - Every time someone clicks on https://dsc.gg/venoxnet, a message is sent here.",
+            description: "What are the channels?",
           },
-          {
-            label: "third option",
-            value: "third",
-            description: "third boi",
-          },
-          {
-            label: "fourth option",
-            value: "fourth",
-            description: "fourth boi",
-          },
+          
         ])
     );
 
