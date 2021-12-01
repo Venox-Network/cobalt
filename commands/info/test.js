@@ -31,23 +31,23 @@ module.exports = {
           {
             label: "first option",
             value: "first",
-            description: "numba 1",
+            description: "first boi",
           },
           {
-            label: "first option",
-            value: "first",
-            description: "numba 1",
+            label: "second option",
+            value: "second",
+            description: "second boi",
           },
           {
-            label: "first option",
-            value: "first",
-            description: "numba 1",
+            label: "third option",
+            value: "third",
+            description: "third boi",
           },
           {
-            label: "first option",
-            value: "first",
-            description: "numba 1",
-          },
+            label: "fourth option",
+            value: "fourth",
+            description: "fourth boi",
+          },second
         ])
     );
 
