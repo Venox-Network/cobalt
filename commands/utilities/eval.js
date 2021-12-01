@@ -1,14 +1,13 @@
 const { inspect } = require("util");
 const owners = [
   "273538684526264320",
-  "234464614996246529",
   "242385234992037888",
 ];
 
 module.exports = {
     name: "eval",
     aliases: ["e"],
-    description: "eval",
+    description: "eval command (owner only)",
     /**
      *
      * @param {Client} client
