@@ -41,7 +41,7 @@ client.on("interactionCreate", async (interaction) => {
       ephemeral: true,
       content: `You chose ${interaction.values[0]}`,
     });
-}
-*/
+}*/
+
 
 });
