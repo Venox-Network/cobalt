@@ -55,5 +55,20 @@ module.exports = {
       embeds: [embed],
       components: [components],
     });
+
+    const filter = (interaction) => interaction.isSelectMenu() && interaction.user.id === message.author.id;
+
+    const collector = message.channel.createMessageComponentCollector({
+        filter
+        // time: 5000,
+      });
+
+      collector.on("collect", async(collected) => {
+          const value = collected.values[0];
+          collected.deferUpdate()
+          collected.reply({ content: value});
+      })
+
+
   },
 };
