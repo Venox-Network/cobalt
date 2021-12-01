@@ -1,5 +1,5 @@
 const bot = require("../index");
 
 bot.on("ready", () =>
-    console.log(`${bot.user.tag} is up and ready to go! Also srnyx is the best :)`)
+    console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :)`)
 );
