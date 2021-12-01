@@ -63,10 +63,10 @@ module.exports = {
         // time: 5000,
       });
 
-      collector.on("collect", async(collected) => {
+      collector.on("collect", async (collected) => {
           const value = collected.values[0];
           collected.deferUpdate()
-          collected.reply({ content: value});
+          collected.followUp({ content: value});
       })
 
 
