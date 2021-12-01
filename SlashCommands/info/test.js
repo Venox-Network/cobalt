@@ -1,4 +1,10 @@
-const { Client, MessageEmbed, CommandInteraction } = require("discord.js");
+const {
+  Client,
+  MessageEmbed,
+  MessageActionRow,
+  MessageSelectMenu,
+  CommandInteraction,
+} = require("discord.js");
 
 module.exports = {
   name: "test",
@@ -12,37 +18,37 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     const embed = new MessageEmbed()
-    .setColor("0070c0")
-    .setTitle("ello :)")
-    .setDescription("Choose a category");
+      .setColor("0070c0")
+      .setTitle("ello :)")
+      .setDescription("Choose a category");
 
-  const components = new MessageActionRow().addComponents(
-    new MessageSelectMenu()
-      .setCustomId("help-menu")
-      .setPlaceholder("Select a category")
-      .addOptions([
-        {
-          label: "first option",
-          value: "first",
-          description: "first boi",
-        },
-        {
-          label: "second option",
-          value: "second",
-          description: "second boi",
-        },
-        {
-          label: "third option",
-          value: "third",
-          description: "third boi",
-        },
-        {
-          label: "fourth option",
-          value: "fourth",
-          description: "fourth boi",
-        },
-      ])
-  );
+    const components = new MessageActionRow().addComponents(
+      new MessageSelectMenu()
+        .setCustomId("help-menu")
+        .setPlaceholder("Select a category")
+        .addOptions([
+          {
+            label: "first option",
+            value: "first",
+            description: "first boi",
+          },
+          {
+            label: "second option",
+            value: "second",
+            description: "second boi",
+          },
+          {
+            label: "third option",
+            value: "third",
+            description: "third boi",
+          },
+          {
+            label: "fourth option",
+            value: "fourth",
+            description: "fourth boi",
+          },
+        ])
+    );
 
     interaction
       .followUp({
