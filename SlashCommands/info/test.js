@@ -51,7 +51,7 @@ module.exports = {
     );
 
     interaction
-      .reply({
+      .followUp({
         embeds: [embed],
         components: [components],
         ephemeral: true,
@@ -67,8 +67,8 @@ module.exports = {
 
       collector.on("collect", async (collected) => {
           const value = collected.values[0];
-          // collected.deferUpdate()
-          collected.reply({ content: value, ephemeral: true });
+          collected.deferUpdate()
+          collected.followUp({ content: value, ephemeral: true });
       })
 
   },
