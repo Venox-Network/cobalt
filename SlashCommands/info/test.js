@@ -51,11 +51,25 @@ module.exports = {
     );
 
     interaction
-      .followUp({
+      .reply({
         embeds: [embed],
         components: [components],
         ephemeral: true,
       })
       .catch(console.error);
+
+    const filter = (interaction) => interaction.isSelectMenu() && interaction.user.id === interaction.author.id;
+
+    const collector = interaction.channel.createMessageComponentCollector({
+        filter
+        // time: 5000,
+      });
+
+      collector.on("collect", async (collected) => {
+          const value = collected.values[0];
+          // collected.deferUpdate()
+          collected.reply({ content: value, ephermal: true });
+      })
+
   },
 };
