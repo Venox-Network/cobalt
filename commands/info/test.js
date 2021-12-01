@@ -47,7 +47,7 @@ module.exports = {
             label: "fourth option",
             value: "fourth",
             description: "fourth boi",
-          },second
+          },
         ])
     );
 
