@@ -1,38 +1,44 @@
 const client = require("../index.js");
 
 client.on("interactionCreate", async (interaction) => {
-    // Slash Command Handling
-    if (interaction.isCommand()) {
-        await interaction.deferReply({ ephemeral: false }).catch(() => {});
-        
-        const cmd = client.slashCommands.get(interaction.commandName); 
-        if (!cmd)
-            return interaction.followUp({ content: "Uh oh.... srnyx broke the bot.. " });
+  // Slash Command Handling
+  if (interaction.isCommand()) {
+    await interaction.deferReply({ ephemeral: false }).catch(() => {});
 
-        const args = [];
+    const cmd = client.slashCommands.get(interaction.commandName);
+    if (!cmd)
+      return interaction.followUp({
+        content: "Uh oh.... srnyx broke the bot.. ",
+      });
 
-        for (let option of interaction.options.data) {
-            if (option.type === "SUB_COMMAND") {
-                if (option.name) args.push(option.name);
-                option.options?.forEach((x) => {
-                    if (x.value) args.push(x.value);
-                });
-            } else if (option.value) args.push(option.value);
-        }
-        interaction.member = interaction.guild.members.cache.get(interaction.user.id);
+    const args = [];
 
-        cmd.run(client, interaction, args);
+    for (let option of interaction.options.data) {
+      if (option.type === "SUB_COMMAND") {
+        if (option.name) args.push(option.name);
+        option.options?.forEach((x) => {
+          if (x.value) args.push(x.value);
+        });
+      } else if (option.value) args.push(option.value);
     }
+    interaction.member = interaction.guild.members.cache.get(
+      interaction.user.id
+    );
 
-    // Context Menu Handling
-    if (interaction.isContextMenu()) {
-        await interaction.deferReply({ ephemeral: false });
-        const command = client.slashCommands.get(interaction.commandName);
-        if (command) command.run(client, interaction);
-    }
+    cmd.run(client, interaction, args);
+  }
 
-    if (interaction.isSelectMenu()) {
-        interaction.reply({ ephemeral: true, content: `You chose ${interaction.values[0]}`})
-    }
+  // Context Menu Handling
+  if (interaction.isContextMenu()) {
+    await interaction.deferReply({ ephemeral: false });
+    const command = client.slashCommands.get(interaction.commandName);
+    if (command) command.run(client, interaction);
+  }
 
+  if (interaction.isSelectMenu()) {
+    interaction.reply({
+      ephemeral: true,
+      content: `You chose ${interaction.values[0]}`,
+    });
+  }
 });
