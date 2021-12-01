@@ -7,7 +7,7 @@ client.on("interactionCreate", async (interaction) => {
         
         const cmd = client.slashCommands.get(interaction.commandName); 
         if (!cmd)
-            return interaction.followUp({ content: "An error has occured " });
+            return interaction.followUp({ content: "Uh oh.... srnyx broke the bot.. " });
 
         const args = [];
 
@@ -30,4 +30,9 @@ client.on("interactionCreate", async (interaction) => {
         const command = client.slashCommands.get(interaction.commandName);
         if (command) command.run(client, interaction);
     }
+
+    if (interaction.isSelectMenu()) {
+        interaction.reply({ ephemeral: true, content: `You chose ${interaction.values[0]}`})
+    }
+
 });
