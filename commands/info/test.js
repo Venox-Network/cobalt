@@ -24,7 +24,6 @@ module.exports = {
         new MessageSelectMenu()
           .setCustomId("help-menu")
           .setPlaceholder("Select a category")
-          .setDisabled(state)
           .addOptions([
               {
                   label:'first option',
