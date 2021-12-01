@@ -35,10 +35,13 @@ client.on("interactionCreate", async (interaction) => {
     if (command) command.run(client, interaction);
   }
 
+  /*
   if (interaction.isSelectMenu()) {
     interaction.reply({
       ephemeral: true,
       content: `You chose ${interaction.values[0]}`,
     });
-  }
+}
+*/
+
 });
