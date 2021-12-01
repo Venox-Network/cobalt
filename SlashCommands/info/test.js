@@ -58,7 +58,7 @@ module.exports = {
       })
       .catch(console.error);
 
-    const filter = (interaction) => interaction.isSelectMenu() && interaction.user.id === interaction.author.id;
+    const filter = (interaction) => interaction.isSelectMenu() && interaction.user.id;
 
     const collector = interaction.channel.createMessageComponentCollector({
         filter
