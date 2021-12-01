@@ -1,4 +1,5 @@
 const { glob } = require("glob");
+const mongoose = require("mongoose");
 const { promisify } = require("util");
 const { Client } = require("discord.js");
 const express = require('express');
@@ -70,5 +71,11 @@ module.exports = async(client) => {
         // Register for all the guilds the client is in
         await client.application.commands.set(arrayOfSlashCommands);
     });
+
+    // mongoose
+    const { mongooseConnectionString } = require('../config.json')
+    if (!mongooseConnectionString) return;
+
+    mongoose.connect(mongooseConnectionString).then(() => console.log('Connected to mongodb'));
 
 };
