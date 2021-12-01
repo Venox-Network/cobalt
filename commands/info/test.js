@@ -57,7 +57,7 @@ module.exports = {
       collector.on("collect", async (collected) => {
           const value = collected.values[0];
           collected.deferUpdate()
-          collected.followUp({ content: value, ephemeral : true });
+          collected.reply({ content: value, ephemeral : true });
       })
 
 
