@@ -30,7 +30,7 @@ module.exports = {
           {
             label: "FAQ #1",
             value:
-              [embed],
+              `${embed}`,
             description: "What is this place?!",
           },
           {
