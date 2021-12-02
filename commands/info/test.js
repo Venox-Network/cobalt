@@ -36,7 +36,7 @@ module.exports = {
           {
             label: "FAQ #2",
             value:
-              ">>> <#888249592762740777> - List of servers <@242385234992037888> and <@273538684526264320> administrate/moderate.\n<#888249592762740777> - Information about <@731650802296422470>.\n<#888249592762740777> - Information about <@633461362734923811>.\n<#888249592762740777> - Every time someone clicks on https://dsc.gg/venoxnet, a message is sent here.",
+              "yer",
             description: "What are the channels?",
           },
         ])
