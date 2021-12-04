@@ -37,6 +37,7 @@ module.exports = {
             label: "FAQ #2",
             value:
               "lol",
+            embed: [{title: "hihihi"}],
             description: "What are the channels?",
           },
         ])
