@@ -36,7 +36,7 @@ module.exports = {
           {
             label: "FAQ #2",
             value:
-              [{embed: embed}],
+              [{embed: [embed]}],
             
             description: "What are the channels?",
           },
