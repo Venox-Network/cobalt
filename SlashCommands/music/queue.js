@@ -29,7 +29,7 @@ module.exports = {
                 }`
               : ""
           }`,
-          color: "RANDOM",
+          color: "0070c0",
           fields: [
             {
               name: "Now Playing",
