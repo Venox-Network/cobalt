@@ -35,12 +35,14 @@ module.exports = {
     if (!queue.connection)
       await queue.connect(interaction.member.voice.channel);
       
+const song = searchResult.then(x => x.tracks[0]);
+
       function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
       }
 
     interaction.followUp({
-      content: `Playing \`${capitalizeFirstLetter(query)}\` :musical_note:`,
+      content: `Playing \`${capitalizeFirstLetter(song.title)}\` :musical_note:`,
     });
 
 
