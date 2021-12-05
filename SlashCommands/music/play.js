@@ -32,14 +32,17 @@ module.exports = {
       metadata: interaction.channel,
     });
 
-    
-
-    interaction.followUp({
-      content: `Playing \`${query.toUpperCase()}\` :musical_note:`,
-    });
-
     if (!queue.connection)
       await queue.connect(interaction.member.voice.channel);
+      
+      function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+    interaction.followUp({
+      content: `Playing \`${capitalizeFirstLetter(query)}\` :musical_note:`,
+    });
+
 
     searchResult.playlist
       ? queue.addTracks(searchResult.tracks)

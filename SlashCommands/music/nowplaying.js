@@ -1,7 +1,7 @@
 const player = require("../../client/player");
 
 module.exports = {
-  name: "now-playing",
+  name: "nowplaying",
   aliases: ['np'],
   description: "shows information about the current song",
   run: async (client, interaction) => {
