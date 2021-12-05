@@ -72,7 +72,7 @@ module.exports = {
     const queue = player.getQueue(interaction.guildId);
     if (!queue?.playing)
       return interaction.followUp({
-        content: "No music is currently being played :(",
+        content: "Either this song doesn't have lyrics, or no music is currently being played :(",
       });
 
     return sendLyrics(queue.current.title);

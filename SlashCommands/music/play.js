@@ -34,7 +34,7 @@ module.exports = {
       await queue.connect(interaction.member.voice.channel);
 
     interaction.followUp({
-      content: `> Playing **${songTitle}** :musical_note:`,
+      content: `Playing **${songTitle.toUpperCase}** :musical_note:`,
     });
 
     searchResult.playlist

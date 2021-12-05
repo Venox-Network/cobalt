@@ -12,6 +12,6 @@ module.exports = {
 
     await queue.skip();
 
-    interaction.followUp({ content: "Skipped :thumbs_up:" });
+    interaction.followUp({ content: "Skipped ⏭" });
   },
 };

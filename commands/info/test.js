@@ -30,12 +30,12 @@ module.exports = {
           {
             label: "FAQ #1",
             value:
-              "hibro",
+              "Question Register",
             description: "What is this place?!",
           },
           {
             label: "FAQ #2",
-            value: embed,
+            value: "Question Register",
             description: "What are the channels?",
           },
         ])
