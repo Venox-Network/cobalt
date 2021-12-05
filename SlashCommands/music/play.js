@@ -1,5 +1,6 @@
 const { QueryType } = require("discord-player");
 const player = require("../../client/player");
+const { MessageEmbed } = require("discord.js");
 
 module.exports = {
   name: "play",
@@ -31,11 +32,10 @@ module.exports = {
       metadata: interaction.channel,
     });
 
-    const queue2 = player.getQueue(interaction.guildId);
-    const currentTrack = queue2.current;
+    
 
     interaction.followUp({
-      content: `Playing **${currentTrack.title}** :musical_note:`,
+      content: `Playing \`${query.toUpperCase}\` :musical_note:`,
     });
 
     if (!queue.connection)
