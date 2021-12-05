@@ -22,15 +22,12 @@ client.on("ready", () => {
     // this event means, that it will do something when the bot is online
     // i will log in the console that the bot is online when its online
     console.log(
-      `${client.user.username} boutta' watch ${client.guilds.reduce(
-        (prev, val) => val.memberCount + prev,
-        0
-      )} users and ${client.guilds.size} servers!`
+      `${client.user.username} boutta' watch ${client.users.cache.size} users and ${client.guilds.cache.size} servers!`
     );
     // activity
   
     const status = [
-      `${client.guilds.size} servers and ${client.users.size} users!`,
+      `${client.guilds.cache.size} servers and ${client.users.cache.size} users!`,
       'official server: dsc.gg/venoxnet',
   
   
