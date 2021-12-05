@@ -83,7 +83,7 @@ module.exports = {
       await queue.connect(interaction.member.voice.channel);
 
     interaction.followUp({
-      content: `Playing ${isFirst ? `${data.title} - ${data.author}` : null}`,
+      content: `Playing ${data.title} - ${data.author}`,
       // `Playing **${songTitle.toUpperCase}** :musical_note:`
     });
 
