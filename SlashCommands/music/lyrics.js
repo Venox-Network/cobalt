@@ -37,7 +37,10 @@ const createResponse = async (title) => {
         thumbnail: isFirst ? { url: data.thumbnail.genius } : null,
         description: value,
         color: "0070c0",
-        footer: {text: "Venox Music"}
+        footer: {
+          text: "Venox Music",
+          icon_url: client.user.displayAvatarURL(),
+        },
       });
     });
 
@@ -74,7 +77,8 @@ module.exports = {
     const queue = player.getQueue(interaction.guildId);
     if (!queue?.playing)
       return interaction.followUp({
-        content: "Either this song doesn't have lyrics, or no music is currently being played :(",
+        content:
+          "Either this song doesn't have lyrics, or no music is currently being played :(",
       });
 
     return sendLyrics(queue.current.title);

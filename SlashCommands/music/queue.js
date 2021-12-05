@@ -38,6 +38,7 @@ module.exports = {
           ],
           footer: {
             text: `Venox Music`,
+            icon_url: client.user.displayAvatarURL()
           },
         },
       ],

@@ -45,7 +45,7 @@ module.exports = {
       }
 
     interaction.followUp({
-      content: `Playing \`${capitalizeFirstLetter(searchResults.title)}\` :musical_note:`,
+      content: `Playing **${searchResults.title}** :musical_note:`,
     });
 
 

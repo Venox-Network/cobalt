@@ -25,9 +25,10 @@ module.exports = {
               value: progress,
             },
           ],
-          color: client.config.clientColor,
+          color: "0070c0",
           footer: {
             text: `Queued by ${queue.current.requestedBy.tag} | Venox Music`,
+            icon_url: client.user.displayAvatarURL()
           },
         },
       ],
