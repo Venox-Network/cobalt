@@ -4,7 +4,6 @@ const { MessageEmbed } = require("discord.js");
 
 module.exports = {
   name: "play",
-  aliases: ["p"],
   description: "play a song",
   options: [
     {
@@ -26,7 +25,7 @@ module.exports = {
       requestedBy: interaction.user,
       searchEngine: QueryType.AUTO,
     });//.then(x => x.tracks[0]);
-    //if (!track) return await interaction.followUp({ content: `Song **${query}** not found :(` });
+    if (!searchResult) return await interaction.followUp({ content: `Song **${query}** not found :(` });
 
     const queue = await player.createQueue(interaction.guild, {
       metadata: interaction.channel,

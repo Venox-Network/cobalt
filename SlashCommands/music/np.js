@@ -1,7 +1,7 @@
 const player = require("../../client/player");
 
 module.exports = {
-  name: "nowplaying",
+  name: "np",
   description: "shows information about the current song",
   run: async (client, interaction) => {
     const queue = player.getQueue(interaction.guildId);
