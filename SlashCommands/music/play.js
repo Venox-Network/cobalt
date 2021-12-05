@@ -25,7 +25,7 @@ module.exports = {
       requestedBy: interaction.user,
       searchEngine: QueryType.AUTO,
     });//.then(x => x.tracks[0]);
-    if (!searchResult) return await interaction.followUp({ content: `Song **${query}** not found :(` });
+    if (!searchResult) return;
 
     const queue = await player.createQueue(interaction.guild, {
       metadata: interaction.channel,
@@ -38,7 +38,7 @@ module.exports = {
         requestedBy: interaction.user,
         searchEngine: QueryType.AUTO,
       }).then(x => x.tracks[0]);
-      if (!searchResults) return await interaction.followUp({ content: `Song **${query}** not found :(` });
+      if (!searchResults) return await interaction.followUp({ content: `Sorry, **${query}** not found :(` });
 
       function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
