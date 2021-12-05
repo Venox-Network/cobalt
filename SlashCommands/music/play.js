@@ -7,21 +7,21 @@ module.exports = {
   description: "play a song",
   options: [
     {
-      name: "songtitle",
+      name: "query",
       description: "title of the song",
       type: "STRING",
       required: true,
     },
   ],
   run: async (client, interaction) => {
-    const songTitle = interaction.options.getString("songtitle");
+    const query = interaction.options.getString("query");
 
     if (!interaction.member.voice.channel)
       return interaction.followUp({
         content: "Join a voice channel first!",
       });
 
-    const searchResult = await player.search(songTitle, {
+    const searchResult = await player.search(query, {
       requestedBy: interaction.user,
       searchEngine: QueryType.AUTO,
     });
@@ -34,7 +34,7 @@ module.exports = {
       await queue.connect(interaction.member.voice.channel);
 
     interaction.followUp({
-      content: `Playing **${searchResult.toUpperCase}** :musical_note:`,
+      content: `Playing **${searchResult.title}** :musical_note:`,
     });
 
     searchResult.playlist
