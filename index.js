@@ -4,17 +4,7 @@ const Discord = require("discord.js");
 const client = new Client({
     intents: 32767,
 });*/
-const client = new Discord.Client({
-  intents: [
-    "GUILDS",
-    "GUILD_MESSAGES",
-    "GUILD_INTEGRATIONS",
-    /*"GUILD_MEMBERS", "GUILD_PRESENCES",*/ "GUILD_WEBHOOKS",
-    "GUILD_MESSAGE_REACTIONS",
-    "GUILD_MESSAGE_TYPING",
-    "GUILD_VOICE_STATES",
-  ],
-});
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", /*"GUILD_MEMBERS", "GUILD_PRESENCES",*/ "GUILD_WEBHOOKS", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING", "GUILD_VOICE_STATES"] });
 module.exports = client;
 
 // Global Variables
@@ -26,18 +16,22 @@ client.config = require("./config.json");
 require("./handler")(client);
 
 // Status
-client.on("ready", () => {
-  client.user.setPresence({
-    status: "online",
-    activity: {
-      name: "sudoku",
-      type: "PLAYING",
-    },
-  });
+client.on("ready", async() => {
+    client.user.setStatus("dnd");
+    
+    const servers = await client.guilds.cache.size;
+    const servercount = await client.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
 
-  console.log(
-    `${client.user.username} boutta' watch ${client.users.cache.size} users and ${client.guilds.cache.size} servers!`
-  );
-});
+    const messages = [
+        `Owned by srnyx & ChrizxzFTW`,
+        `Join the network: dsc.gg/venoxnet`,
+        `Watching ${servers} servers and ${servercount} members!`
+    ]
+
+    setInterval(() => {
+        const status = messages[Math.floor(Math.random()*messages.length)]
+        client.user.setPresence({ messages : [{name : `${status}`}]})
+    }, 10000);
+  });
 
 client.login(client.config.token);
