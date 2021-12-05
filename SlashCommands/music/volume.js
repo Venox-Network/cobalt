@@ -5,14 +5,14 @@ module.exports = {
   description: "change or check the volume of the current song",
   options: [
     {
-      name: "percentage",
+      name: "amount",
       description: "percentage to change the volume to",
       type: "INTEGER",
       required: false,
     },
   ],
   run: async (client, interaction) => {
-    const volumePercentage = interaction.options.getInteger("percentage");
+    const volumePercentage = interaction.options.getInteger("amount");
     const queue = player.getQueue(interaction.guildId);
     if (!queue?.playing)
       return interaction.followUp({
@@ -21,7 +21,7 @@ module.exports = {
 
     if (!volumePercentage)
       return interaction.followUp({
-        content: `The current volume is \`${queue.volume}%\``,
+        content: `The current volume is **${queue.volume}%**`,
       });
 
     if (volumePercentage < 0 || volumePercentage > 100)

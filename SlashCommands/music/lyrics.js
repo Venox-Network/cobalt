@@ -37,7 +37,7 @@ const createResponse = async (title) => {
         thumbnail: isFirst ? { url: data.thumbnail.genius } : null,
         description: value,
         color: "0070c0",
-        footer: "Venox Music"
+        footer: {text: "Venox Music"}
       });
     });
 
