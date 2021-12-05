@@ -43,7 +43,8 @@ module.exports = {
     const embed = new MessageEmbed()
       .setColor("0070c0")
       .setTitle("Venox Commands")
-      .setDescription("Choose a category");
+      .setDescription("Choose a category")
+      .setFooter(client.user.displayAvatarURL());
 
     const components = (state) => [
       new MessageActionRow().addComponents(
@@ -87,6 +88,7 @@ module.exports = {
       const categoryEmbed = new MessageEmbed()
         .setTitle(`${directory.toUpperCase()}`)
         .setColor("0070c0")
+        .setFooter(client.user.displayAvatarURL())
         // .setDescription('Command List')
         .addFields(
           category.commands.map((cmd) => {
