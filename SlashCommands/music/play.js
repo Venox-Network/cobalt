@@ -35,7 +35,7 @@ module.exports = {
     
 
     interaction.followUp({
-      content: `Playing \`${query.toUpperCase}\` :musical_note:`,
+      content: `Playing \`${query.toUpperCase()}\` :musical_note:`,
     });
 
     if (!queue.connection)
