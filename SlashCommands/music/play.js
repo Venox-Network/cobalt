@@ -24,7 +24,7 @@ module.exports = {
     const searchResult = await player.search(query, {
       requestedBy: interaction.user,
       //searchEngine: QueryType.AUTO,
-    });
+    }).then(x => x.tracks);
     //if (!track) return await interaction.followUp({ content: `Song **${query}** not found :(` });
 
     const queue = await player.createQueue(interaction.guild, {
