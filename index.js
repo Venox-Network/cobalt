@@ -17,11 +17,19 @@ require("./handler")(client);
 
 // Status
 client.on("ready", async() => {
-    client.user.setStatus("dnd");
     
     const servers = await client.guilds.cache.size;
     const servercount = await client.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
 
+    client.user.setPresence({
+        status: 'dnd',
+        activity: {
+           name: 'a video',
+            type: 'WATCHING'
+         }
+      });
+
+    /*
     const messages = [
         `Owned by srnyx & ChrizxzFTW`,
         `Join the network: dsc.gg/venoxnet`,
@@ -30,8 +38,9 @@ client.on("ready", async() => {
 
     setInterval(() => {
         const status = messages[Math.floor(Math.random()*messages.length)]
-        client.user.setPresence({ messages : [{name : `${status}`}]})
-    }, 10000);
+        client.user.setActivity({ messages : [{name : `${status}`}]})
+    }, 5000);
+    */
   });
 
 client.login(client.config.token);
