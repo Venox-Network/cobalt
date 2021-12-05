@@ -31,6 +31,13 @@ module.exports = {
       metadata: interaction.channel,
     });
 
+    const queue2 = player.getQueue(interaction.guildId);
+    const currentTrack = queue2.current;
+
+    interaction.followUp({
+      content: `Playing **${currentTrack.title}** :musical_note:`,
+    });
+
     if (!queue.connection)
       await queue.connect(interaction.member.voice.channel);
 
@@ -39,13 +46,6 @@ module.exports = {
       : queue.addTrack(searchResult.tracks[0]);
 
     if (!queue.playing) await queue.play();
-
-    const queue2 = player.getQueue(interaction.guildId);
-    const currentTrack = queue2.current;
-
-    interaction.followUp({
-      content: `Playing **${currentTrack.title}** :musical_note:`,
-    });
 
   },
 };
