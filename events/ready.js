@@ -11,7 +11,7 @@ bot.on("ready", async() => {
     const servercount = await bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
     
     bot.user.setActivity({
-        status: 'idle',
+        status: 'dnd',
         game: {
             name: 'a video',
             type: 'WATCHING'
