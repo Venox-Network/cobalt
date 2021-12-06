@@ -44,7 +44,7 @@ module.exports = {
       .setColor("0070c0")
       .setTitle("Venox Commands")
       .setDescription("Choose a category")
-      .setFooter(client.user.displayAvatarURL());
+      .setImage(client.user.displayAvatarURL());
 
     const components = (state) => [
       new MessageActionRow().addComponents(
