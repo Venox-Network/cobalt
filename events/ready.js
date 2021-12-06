@@ -12,7 +12,7 @@ bot.on("ready", async() => {
     
     bot.user.setPresence({
         status: 'idle',
-        activity: {
+        game: {
             name: 'a video',
             type: 'WATCHING'
          }
