@@ -7,7 +7,7 @@ bot.on("ready", () =>
 
 bot.on('ready', function() {
     bot.user.setActivity(`I'm not actually streaming, get trolled`, { type: `STREAMING`, url: 'https://dsc.gg/venoxnet' }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
-    bot.user.setStatus("idle");
+    bot.user.setStatus("online");
   });
 
 
