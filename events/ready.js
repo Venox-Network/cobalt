@@ -27,7 +27,7 @@ bot.on("ready", async() => {
 
     setInterval(() => {
         const status = messages[Math.floor(Math.random()*messages.length)]
-        bot.user.setActivity({ messages : [{name : `${status}`}]})
+        bot.user.setPresence({ messages : [{name : `${status}`}]})
     }, 5000);
     
   });
