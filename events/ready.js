@@ -9,7 +9,7 @@ bot.on('ready', function() {
     const servers = bot.guilds.cache.size;
     const servercount = bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
 
-    bot.user.setActivity(`${servers} servers and ${servercount} members :)`, { type: `WATCHING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
+    bot.user.setActivity(`${servers} servers and ${servercount} members | chrizftw.cf`, { type: `WATCHING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
     bot.user.setStatus("online");
   });
 
