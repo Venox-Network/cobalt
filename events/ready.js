@@ -7,7 +7,7 @@ bot.on("ready", () =>
 
 bot.on('ready', function() {
     bot.user.setActivity(`your mom`, { type: `COMPETING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
-    bot.user.setStatus("dnd");
+    bot.user.setStatus("idle");
   });
 
 
