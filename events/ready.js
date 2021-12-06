@@ -10,7 +10,7 @@ bot.on("ready", async() => {
     const servers = await bot.guilds.cache.size;
     const servercount = await bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
     
-    bot.user.setActivity({
+    bot.user.setPresence({
         status: 'dnd',
         game: {
             name: 'a video',
