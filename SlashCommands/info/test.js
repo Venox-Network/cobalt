@@ -20,7 +20,8 @@ module.exports = {
     const embed = new MessageEmbed()
       .setColor("0070c0")
       .setTitle("ello :)")
-      .setDescription("Choose a category");
+      .setDescription("Choose a category")
+      .setFooter("Venox", client.user.displayAvaterURL);
 
     const components = new MessageActionRow().addComponents(
       new MessageSelectMenu()
