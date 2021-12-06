@@ -6,7 +6,7 @@ bot.on("ready", () =>
 );
 
 bot.on('ready', function() {
-    bot.user.setActivity(`your mom`, { type: `COMPETING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
+    bot.user.setActivity(`your mom`, { type: `COMPETING`, url: 'https://dsc.gg/venoxnet' }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
     bot.user.setStatus("idle");
   });
 
