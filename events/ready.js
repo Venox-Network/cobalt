@@ -1,15 +1,21 @@
 const bot = require("../index");
+const config = require("../config.json");
 
 bot.on("ready", () =>
     console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :)`)
 );
 
+bot.on('ready', function() {
+    bot.user.setActivity(config.activity, { type: config.activityType });
+  });
 
+/*
 bot.on("ready", async() => {
     
     const servers = await bot.guilds.cache.size;
     const servercount = await bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
-    /*
+
+    
     bot.user.setPresence({
         status: 'dnd',
         activity: {
@@ -17,7 +23,7 @@ bot.on("ready", async() => {
             type: 'WATCHING'
          }
       });
-    */
+    
     
     const messages = [
         `Owned by srnyx & ChrizxzFTW`,
@@ -31,3 +37,4 @@ bot.on("ready", async() => {
     }, 5000);
     
   });
+  */
