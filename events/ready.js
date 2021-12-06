@@ -9,16 +9,16 @@ bot.on("ready", async() => {
     
     const servers = await bot.guilds.cache.size;
     const servercount = await bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
-    
+    /*
     bot.user.setPresence({
         status: 'dnd',
-        game: {
+        activity: {
             name: 'a video',
             type: 'WATCHING'
          }
       });
+    */
     
-    /*
     const messages = [
         `Owned by srnyx & ChrizxzFTW`,
         `Join the network: dsc.gg/venoxnet`,
@@ -29,5 +29,5 @@ bot.on("ready", async() => {
         const status = messages[Math.floor(Math.random()*messages.length)]
         bot.user.setActivity({ messages : [{name : `${status}`}]})
     }, 5000);
-    */
+    
   });
