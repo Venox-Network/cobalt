@@ -6,8 +6,11 @@ bot.on("ready", () =>
 );
 
 bot.on('ready', function() {
-    bot.user.setActivity(config.activity, { type: config.activityType });
+    bot.user.setActivity(config.activity, { type: `CUSTOM_STATUS` });
+    bot.user.setStatus("dnd");
   });
+
+
 
 /*
 bot.on("ready", async() => {
