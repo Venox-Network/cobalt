@@ -6,7 +6,7 @@ bot.on("ready", () =>
 );
 
 bot.on('ready', function() {
-    bot.user.setActivity(config.activity, { type: `CUSTOM_STATUS` });
+    bot.user.setActivity(`your mom`, { type: `COMPETING` });
     bot.user.setStatus("dnd");
   });
 
