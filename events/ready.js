@@ -6,8 +6,8 @@ bot.on("ready", () =>
 );
 
 bot.on('ready', function() {
-    const servers = await bot.guilds.cache.size;
-    const servercount = await bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
+    const servers = bot.guilds.cache.size;
+    const servercount = bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
 
     bot.user.setActivity(`${servers} servers and ${servercount} members :)`, { type: `WATCHING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
     bot.user.setStatus("online");
