@@ -2,7 +2,7 @@ const { Client, CommandInteraction } = require("discord.js");
 
 module.exports = {
   name: "leave",
-  description: "returns websocket ping",
+  description: "leaves the voice channel",
   /**
    *
    * @param {Client} client
