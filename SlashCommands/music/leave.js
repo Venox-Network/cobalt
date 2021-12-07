@@ -11,7 +11,7 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     if (interaction.guild.me.voice.channelId) {
-        interaction.guild.me.voice.channelId.leave();
+        interaction.guild.me.voice.channel.leave();
       interaction.followUp({content: "Disconnected ✅"});
     } else {
       interaction.followUp({content: "I'm not connected to a voice channel.."});
