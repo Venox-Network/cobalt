@@ -81,7 +81,7 @@ module.exports = async(client) => {
 
 };
 
-const client = new Client();
+//const client = new Client();
 const player = new Player(client);
 
 player.on('error', (queue, error) => {

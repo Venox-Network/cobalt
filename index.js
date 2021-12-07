@@ -9,8 +9,8 @@ const client = new Discord.Client({
     "GUILDS",
     "GUILD_MESSAGES",
     "GUILD_INTEGRATIONS",
-    "GUILD_MEMBERS", 
-    "GUILD_PRESENCES", 
+    /*"GUILD_MEMBERS", 
+    "GUILD_PRESENCES",*/ 
     "GUILD_WEBHOOKS",
     "GUILD_MESSAGE_REACTIONS",
     "GUILD_MESSAGE_TYPING",
