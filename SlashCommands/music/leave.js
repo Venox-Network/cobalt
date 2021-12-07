@@ -10,8 +10,8 @@ module.exports = {
    * @param {String[]} args
    */
   run: async (client, interaction, args) => {
-    if (interaction.guild.me.voiceChannel !== undefined) {
-      interaction.guild.me.voiceChannel.leave();
+    if (interaction.guild.voice.channel) {
+      interaction.guild.voice.channel.leave();
       interaction.followUp({content: "Disconnected ✅"});
     } else {
       interaction.followUp({content: "I'm not connected to a voice channel.."});
