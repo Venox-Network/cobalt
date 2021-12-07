@@ -9,11 +9,11 @@ bot.on('ready', function() {
     const servers = bot.guilds.cache.size;
     const servercount = bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
     // ${servers} servers & ${servercount} users
-    bot.user.setActivity(`/help | srnyx.xyz/venox`, { type: `LISTENING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
+    bot.user.setActivity(`/play song | dsc.gg/venoxnet`, { type: `LISTENING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
     bot.user.setStatus("idle");
   });
 
-
+ 
 
 /*
 bot.on("ready", async() => {
