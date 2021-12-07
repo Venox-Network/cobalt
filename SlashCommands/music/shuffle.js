@@ -1,8 +1,8 @@
 const player = require("../../client/player");
 
 module.exports = {
-  name: "skip",
-  description: "skip the current song",
+  name: "shuffle",
+  description: "shuffles the queue",
   run: async (client, interaction, args) => {
     const queue = player.getQueue(interaction.guildId);
     if (!queue?.playing)
