@@ -7,14 +7,14 @@ module.exports = {
   description: "play a song",
   options: [
     {
-      name: "query",
+      name: "song",
       description: "title of the song",
       type: "STRING",
       required: true,
     },
   ],
   run: async (client, interaction) => {
-    const query = interaction.options.getString("query");
+    const query = interaction.options.getString("song");
 
     if (!interaction.member.voice.channel)
       return interaction.followUp({
