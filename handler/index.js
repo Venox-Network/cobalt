@@ -6,7 +6,7 @@ const express = require('express');
 const app = express();
 const Discord = require("discord.js");
 const {Player} = require('discord-player');
-//const client = new Discord.Client({ ws: { intents: 32509 }));
+const client = new Discord.Client({ ws: { intents: 32509 }});
 /*const { Client, Intents } = require('discord.js');
 const myIntents = new Intents();
 myIntents.add(
