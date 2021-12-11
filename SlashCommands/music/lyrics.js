@@ -2,6 +2,7 @@
 const player = require("../../client/player");
 const axios = require("axios");
 const { MessageEmbed } = require("discord.js");
+const client = require("../index");
 
 const getLyrics = (title) =>
     new Promise(async (ful, rej) => {
@@ -39,7 +40,8 @@ const createResponse = async (title) => {
                 description: value,
                 color: "0070c0",
                 footer: {
-                  text: "Venox Music"
+                  text: "Venox Music",
+                  icon_url: client.user.displayAvatarURL()
                 },
             });
         });

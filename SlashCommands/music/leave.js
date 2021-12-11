@@ -1,4 +1,6 @@
 const { Client, CommandInteraction } = require("discord.js");
+const { getVoiceConnection } = require('@discordjs/voice');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 module.exports = {
   name: "leave",
@@ -10,9 +12,16 @@ module.exports = {
    * @param {String[]} args
    */
   run: async (client, interaction, args) => {
-    const voiceChannel = interaction.member.voice.channel
-    if (voiceChannel) {
-        await voiceChannel.leave();
+    const connection = joinVoiceChannel({
+      channelId: channel.id,
+      guildId: channel.guild.id,
+      adapterCreator: channel.guild.voiceAdapterCreator,
+    });
+
+    //const connection = getVoiceConnection(interaction.member.voice.channel);
+
+    if (interaction.member.voice.channel) {
+        await connection.destroy();
         await interaction.followUp({content: "Disconnected ✅"});
     } else {
       interaction.followUp({content: "I'm not connected to a voice channel.."});
