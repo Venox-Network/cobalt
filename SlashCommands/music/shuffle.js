@@ -10,7 +10,8 @@ module.exports = {
         content: "No music is currently being played :(",
       });
 
-    await queue.shuffle().then(queue.skip());
+    await queue.shuffle();
+    queue.skip();
 
     interaction.followUp({ content: "Shuffled 🔀" });
   },
