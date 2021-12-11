@@ -101,8 +101,8 @@ player.on('error', (queue, error) => {
     queue.metadata.send(`🎶 | Track **${track.title}** queued!`);
   });
   
-  player.on('botDisconnect', message => {
-    message.channel.send('❌ | I was manually disconnected from the voice channel, clearing queue!');
+  player.on('botDisconnect', queue => {
+    queue.metadata.send('❌ | I was manually disconnected from the voice channel, clearing queue!');
   });
   
   player.on('channelEmpty', queue => {
