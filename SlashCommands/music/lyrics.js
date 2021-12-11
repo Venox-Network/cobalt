@@ -36,7 +36,12 @@ const createResponse = async (title) => {
             return new MessageEmbed({
                 title: isFirst ? `${data.title} - ${data.author}` : null,
                 thumbnail: isFirst ? { url: data.thumbnail.genius } : null,
-                description: value
+                description: value,
+                color: "0070c0",
+                footer: {
+                  text: "Venox Music",
+                  icon_url: client.user.displayAvatarURL()
+                },
             });
         });
 
