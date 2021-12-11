@@ -39,8 +39,7 @@ const createResponse = async (title) => {
                 description: value,
                 color: "0070c0",
                 footer: {
-                  text: "Venox Music",
-                  icon_url: client.user.displayAvatarURL()
+                  text: "Venox Music"
                 },
             });
         });
