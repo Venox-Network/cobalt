@@ -30,8 +30,7 @@ module.exports = {
     }
 
     const queue = player.getQueue(interaction.guildId);
-    queue.clear();
-    queue.skip();
+    queue.delete();
     
 
   },
