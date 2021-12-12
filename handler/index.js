@@ -6,7 +6,7 @@ const express = require('express');
 const app = express();
 const Discord = require("discord.js");
 const {Player} = require('discord-player');
-const client = require("../index");
+const client = require("../index.js");
 //const client = new Discord.Client({ ws: { intents: 32509 }});
 /*const { Client, Intents } = require('discord.js');
 const myIntents = new Intents();
@@ -112,3 +112,19 @@ player.on('error', (queue, error) => {
   player.on('queueEnd', queue => {
     queue.metadata.send('✅ | Queue finished!');
   });
+
+
+  client.on('voiceStateUpdate', (oldState, newState) => {
+
+    // if nobody left the channel in question, return.
+    if (oldState.channelID !==  oldState.guild.me.voice.channelID || newState.channel)
+      return;
+  
+    // otherwise, check how many people are in the channel now
+    if (!oldState.channel.members.size - 1) 
+      setTimeout(() => { // if 1 (you), wait five minutes
+        if (!oldState.channel.members.size - 1) // if there's still 1 member, 
+           oldState.channel.leave(); // leave
+       }, 300000); // (5 min in ms)
+  });
+  

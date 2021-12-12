@@ -11,6 +11,6 @@ module.exports = {
       });
 
 
-    interaction.followUp({ content: "In developement :O" });
+    interaction.followUp({ content: "In developement :O" }); //"can't believe i figured it out"
   },
 };
