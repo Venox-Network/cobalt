@@ -1,6 +1,7 @@
 const { QueryType } = require("discord-player");
 const player = require("../../client/player");
 const { MessageEmbed } = require("discord.js");
+const { getVoiceConnection } = require('@discordjs/voice');
 
 module.exports = {
   name: "play",
@@ -31,7 +32,7 @@ module.exports = {
       metadata: interaction.channel,
     });
 
-    if (!queue.connection, interaction.guild.voice.channel)
+    if (!queue.connection)
       await queue.connect(interaction.member.voice.channel);
       
       const searchResults = await player.search(query, {
