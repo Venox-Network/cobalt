@@ -2,7 +2,7 @@
 const player = require("../../client/player");
 const axios = require("axios");
 const { MessageEmbed } = require("discord.js");
-const client = require("../index.js");
+const client = require("../../index.js");
 
 const getLyrics = (title) =>
     new Promise(async (ful, rej) => {
