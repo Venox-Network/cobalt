@@ -1,6 +1,7 @@
 const { Client, CommandInteraction } = require("discord.js");
 const { getVoiceConnection } = require('@discordjs/voice');
 const { joinVoiceChannel } = require('@discordjs/voice');
+const player = require("../../client/player");
 
 module.exports = {
   name: "leave",
