@@ -12,6 +12,7 @@ module.exports = {
    * @param {String[]} args
    */
   run: async (client, interaction, args) => {
+    const channel = interaction.member.voice.channel;
     const connection = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
