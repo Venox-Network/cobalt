@@ -31,7 +31,7 @@ module.exports = {
       metadata: interaction.channel,
     });
 
-    if (!queue.connection, interaction.guild.coice.channel)
+    if (!queue.connection, interaction.guild.voice.channel)
       await queue.connect(interaction.member.voice.channel);
       
       const searchResults = await player.search(query, {
