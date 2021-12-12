@@ -27,5 +27,10 @@ module.exports = {
     } else {
       interaction.followUp({content: "I'm not connected to a voice channel.."});
     }
+
+    const queue = player.getQueue(interaction.guildId);
+    queue.clear();
+    
+
   },
 };
