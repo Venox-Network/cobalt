@@ -1,8 +1,9 @@
 const { Command } = require("reconlx"); 
 const ms = require("ms");
-module.exports = new Command({
+module.exports = {
     name: 'timemout',
     description: 'timemout a member',
+    aliases: ['mute'],
     options: [
         {
             name: 'user',
@@ -23,7 +24,13 @@ module.exports = new Command({
             required: true
         }
     ],
-    run: async({interaction}) => {
+    /**
+   *
+   * @param {Client} client
+   * @param {Message} message
+   * @param {String[]} args
+   */
+    run: async(client, interaction, args) => {
         const user = interaction.options.getUser('user')
         const length = interaction.options.getString('length')
         const reason = interaction.options.getString('reason')
@@ -37,4 +44,4 @@ module.exports = new Command({
         interaction.followUp(`${user} has been muted for ${length}.\nReason: ${reason}`);
 
     }
-});
+};
