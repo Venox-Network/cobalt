@@ -1,5 +1,5 @@
 const { Command } = require("reconlx"); 
-
+const ms = require("ms");
 module.exports = new Command({
     name: 'timemout',
     description: 'timemout a member',
