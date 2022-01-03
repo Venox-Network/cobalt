@@ -1,24 +1,24 @@
 //const { Command } = require("reconlx");
 const ms = require("ms");
 module.exports = {
-  name: "timemout",
-  description: "timemout a member",
+  name: "timeout",
+  description: "timeout a member",
   options: [
     {
       name: "user",
-      description: "member to peform the timemout",
+      description: "member to peform the timeout",
       type: "USER",
       required: true,
     },
     {
       name: "length",
-      description: "length of the timemout",
+      description: "length of the timeout",
       type: "STRING",
       required: true,
     },
     {
       name: "reason",
-      description: "reason for the timemout",
+      description: "reason for the timeout",
       type: "STRING",
       required: true,
     },
@@ -28,6 +28,11 @@ module.exports = {
     const length = interaction.options.getString("length");
     const reason = interaction.options.getString("reason");
     const member = interaction.guild.members.cache.get(user.id);
+    
+    if(!interaction.member.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: ' You don\'t have permission to use that command!'});
+    if(!interaction.guild.me.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: 'I don\'t have permission to timeout members!'});
+    if(user.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
+
 
     const timeInMs = ms(length);
     if (!timeInMs) return interaction.followUp("Please specify a valid time!");
@@ -38,3 +43,5 @@ module.exports = {
     );
   },
 };
+
+//<:redtick:732759534891958322>
