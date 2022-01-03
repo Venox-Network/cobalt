@@ -25,10 +25,10 @@ module.exports = new Command({
     },
   ],
   run: async ({ interaction }) => {
-    const user = interaction.options.getUser("user");
-    const length = interaction.options.getString("length");
-    const reason = interaction.options.getString("reason");
-    const members = interaction.guild.members.cache.get(user.id);
+    const user = interaction.options.getUser("user")
+    const length = interaction.options.getString("length")
+    const reason = interaction.options.getString("reason")
+    const members = interaction.guild.members.cache.get(user.id)
 
     const timeInMs = ms(length);
     if (!timeInMs) return interaction.followUp("Please specify a valid time!");
