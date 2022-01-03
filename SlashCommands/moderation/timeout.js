@@ -25,7 +25,7 @@ module.exports = new Command({
     },
   ],
   run: async ({ interaction }) => {
-    const user = interaction.option.getUser("user");
+    const user = interaction.options.getUser("user");
     const length = interaction.options.getString("length");
     const reason = interaction.options.getString("reason");
     const members = interaction.guild.members.cache.get(user.id);
