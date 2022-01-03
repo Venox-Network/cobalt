@@ -132,7 +132,7 @@ player.on('error', (queue, error) => {
   const db = require('quick.db')
 
 //under if(message.author.bot)
-
+/*
 client.on('message', async (message) =>{
 if(db.has(`afk-${message.author.id}+${message.guild.id}`)) {
         const info = db.get(`afk-${message.author.id}+${message.guild.id}`)
@@ -146,3 +146,4 @@ if(db.has(`afk-${message.author.id}+${message.guild.id}`)) {
         }else return;
     }else;
   });
+  */
