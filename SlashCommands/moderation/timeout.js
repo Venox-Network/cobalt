@@ -1,9 +1,8 @@
-const { Command } = require("reconlx");
+//const { Command } = require("reconlx");
 const ms = require("ms");
-module.exports = new Command({
+module.exports = {
   name: "timemout",
   description: "timemout a member",
-  aliases: ["mute"],
   options: [
     {
       name: "user",
@@ -24,19 +23,18 @@ module.exports = new Command({
       required: true,
     },
   ],
-  run: async ({ interaction }) => {
+  run: async (client, interaction) => {
     const user = interaction.options.getUser("user");
     const length = interaction.options.getString("length");
     const reason = interaction.options.getString("reason");
     const members = interaction.guild.members.cache.get(user.id);
 
     const timeInMs = ms(length);
-    if (!timeInMs) 
-        return interaction.followUp("Please specify a valid time!");
+    if (!timeInMs) return interaction.followUp("Please specify a valid time!");
 
     member.timeout(timeInMs, reason);
     interaction.followUp(
       `${user} has been muted for ${length}.\nReason: ${reason}`
     );
   },
-});
+};
