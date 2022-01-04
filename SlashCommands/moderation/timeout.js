@@ -29,9 +29,9 @@ module.exports = {
     const reason = interaction.options.getString("reason");
     const member = interaction.guild.members.cache.get(user.id);
     
-    if(!interaction.member.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: ' You don\'t have permission to use that command!'});
-    if(!interaction.guild.me.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: 'I don\'t have permission to timeout members!'});
-    if(user.hasPermission('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
+    if(!interaction.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: ' You don\'t have permission to use that command!'});
+    if(!interaction.guild.me.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I don\'t have permission to timeout members!'});
+    if(user.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
 
 
     const timeInMs = ms(length);
