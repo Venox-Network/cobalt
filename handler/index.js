@@ -52,7 +52,7 @@ module.exports = async(client) => {
 
     // Slash Commands
     const slashCommands = await globPromise(
-        `${process.cwd()}/SlashCommands/*/*.js`
+        `${process.cwd()}/slashCommands/*/*.js`
     );
 
     const arrayOfSlashCommands = [];
