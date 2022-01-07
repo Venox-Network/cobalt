@@ -35,7 +35,7 @@ module.exports = {
 
     discordTogether
       .createTogetherCode(channelID, "youtube")
-      .then((x) => interaction.followUp({content: `[Click to watch YouTube!](${x.code})`}));
+      .then((x) => interaction.reply({content: `[Click to watch YouTube!](${x.code})`}));
 
     /*
       const row = new MessageActionRow().addComponents(
