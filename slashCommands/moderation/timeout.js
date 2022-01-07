@@ -31,7 +31,7 @@ module.exports = {
     
     if(!interaction.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: ' You don\'t have permission to use that command!'});
     if(!interaction.guild.me.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I don\'t have permission to timeout members!'});
-    if(user.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
+    // if(user.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
 
 
     const timeInMs = ms(length);

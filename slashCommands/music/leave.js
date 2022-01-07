@@ -23,6 +23,7 @@ module.exports = {
     //const connection = getVoiceConnection(interaction.member.voice.channel);
 
     if (interaction.member.voice.channel) {
+        await queue.delete();
         await connection.destroy();
         await interaction.followUp({content: "Disconnected ✅"});
     } else {
@@ -30,7 +31,7 @@ module.exports = {
     }
 
     const queue = player.getQueue(interaction.guildId);
-    queue.delete();
+    
     
 
   },
