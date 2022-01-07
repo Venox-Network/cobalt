@@ -11,6 +11,6 @@ module.exports = {
      * @param {String[]} args
      */
     run: async(client, interaction, args) => {
-        interaction.followUp({ content: `${client.ws.ping}ms!\n[Hello :)](<https://discord.gg/bapplause>)` });
+        interaction.followUp({ content: `${client.ws.ping}ms!` });
     },
 };
