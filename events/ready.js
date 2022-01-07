@@ -10,7 +10,7 @@ bot.on('ready', function() {
     const servercount = bot.guilds.cache.reduce((a,b) => a+b.memberCount, 0);
     // ${servers} servers & ${servercount} users
     bot.user.setActivity(`the future: v.srnyx.xyz`, { type: `WATCHING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
-    bot.user.setStatus("idle");
+    bot.user.setStatus("online");
   });
 
  
