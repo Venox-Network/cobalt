@@ -28,19 +28,31 @@ module.exports = {
     const length = interaction.options.getString("length");
     const reason = interaction.options.getString("reason");
     const member = interaction.guild.members.cache.get(user.id);
-    
-    if(!interaction.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: ' You don\'t have permission to use that command!'});
-    if(!interaction.guild.me.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I don\'t have permission to timeout members!'});
-    // if(user.member.permissions.has('MODERATE_MEMBERS')) return interaction.followUp({content: 'I can\'t timeout this user!'});
 
+    if (!interaction.member.permissions.has("MODERATE_MEMBERS"))
+      return interaction.followUp({
+        content: " You don't have permission to use that command!",
+      });
+    if (!interaction.guild.me.permissions.has("MODERATE_MEMBERS"))
+      return interaction.followUp({
+        content: "I don't have permission to timeout members!",
+      });
 
-    const timeInMs = ms(length);
-    if (!timeInMs) return interaction.followUp("Please specify a valid time!");
+    try {
+      const timeInMs = ms(length);
+      if (!timeInMs)
+        return interaction.followUp("Please specify a valid time!");
 
-    member.timeout(timeInMs, reason);
-    interaction.followUp(
-      `${user} has been muted for ${length}.\nReason: ${reason}`
-    );
+      member.timeout(timeInMs, reason);
+      interaction.followUp(
+        `${user} has been muted for ${length}.\nReason: ${reason}`
+      );
+    } catch (e) {
+      interaction.followUp({
+        content:
+          "Couldn't kick that user, check if my roles/permissions are higher than the user.",
+      });
+    }
   },
 };
 
