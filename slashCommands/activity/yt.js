@@ -1,5 +1,11 @@
 const discordTogether = require("../../client/discordTogether");
-const { CommandInteraction, Client, Message, MessageActionRow, MessageButton } = require("discord.js");
+const {
+  CommandInteraction,
+  Client,
+  Message,
+  MessageActionRow,
+  MessageButton,
+} = require("discord.js");
 
 module.exports = {
   name: "yt",
@@ -23,14 +29,15 @@ module.exports = {
     const channel = interaction.guild.channel.cache.get(channelID);
 
     if (channel.type !== "GUILD_VOICE")
-      return interaction.followUp({ content: "Please choose a voice channel!" });
+      return interaction.followUp({
+        content: "Please choose a voice channel!",
+      });
 
-      
-      discordTogether
+    discordTogether
       .createTogetherCode(channelID, "youtube")
       .then((x) => interaction.followUp(x.code));
-      
-      /*
+
+    /*
       const row = new MessageActionRow().addComponents(
           new MessageButton()
               .setCustomId('random')
@@ -40,5 +47,5 @@ module.exports = {
               .setURL(``)
       )
       */
-    },
+  },
 };
