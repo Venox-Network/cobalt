@@ -24,11 +24,6 @@ module.exports = {
     },
   ],
   run: async (client, interaction) => {
-    const user = interaction.options.getUser("user");
-    const length = interaction.options.getString("length");
-    const reason = interaction.options.getString("reason");
-    const member = interaction.guild.members.cache.get(user.id);
-
     if (!interaction.member.permissions.has("MODERATE_MEMBERS"))
       return interaction.followUp({
         content: " You don't have permission to use that command!",
@@ -39,7 +34,11 @@ module.exports = {
       });
 
     try {
-      const timeInMs = ms(length);
+        const user = interaction.options.getUser("user");
+        const length = interaction.options.getString("length");
+        const reason = interaction.options.getString("reason");
+        const member = interaction.guild.members.cache.get(user.id);
+        const timeInMs = ms(length);
       if (!timeInMs)
         return interaction.followUp("Please specify a valid time!");
 

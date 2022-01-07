@@ -26,7 +26,7 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     const [channelID] = args;
-    const channel = interaction.guild.channel.cache.get(channelID);
+    const channel = interaction.guild.channels.cache.get(channelID);
 
     if (channel.type !== "GUILD_VOICE")
       return interaction.followUp({
