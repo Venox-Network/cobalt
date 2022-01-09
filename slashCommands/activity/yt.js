@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-  name: "youtube",
+  name: "yt",
   description: "watch youtube together on discord",
   options: [
     {
@@ -35,7 +35,7 @@ module.exports = {
 
     discordTogether
       .createTogetherCode(channelID, "youtube")
-      .then((x) => interaction.followUp({content: `[Click to watch YouTube!](<${x.code}>)`}));
+      .then((x) => interaction.followUp({content: `${x.code}`}));
 
     /*
       const row = new MessageActionRow().addComponents(

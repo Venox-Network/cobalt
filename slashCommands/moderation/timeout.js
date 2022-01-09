@@ -46,10 +46,10 @@ module.exports = {
       interaction.followUp(
         `${user} has been muted for ${length}.\nReason: ${reason}`
       );
-    } catch (e) {
+    } catch (error) {
       interaction.followUp({
         content:
-          "Couldn't kick that user, check if my roles/permissions are higher than the user.",
+          "Couldn't timeout that user, check if my roles/permissions are higher than the user.",
       });
     }
   },
