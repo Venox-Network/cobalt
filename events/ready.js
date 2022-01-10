@@ -42,7 +42,7 @@ bot.on("ready", () => {
     const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
     const newActivity = activities[randomIndex];
 
-    bot.user.setActivity(activities.message, { type: activities.type });
+    bot.user.setActivity(newActivity.message, { type: newActivity.type });
   }, 10000);
 });
 
