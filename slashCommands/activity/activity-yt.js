@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-  name: "yt",
+  name: "activity-yt",
   description: "watch youtube together on discord",
   options: [
     {
