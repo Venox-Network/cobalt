@@ -39,11 +39,13 @@ bot.on("ready", () => {
     //const state = (0 + 1) % activities.length;
     //const presence = activities[state];
 
-    const randomIndex = Math.floor(Math.random() * activities.length + 1);
+    const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
     const newActivity = activities[randomIndex];
 
-    bot.user.setActivity(newActivity.message, { type: newActivity.type });
-  }, 10000);
+    bot.user.setActivity(activities[randomIndex].message, {
+      type: activity[randomIndex].type,
+    });
+  }, 9000);
 });
 
 /*
