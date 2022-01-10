@@ -59,7 +59,7 @@ bot.on("ready", () => {
     bot.user.setActivity(activities[randomIndex].message, {
       type: activities[randomIndex].type,
     });
-  }, 15000);
+  }, 20000);
 });
 
 /*
