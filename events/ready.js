@@ -39,6 +39,7 @@ const activities = [
   { type: "PLAYING", message: "on play.srnyx.xyz" },
   { type: "PLAYING", message: "on play.commandgeek.com" },
   { type: "PLAYING", message: "on play.bapplause.xyz" },
+  { type: "LISTENING", message: "to Bapplause Bop" },
 ];
 
 bot.on("ready", () => {
