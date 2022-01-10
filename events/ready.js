@@ -31,15 +31,21 @@ const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 const activities = [
   { type: "PLAYING", message: "you can't see this" },
-  { type: "WATCHING", message: "over Chriz's Graphics: chrizftw.cf" },
-  { type: "LISTENING", message: "to srnyx's Playlist" },
+  { type: "WATCHING", message: "over chrizftw.cf" },
+  { type: "LISTENING", message: "srnyx.xyz/playlist" },
   { type: "WATCHING", message: `${servers} servers` },
   { type: "WATCHING", message: `${usercount} servers` },
-  { type: "PLAYING", message: "with srnyx's Modpack" },
+  { type: "PLAYING", message: "with srnyx.xyz/modpack" },
   { type: "PLAYING", message: "on play.srnyx.xyz" },
   { type: "PLAYING", message: "on play.commandgeek.com" },
   { type: "PLAYING", message: "on play.bapplause.xyz" },
-  { type: "LISTENING", message: "to Bapplause Bop" },
+  { type: "LISTENING", message: "bapplause.xyz/playlist" },
+  { type: "WATCHING", message: "over discord.gg/bapplause" },
+  { type: "WATCHING", message: "over srnyx.xyz/discord" },
+  { type: "WATCHING", message: "over discord.gg/commandgeek" },
+  { type: "WATCHING", message: "over v.srnyx.xyz" },
+  { type: "WATCHING", message: "over simpearth.xyz/discord" },
+  { type: "WATCHING", message: "over events.red" },
 ];
 
 bot.on("ready", () => {
