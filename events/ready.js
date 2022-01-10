@@ -28,7 +28,7 @@ bot.on("ready", () => {
 });
 */
 
-const presences = [
+const activities = [
   { type: "PLAYING", message: "a game" },
   { type: "WATCHING", message: "a video" },
   { type: "LISTENING", message: "a song" },
@@ -36,10 +36,13 @@ const presences = [
 
 bot.on("ready", () => {
   setInterval(() => {
-    const state = (0 + 1) % presences.length;
-    const presence = presences[state];
+    //const state = (0 + 1) % activities.length;
+    //const presence = activities[state];
 
-    bot.user.setActivity(presence.message, { type: presence.type });
+    const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
+    const newActivity = activities[randomIndex];
+
+    bot.user.setActivity(activities.message, { type: activities.type });
   }, 10000);
 });
 
