@@ -40,7 +40,7 @@ bot.on("ready", () => {
     //const presence = activities[state];
 
     const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
-    const newActivity = activities[randomIndex];
+    //const newActivity = activities[randomIndex];
 
     bot.user.setActivity(activities[randomIndex].message, {
       type: activity[randomIndex].type,
