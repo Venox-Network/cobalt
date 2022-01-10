@@ -29,6 +29,7 @@ bot.on("ready", () => {
 */
 
 const activities = [
+  { type: "PLAYING", message: "you can't see this" },
   { type: "PLAYING", message: "a game" },
   { type: "WATCHING", message: "a video" },
   { type: "LISTENING", message: "a song" },
@@ -39,7 +40,7 @@ bot.on("ready", () => {
     //const state = (0 + 1) % activities.length;
     //const presence = activities[state];
 
-    const randomIndex = Math.floor(Math.random() * activities.length + 1);
+    const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
     //const newActivity = activities[randomIndex];
 
     bot.user.setActivity(activities[randomIndex].message, {
