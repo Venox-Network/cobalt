@@ -31,13 +31,13 @@ const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 const activities = [
   { type: "PLAYING", message: "you can't see this" },
-  { type: "WATCHING", message: " Chriz's Graphics: chrizftw.cf" },
-  { type: "LISTENING", message: " to srnyx's Playlist" },
+  { type: "WATCHING", message: "Chriz's Graphics: chrizftw.cf" },
+  { type: "LISTENING", message: "to srnyx's Playlist" },
   { type: "WATCHING", message: `${servers} servers` },
   { type: "WATCHING", message: `${usercount} servers` },
   { type: "PLAYING", message: "with srnyx's Modpack" },
   { type: "PLAYING", message: "on play.srnyx.xyz" },
-  { type: "PLAYING", message: "on play.commandgeek.xyz" },
+  { type: "PLAYING", message: "on play.commandgeek.com" },
   { type: "PLAYING", message: "on play.bapplause.xyz" },
 ];
 
