@@ -30,7 +30,7 @@ const servers = bot.guilds.cache.size;
 const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 const activities = [
-  { type: "PLAYING", message: "you can't see this" },
+  { type: "PLAYING", message: "you can't see this" }, // <= don't remove srnyx 
   { type: "WATCHING", message: "over chrizftw.cf" },
   { type: "LISTENING", message: "srnyx.xyz/playlist" },
   { type: "WATCHING", message: `${servers} servers` },
@@ -59,7 +59,7 @@ bot.on("ready", () => {
     bot.user.setActivity(activities[randomIndex].message, {
       type: activities[randomIndex].type,
     });
-  }, 10000);
+  }, 15000);
 });
 
 /*
