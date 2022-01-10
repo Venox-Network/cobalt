@@ -39,7 +39,7 @@ bot.on("ready", () => {
     const state = (0 + 1) % presences.length;
     const presence = presences[state];
 
-    client.user.setActivity(presence.message, { type: presence.type });
+    bot.user.setActivity(presence.message, { type: presence.type });
   }, 10000);
 });
 
