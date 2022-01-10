@@ -28,7 +28,6 @@ bot.on("ready", () => {
 });
 */
 
-const state = 0;
 const presences = [
   { type: "PLAYING", message: "a game" },
   { type: "WATCHING", message: "a video" },
@@ -37,7 +36,7 @@ const presences = [
 
 bot.on("ready", () => {
   setInterval(() => {
-    const state = (state + 1) % presences.length;
+    const state = (0 + 1) % presences.length;
     const presence = presences[state];
 
     client.user.setActivity(presence.message, { type: presence.type });
