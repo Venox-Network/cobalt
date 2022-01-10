@@ -5,8 +5,6 @@ bot.on("ready", () =>
   console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :)`)
 );
 /*
-const servers = bot.guilds.cache.size;
-const servercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 const activities = [
   "the future.",
@@ -28,11 +26,19 @@ bot.on("ready", () => {
 });
 */
 
+const servers = bot.guilds.cache.size;
+const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+
 const activities = [
   { type: "PLAYING", message: "you can't see this" },
-  { type: "PLAYING", message: "a game" },
-  { type: "WATCHING", message: "a video" },
-  { type: "LISTENING", message: "a song" },
+  { type: "WATCHING", message: " Chriz's Graphics: chrizftw.cf" },
+  { type: "LISTENING", message: " to srnyx's Playlist" },
+  { type: "WATCHING", message: `${servers} servers` },
+  { type: "WATCHING", message: `${usercount} servers` },
+  { type: "PLAYING", message: "with srnyx's Modpack" },
+  { type: "PLAYING", message: "on play.srnyx.xyz" },
+  { type: "PLAYING", message: "on play.commandgeek.xyz" },
+  { type: "PLAYING", message: "on play.bapplause.xyz" },
 ];
 
 bot.on("ready", () => {
