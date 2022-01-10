@@ -30,19 +30,18 @@ bot.on("ready", () => {
 
 const state = 0;
 const presences = [
-    { type: 'PLAYING',  message: 'a game'  },
-    { type: 'WATCHING', message: 'a video' },
-    { type: 'LISTENING', message: 'a song' },
+  { type: "PLAYING", message: "a game" },
+  { type: "WATCHING", message: "a video" },
+  { type: "LISTENING", message: "a song" },
 ];
 
 bot.on("ready", () => {
-
-setInterval(() => {
-    state = (state + 1) % presences.length;
+  setInterval(() => {
+    const state = (state + 1) % presences.length;
     const presence = presences[state];
 
     client.user.setActivity(presence.message, { type: presence.type });
-}, 10000);
+  }, 10000);
 });
 
 /*
