@@ -1,0 +1,42 @@
+name: 🐛 Report a bug
+description: Report a bug, crash, mistake or unintended behaviour. Please file a seperate report for each problem.
+title: Add a descriptive title
+labels: bug
+assignees: Chrizxz
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before reporting a bug, please make sure you've searched if it already exists.
+  - type: textarea
+    attributes:
+      label: General discription
+      description: Please provide a general description of what happened.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: What behavior of the bot do you expect?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual behavior
+      description: How does the bot actually react?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Can the behavior be reproduced consistently? If yes, how? Please also attach screenshots if they could help to understand the problem.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: |
+        If you can think of anything else that might help, there's plenty of room for it here. 😉
+    validations:
+      required: false
