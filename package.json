@@ -11,7 +11,11 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "discord-player": "^5.2.0",
+        "discord-together": "^1.3.25",
         "discord.js": "^13.1.0",
-        "glob": "^7.1.7"
+        "glob": "^7.1.7",
+        "mongoose": "^6.1.6",
+        "quick.db": "^7.1.3"
     }
 }
