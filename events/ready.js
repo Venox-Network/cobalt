@@ -28,9 +28,9 @@ bot.on("ready", () => {
 
 const servers = bot.guilds.cache.size;
 const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-
+// i guess its not like last time where i had little to no mods for bappy and was a tad bit desperate
 const activities = [
-  { type: "PLAYING", message: "you can't see this" }, // <= don't remove srnyx 
+  { type: "PLAYING", message: "you can't see this" }, // <= don't remove srnyx
   { type: "WATCHING", message: "over chrizftw.cf" },
   { type: "LISTENING", message: "srnyx.xyz/playlist" },
   { type: "WATCHING", message: `${servers} servers` },
@@ -39,7 +39,7 @@ const activities = [
   { type: "PLAYING", message: "on play.srnyx.xyz" },
   { type: "PLAYING", message: "on play.commandgeek.com" },
   { type: "PLAYING", message: "on play.bapplause.xyz" },
-  { type: "LISTENING", message: "bapplause.xyz/playlist" },
+  { type: "LISTENING", message: "to bapplause.xyz/playlist" },
   { type: "WATCHING", message: "over discord.gg/bapplause" },
   { type: "WATCHING", message: "over srnyx.xyz/discord" },
   { type: "WATCHING", message: "over discord.gg/commandgeek" },
