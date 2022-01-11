@@ -1,4 +1,4 @@
-const { Client, CommandInteraction } = require("discord.js");
+const { Client, CommandInteraction, MessageEmbed } = require("discord.js");
 
 module.exports = {
     name: "ping",
@@ -11,6 +11,12 @@ module.exports = {
      * @param {String[]} args
      */
     run: async(client, interaction, args) => {
-        interaction.followUp({ content: `${client.ws.ping}ms!` });
+        interaction.followUp("Pinging...");
+        const reply = await interaction.fetchReply();
+		const embed = new MessageEmbed()
+			.setTitle("Pong!")
+			.addField("💓 Heartbeat", `${client.ws.ping}ms`)
+			.addField("🔁 Roundtrip", `${reply.createdTimestamp - interaction.createdTimestamp}ms`);
+		reply.edit({ content: " ", embeds: [embed] });
     },
 };
