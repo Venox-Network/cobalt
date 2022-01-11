@@ -1,3 +1,12 @@
+---
+name: 🐛 Report a bug
+about: Report a bug, crash, mistake or unintended behaviour. Please file a seperate report for each problem.
+title: "Add a descriptive title"
+labels: bug
+assignees: Chrizxz
+
+---
+
 <!-- Before reporting a bug, please make sure you've searched if it already exists. -->
 # General discription
 <!-- Please provide a general description of what happened. -->
