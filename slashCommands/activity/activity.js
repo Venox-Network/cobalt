@@ -14,13 +14,21 @@ module.exports = {
     {
       name: "game",
       description: "activity you want to play",
-      type: "INTEGER",
+      type: "STRING",
       choices: [
         {
-          name: "youtube",
-          value: "",
-        }
-      ]
+          name: "YouTube Together",
+          value: "yt",
+        },
+        {
+          name: "Doodle Crew",
+          value: "dc",
+        },
+        {
+          name: "Fishington",
+          value: "fish",
+        },
+      ],
     },
     {
       name: "channel",
@@ -44,12 +52,21 @@ module.exports = {
         content: "Please choose a voice channel!",
       });
 
-    const value = interaction.options.get('game').value;
-    
+    const value = interaction.options.get("game").value;
 
-    discordTogether
-      .createTogetherCode(channelID, "youtube")
-      .then((x) => interaction.followUp({content: `[Click to watch YouTube!](<${x.code}>)`}));
+    if (value === "yt") {
+      discordTogether
+        .createTogetherCode(channelID, "youtube")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "dc") {
+      discordTogether
+        .createTogetherCode(channelID, "doodlecrew")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "fish") {
+      discordTogether
+        .createTogetherCode(channelID, "fishing")
+        .then((x) => interaction.followUp(x.code));
+    }
 
     /*
       const row = new MessageActionRow().addComponents(

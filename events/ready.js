@@ -14,7 +14,7 @@ bot.on("ready", () => {
     { type: "WATCHING", message: "over chrizftw.cf" },
     { type: "LISTENING", message: "srnyx.xyz/playlist" },
     { type: "WATCHING", message: `${servers} servers` },
-    { type: "WATCHING", message: `${usercount} servers` },
+    { type: "WATCHING", message: `${usercount} users` },
     { type: "PLAYING", message: "with srnyx.xyz/modpack" },
     { type: "PLAYING", message: "on play.srnyx.xyz" },
     { type: "PLAYING", message: "on play.commandgeek.com" },
