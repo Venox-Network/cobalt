@@ -12,22 +12,58 @@ module.exports = {
   description: "play a select activity",
   options: [
     {
-      name: "game",
+      name: "activity",
       description: "activity you want to play",
       type: "STRING",
       required: true,
       choices: [
         {
-          name: "YouTube Together",
-          value: "yt",
+          name: "Watch Together",
+          value: "watchtogether",
         },
         {
           name: "Doodle Crew",
-          value: "dc",
+          value: "doodlecrew",
         },
         {
           name: "Fishington",
-          value: "fish",
+          value: "fishington",
+        },
+        {
+          name: "Poker",
+          value: "poker",
+        },
+        {
+          name: "Chess",
+          value: "chess",
+        },
+        {
+          name: "Checkers in the Park",
+          value: "checkers",
+        },
+        {
+          name: "Betrayal.io",
+          value: "betrayal",
+        },
+        {
+          name: "Letter Tile",
+          value: "lettertile",
+        },
+        {
+          name: "Words Snack",
+          value: "wordsnack",
+        },
+        {
+          name: "SpellCast",
+          value: "spellcast",
+        },
+        {
+          name: "Awkword",
+          value: "awkword",
+        },
+        {
+          name: "Puttparty",
+          value: "puttparty",
         },
       ],
     },
@@ -59,17 +95,53 @@ module.exports = {
 
     const value = interaction.options.get("game").value;
 
-    if (value === "yt") {
+    if (value === "watchtogether") {
       discordTogether
         .createTogetherCode(channelID, "youtube")
         .then((x) => interaction.followUp(x.code));
-    } else if (value === "dc") {
+    } else if (value === "doodlecrew") {
       discordTogether
         .createTogetherCode(channelID, "doodlecrew")
         .then((x) => interaction.followUp(x.code));
-    } else if (value === "fish") {
+    } else if (value === "fishington") {
       discordTogether
         .createTogetherCode(channelID, "fishing")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "poker") {
+      discordTogether
+        .createTogetherCode(channelID, "poker")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "chess") {
+      discordTogether
+        .createTogetherCode(channelID, "chess")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "checkers") {
+      discordTogether
+        .createTogetherCode(channelID, "checkers")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "betrayal") {
+      discordTogether
+        .createTogetherCode(channelID, "betrayal")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "lettertile") {
+      discordTogether
+        .createTogetherCode(channelID, "lettertile")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "wordsnack") {
+      discordTogether
+        .createTogetherCode(channelID, "wordsnack")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "spellcast") {
+      discordTogether
+        .createTogetherCode(channelID, "spellcast")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "awkword") {
+      discordTogether
+        .createTogetherCode(channelID, "awkword")
+        .then((x) => interaction.followUp(x.code));
+    } else if (value === "puttparty") {
+      discordTogether
+        .createTogetherCode(channelID, "puttparty")
         .then((x) => interaction.followUp(x.code));
     }
 

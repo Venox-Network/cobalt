@@ -2,7 +2,7 @@ const bot = require("../index");
 const config = require("../config.json");
 
 bot.on("ready", () =>
-  console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :)`)
+  console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :) - yo same!!`)
 );
 
 bot.on("ready", () => {
@@ -19,7 +19,7 @@ bot.on("ready", () => {
     { type: "PLAYING", message: "on play.srnyx.xyz" },
     { type: "PLAYING", message: "on play.commandgeek.com" },
     { type: "PLAYING", message: "on play.bapplause.xyz" },
-    { type: "LISTENING", message: "to bapplause.xyz/playlist" },
+    { type: "LISTENING", message: "bapplause.xyz/playlist" },
     { type: "WATCHING", message: "over discord.gg/bapplause" },
     { type: "WATCHING", message: "over srnyx.xyz/discord" },
     { type: "WATCHING", message: "over discord.gg/commandgeek" },
