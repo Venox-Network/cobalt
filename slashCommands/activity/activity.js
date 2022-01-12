@@ -93,7 +93,7 @@ module.exports = {
         content: "Please choose a voice channel!",
       });*/
 
-    const value = interaction.options.get("game").value;
+    const value = interaction.options.get("activity").value;
 
     if (value === "watchtogether") {
       discordTogether
