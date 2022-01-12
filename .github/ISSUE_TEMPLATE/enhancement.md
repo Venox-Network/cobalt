@@ -1,9 +1,9 @@
 ---
-name: 💡 Suggest your idea(s)
+name: "\U0001F4A1 Suggest your idea(s)"
 about: Suggest an idea/enhancement for the bot.
-title: "Add a descriptive title"
-labels: enhancement
-assignees: Chrizxz,srnyx
+title: Add a descriptive title
+labels: Enhancement
+assignees: Chrizxz, srnyx
 
 ---
 
