@@ -17,9 +17,9 @@ module.exports = {
       .setTitle("Pong!")
       .setColor("0070c0")
       .addField(
-        "❤️ Heartbeat",
+        "💓 Heartbeat", 
         `${client.ws.ping}ms`
-      )
+        )
       .addField(
         "🔁 Roundtrip",
         `${reply.createdTimestamp - interaction.createdTimestamp}ms`
