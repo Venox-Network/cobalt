@@ -35,7 +35,7 @@ module.exports = {
       name: "channel",
       description: "channel to start the activity",
       type: "CHANNEL",
-      channelTypes: "GUILD_VOICE",
+      channelTypes: ["GUILD_VOICE"],
       required: true,
     },
   ],
@@ -47,7 +47,8 @@ module.exports = {
    *
    */
   run: async (client, interaction, args) => {
-    const [channelID] = args[1];
+    //const [channelID] = args[1];
+    const channelID = interaction.options.getChannel("channel");
     //const channel = interaction.guild.channels.cache.get(channelID);
 
     /*
