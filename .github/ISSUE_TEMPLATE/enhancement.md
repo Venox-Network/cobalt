@@ -8,14 +8,14 @@ assignees: Chrizxz,srnyx
 ---
 
 <!-- Before suggestion an enhancement here, please make sure you've searched to see if it already exists. -->
-# General discription
+## General discription
 <!-- Please provide a general description of what you want added. -->
-      
-# Steps to accomplish
+
+## Steps to accomplish
 <!-- If you have an idea of how this idea can be implemented, please provide it below. -->
-      
-# Media
+
+## Media
 <!-- Please include any screenshots/videos/etc... to help understand your idea. -->
-      
-# Additional information
+
+## Additional information
 <!-- If you can think of anything else that might help us, there's plenty of room for it here. 😉 -->
