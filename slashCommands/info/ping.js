@@ -15,8 +15,9 @@ module.exports = {
         const reply = await interaction.fetchReply();
 		const embed = new MessageEmbed()
 			.setTitle("Pong!")
-			.addField("💓 Heartbeat", `${client.ws.ping}ms`)
-			.addField("🔁 Roundtrip", `${reply.createdTimestamp - interaction.createdTimestamp}ms`);
+			.addField("❤️ Heartbeat", `${client.ws.ping}ms`)
+			.addField("🔁 Roundtrip", `${reply.createdTimestamp - interaction.createdTimestamp}ms`)
+		        .setFooter("Venox, https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png");
 		reply.edit({ content: " ", embeds: [embed] });
     },
 };
