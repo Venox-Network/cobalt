@@ -8,7 +8,7 @@ assignees: Chrizxz,srnyx
 ---
 
 <!-- Before suggestion an enhancement here, please make sure you've searched to see if it already exists. -->
-## General discription
+## General description
 <!-- Please provide a general description of what you want added. -->
 
 ## Steps to accomplish
