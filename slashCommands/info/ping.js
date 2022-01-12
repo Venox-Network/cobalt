@@ -16,7 +16,10 @@ module.exports = {
     const embed = new MessageEmbed()
       .setTitle("Pong!")
       .setColor("0070c0")
-      .addField("💓 Heartbeat", `${client.ws.ping}ms`)
+      .addField(
+        "❤️ Heartbeat",
+        `${client.ws.ping}ms`
+      )
       .addField(
         "🔁 Roundtrip",
         `${reply.createdTimestamp - interaction.createdTimestamp}ms`
