@@ -15,6 +15,7 @@ module.exports = {
       name: "game",
       description: "activity you want to play",
       type: "STRING",
+      required: true,
       choices: [
         {
           name: "YouTube Together",
@@ -34,6 +35,7 @@ module.exports = {
       name: "channel",
       description: "channel to start the activity",
       type: "CHANNEL",
+      required: true,
     },
   ],
   /**
@@ -44,7 +46,7 @@ module.exports = {
    *
    */
   run: async (client, interaction, args) => {
-    const [channelID] = args;
+    const [channelID] = args[2];
     const channel = interaction.guild.channels.cache.get(channelID);
 
     if (channel.type !== "GUILD_VOICE")
