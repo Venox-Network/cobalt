@@ -1,4 +1,10 @@
-const {  Message,  Client,  MessageEmbed,  MessageActionRow,  MessageSelectMenu,} = require("discord.js");
+const {
+  Message,
+  Client,
+  MessageEmbed,
+  MessageActionRow,
+  MessageSelectMenu,
+} = require("discord.js");
 
 module.exports = {
   name: "help",
@@ -44,7 +50,10 @@ module.exports = {
       .setColor("0070c0")
       .setTitle("Venox Commands")
       .setDescription("Choose a category")
-      .setFooter("Venox",client.user.displayAvatarURL);
+      .setFooter(
+        "Venox Network",
+        "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
+      );
 
     const components = (state) => [
       new MessageActionRow().addComponents(
@@ -88,7 +97,10 @@ module.exports = {
       const categoryEmbed = new MessageEmbed()
         .setTitle(`${directory.toUpperCase()}`)
         .setColor("0070c0")
-        .setFooter(client.user.displayAvatarURL())
+        .setFooter(
+          "Venox Network",
+          "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
+        )
         // .setDescription('Command List')
         .addFields(
           category.commands.map((cmd) => {
