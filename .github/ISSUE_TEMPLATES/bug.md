@@ -1,9 +1,9 @@
 ---
-name: 🐛 Report a bug
-about: Report a bug, crash, mistake or unintended behaviour. Please file a seperate report for each problem.
-title: "Add a descriptive title"
-labels: bug
-assignees: Chrizxz
+name: '🐛 Report a bug'
+about: 'Report a bug, crash, mistake or unintended behaviour. Please file a seperate report for each problem.'
+title: 'Add a descriptive title'
+labels: 'bug'
+assignees: 'Chrizxz'
 
 ---
 
