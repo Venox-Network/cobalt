@@ -21,7 +21,10 @@ module.exports = {
         "🔁 Roundtrip",
         `${reply.createdTimestamp - interaction.createdTimestamp}ms`
       )
-      .setFooter("Venox", client.user.displayAvatarURL); //"https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
+      .setFooter(
+        "Venox Network",
+        "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
+      );
     reply.edit({ content: " ", embeds: [embed] });
   },
 };
