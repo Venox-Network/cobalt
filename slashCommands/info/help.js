@@ -84,7 +84,7 @@ const {
 
       const collector = interaction.channel.createMessageComponentCollector({
         filter,
-        componentType: "SELECT_MENU",
+        //componentType: "SELECT_MENU",
         // time: 5000,
       });
   
