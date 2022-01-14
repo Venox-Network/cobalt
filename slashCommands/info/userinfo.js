@@ -21,7 +21,7 @@ module.exports = {
             .addField('Member Since:', `<t:${parseInt(target.joinedTimestamp / 1000)}:R>`, true)
             .addField("Discord User Since:", `<t:${parseInt(target.user.createdTimestamp / 1000)}:R>`, true)
             .addField("Nickname:", `${target.user.nickname !== null ? `${target.user.nickname}` : 'Null'}`, true)
-            .addField("Roles:", target.roles.cache.map(roles => roles).replace('@everyone', ' ') || "Null", true)
+            .addField("Roles:", target.roles.cache.map(r => r).join(" ").replace('@everyone', ' ') || "Null", true)
             .addField("Custom Status:", `${target.user.presence.game ? target.user.presence.game.name : 'Null'}`, true)
             .addField("Status:", `${target.user.presence.status ? target.user.presence.status.name : 'Null'}`, true)
             .addField('User\'s ID:', target.user.id, true)
