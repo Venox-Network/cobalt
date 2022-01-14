@@ -17,7 +17,7 @@ module.exports = {
             .setColor('0070c0')
             .setAuthor(target.user.tag)
             .setDescription(`${target.user}`)
-            .setThumbnail(target.user.AvatarURL({dynamic: true, size: 512}))
+            .setThumbnail(target.user.avatarURL({dynamic: true, size: 512}))
             .addField('Member Since:', `<t:${parseInt(target.joinedTimestamp / 1000)}:R>`, true)
             .addField("Discord User Since:", `<t:${parseInt(target.user.createdTimestamp / 1000)}:R>`, true)
             .addField("Nickname:", `${target.user.nickname !== null ? `${target.user.nickname}` : 'Null'}`, true)
