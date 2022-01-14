@@ -23,7 +23,7 @@ module.exports = {
             .addField("Nickname:", `${target.user.nickname !== null ? `${target.user.nickname}` : 'Null'}`, true)
             .addField("Roles:", target.roles.cache.map(r => r).join(" ").replace('@everyone', ' ') || "Null", true)
             //.addField("Custom Status:", `${target.user.presence.game ? target.user.presence.game.name : 'Null'}`, true)
-            .addField("Status:", `${target.user.presence.status ? target.user.presence.status.name : 'Null'}`, true)
+            //.addField("Status:", `${target.user.presence.status ? target.user.presence.status.name : 'Null'}`, true)
             .addField('User\'s ID:', `${target.user.id}`, true)
             .setFooter(`Venox Network | Guild ID: ${interaction.guild.id}`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
