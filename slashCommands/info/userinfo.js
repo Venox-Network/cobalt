@@ -20,10 +20,10 @@ module.exports = {
             .setThumbnail(target.user.AvatarURL)
             .addField('Member Since:', `<t:${parseInt(target.joinedTimestamp / 1000)}:R>`, true)
             .addField("Discord User Since:", `<t:${parseInt(target.user.createdTimestamp / 1000)}:R>`, true)
-            .addField("Nickname:", `${target.user.nickname !== null ? `${member.nickname}` : 'None'}`, true)
-            .addField("Roles:", target.roles.cache.map(roles => roles).replace('@everyone', ' ') || "No roles", true)
-            .addField("Custom Status:", `${target.user.presence.game ? target.user.presence.game.name : 'None'}`, true)
-            .addField("Status:", `${target.user.presence.status}`, true)
+            .addField("Nickname:", `${target.user.nickname !== null ? `${target.user.nickname}` : 'Null'}`, true)
+            .addField("Roles:", target.roles.cache.map(roles => roles).replace('@everyone', ' ') || "Null", true)
+            .addField("Custom Status:", `${target.user.presence.game ? target.user.presence.game.name : 'Null'}`, true)
+            .addField("Status:", `${target.user.presence.status ? target.user.presence.status.name : 'Null'}`, true)
             .addField('User\'s ID:', target.user.id, true)
             .setFooter(`Venox Network | Guild ID: ${interaction.guild.id}`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
