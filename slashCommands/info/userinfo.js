@@ -27,6 +27,6 @@ module.exports = {
             .addField('User\'s ID:', `${target.user.id}`, true)
             .setFooter(`Venox Network | Guild ID: ${interaction.guild.id}`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
-    interaction.reply({ embeds: [embed], ephemeral: true});
+    interaction.followUp({ embeds: [embed], ephemeral: true});
   },
 };
