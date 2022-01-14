@@ -12,8 +12,6 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     const target = await interaction.guild.members.fetch(interaction.targetId)
-    if (command.type !== "USER" && !command.description) 
-    return Table.addRow(command.name, "🔸 FAILED", "missing a description.");
 
     const embed = new MessageEmbed()
             .setColor('0070c0')
