@@ -101,7 +101,7 @@ module.exports = {
         .createTogetherCode(channelID, "youtube")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in ${channel.name}!](${x.code})`
           )
         );
     } else if (value === "doodlecrew") {
@@ -109,7 +109,7 @@ module.exports = {
         .createTogetherCode(channelID, "doodlecrew")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "fishington") {
@@ -117,7 +117,7 @@ module.exports = {
         .createTogetherCode(channelID, "fishing")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "poker") {
@@ -125,7 +125,7 @@ module.exports = {
         .createTogetherCode(channelID, "poker")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "chess") {
@@ -133,7 +133,7 @@ module.exports = {
         .createTogetherCode(channelID, "chess")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "checkers") {
@@ -141,7 +141,7 @@ module.exports = {
         .createTogetherCode(channelID, "checkers")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "betrayal") {
@@ -149,7 +149,7 @@ module.exports = {
         .createTogetherCode(channelID, "betrayal")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "lettertile") {
@@ -157,7 +157,7 @@ module.exports = {
         .createTogetherCode(channelID, "lettertile")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "wordsnack") {
@@ -165,7 +165,7 @@ module.exports = {
         .createTogetherCode(channelID, "wordsnack")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "spellcast") {
@@ -173,7 +173,7 @@ module.exports = {
         .createTogetherCode(channelID, "spellcast")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "awkword") {
@@ -181,7 +181,7 @@ module.exports = {
         .createTogetherCode(channelID, "awkword")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     } else if (value === "puttparty") {
@@ -189,7 +189,7 @@ module.exports = {
         .createTogetherCode(channelID, "puttparty")
         .then((x) =>
           interaction.followUp(
-            `[Click to start ${name} in <#${channel}>!](${x.code})`
+            `[Click to start ${name} in <#${channel.name}>!](${x.code})`
           )
         );
     }
