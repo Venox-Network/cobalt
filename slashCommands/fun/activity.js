@@ -34,7 +34,7 @@ module.exports = {
           value: "poker",
         },
         {
-          name: "Chess",
+          name: "Chess in the Park",
           value: "chess",
         },
         {
