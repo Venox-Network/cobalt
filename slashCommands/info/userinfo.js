@@ -3,7 +3,7 @@ const { Client, ContextMenuInteraction, MessageEmbed } = require("discord.js");
 module.exports = {
   name: "User Info",
   type: "USER",
-  permissions:"KICK_MEMBERS" || "BAN_MEMBERS",
+  //permissions:"KICK_MEMBERS" || "BAN_MEMBERS",
   /**
    *
    * @param {Client} client
@@ -28,6 +28,6 @@ module.exports = {
             .addField('User\'s ID:', `${target.user.id}`, true)
             .setFooter(`Venox Network`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
-    interaction.reply({ embeds: [embed], ephemeral: false});
+    interaction.followUp({ embeds: [embed]});
   },
 };
