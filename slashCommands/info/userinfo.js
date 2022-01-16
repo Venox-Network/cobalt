@@ -24,10 +24,10 @@ module.exports = {
             //.addField("Roles:", target.roles.cache.map(r => r).join(" ").replace('@everyone', ' ') || "Null", true)
             //.addField("Custom Status:", `${target.user.presence.game ? target.user.presence.game.name : 'Null'}`, true)
             //.addField("Status:", `${target.user.presence.status ? target.user.presence.status.name : 'Null'}`, true)
-            .addField("Guild", `${interaction.guild.name} (\`\`${interaction.guild.id}\`\`)`)
+            .addField("Guild", `${interaction.guild.name} (\`\`${interaction.guild.id}\`\`)`, true)
             .addField('User\'s ID:', `${target.user.id}`, true)
             .setFooter(`Venox Network`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
-    interaction.reply({ embeds: [embed], ephemeral: true});
+    interaction.followUp({ embeds: [embed], ephemeral: true});
   },
 };
