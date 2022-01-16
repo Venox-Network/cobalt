@@ -28,6 +28,6 @@ module.exports = {
             .addField('User\'s ID:', `${target.user.id}`, true)
             .setFooter(`Venox Network`, `https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png`);
 
-    interaction.followUp({ embeds: [embed]});
+    interaction.reply({ embeds: [embed], ephemeral: true});
   },
 };
