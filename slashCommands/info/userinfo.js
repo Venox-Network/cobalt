@@ -2,7 +2,7 @@ const { Client, ContextMenuInteraction, MessageEmbed } = require("discord.js");
 
 module.exports = {
   name: "User Info",
-  type: "MESSAGE",
+  type: "USER",
   //permissions:"KICK_MEMBERS" || "BAN_MEMBERS",
   /**
    *
