@@ -13,8 +13,8 @@ bot.on("ready", () => {
     { type: "PLAYING", message: "you can't see this" }, // <= don't remove srnyx
     { type: "WATCHING", message: "over chrizftw.cf" },
     { type: "LISTENING", message: "srnyx.xyz/playlist" },
-    { type: "WATCHING", message: `${servers} servers` },
-    { type: "WATCHING", message: `${usercount} users` },
+    { type: "WATCHING", message: `${servers} servers (${usercount} users)` },
+    { type: "WATCHING", message: `${usercount} users (${servers} servers)` },
     { type: "PLAYING", message: "with srnyx.xyz/modpack" },
     { type: "PLAYING", message: "on play.srnyx.xyz" },
     { type: "PLAYING", message: "on play.commandgeek.com" },
