@@ -9,6 +9,7 @@ client.on("interactionCreate", async (interaction) => {
     if (!cmd)
       return interaction.followUp({
         content: "Uh oh.... srnyx broke the bot.. ",
+        ephemeral: true,
       });
 
     const args = [];
@@ -25,15 +26,21 @@ client.on("interactionCreate", async (interaction) => {
       interaction.user.id
     );
 
+    if (interaction.member.permission.has(cmd.userPermissions || []))
+      return interaction.followUp({
+        content: "Error: Insufficient permissions",
+        ephemeral: true,
+      });
+
     cmd.run(client, interaction, args);
   }
 
   // Context Menu Handling
   if (interaction.isContextMenu()) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply();
     const command = client.slashCommands.get(interaction.commandName);
     if (command) command.run(client, interaction);
-}
+  }
 
   /*
   if (interaction.isSelectMenu()) {
@@ -42,6 +49,4 @@ client.on("interactionCreate", async (interaction) => {
       content: `You chose ${interaction.values[0]}`,
     });
 }*/
-
-
 });

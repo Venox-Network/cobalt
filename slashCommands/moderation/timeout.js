@@ -3,6 +3,7 @@ const ms = require("ms");
 module.exports = {
   name: "timeout",
   description: "timeout a member",
+  userPermissions: "",
   options: [
     {
       name: "user",
