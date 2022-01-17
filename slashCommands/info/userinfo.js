@@ -64,7 +64,7 @@ module.exports = {
           .join(", "),
         true
       )*/
-      .addField(servers)
+      .addField(servers, true)
       .addField("User's ID:", `${target.user.id}`, true)
       .setFooter(
         `Venox Network`,
