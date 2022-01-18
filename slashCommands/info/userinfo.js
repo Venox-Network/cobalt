@@ -3,7 +3,6 @@ const { Client, ContextMenuInteraction, MessageEmbed } = require("discord.js");
 module.exports = {
   name: "User Info",
   type: "USER",
-  userPermissions: "KICK_MEMBERS" || "BAN_MEMBERS",
   /**
    *
    * @param {Client} client
@@ -16,7 +15,7 @@ module.exports = {
     
 
     const embed = new MessageEmbed()
-      .setColor(target.roles.cache.size - 1 ? target.displayHexColor : "0070c0" )
+      .setColor(target.roles.cache.size - 1 ? target.displayHexColor : "b9bbbe" )
       .setAuthor(target.user.tag)
       .setDescription(`${target.user}`)
       .setThumbnail(target.user.avatarURL({ dynamic: true, size: 512 }))

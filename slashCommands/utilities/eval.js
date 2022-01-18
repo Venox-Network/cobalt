@@ -23,18 +23,18 @@ module.exports = {
      */
   run: async (client, interaction, args) => {
     try {
-      if (!owners.includes(interaction.author.id))
+      if (!owners.includes(interaction.user.id))
         return interaction.followUp(
-          "<:redtick:732759534891958322> Only the bot owners can use this command."
+          "Only the bot owners can use this command."
         );
-      const toEval = interaction.options.get("code").join(" ");
+      const toEval = interaction.options.get("code").value;
       const hrStart = process.hrtime();
       const evaluated = inspect(eval(toEval), { depth: 0 });
       const hrDiff = process.hrtime(hrStart);
 
       if (evaluated.length >= 2000)
         return interaction.followUp(
-          "<:redtick:732759534891958322> Evaluation is too long!"
+          "Evaluation is too long!"
         );
 
       interaction.followUp(
@@ -45,7 +45,7 @@ module.exports = {
     } catch (e) {
       console.log(e);
       interaction.followUp(
-        `<:redtick:732759534891958322> Error while evaluating: \`${e}\``
+        `Error while evaluating: \`${e}\``
       );
     }
   },

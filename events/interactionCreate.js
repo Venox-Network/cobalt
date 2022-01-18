@@ -3,7 +3,7 @@ const client = require("../index.js");
 client.on("interactionCreate", async (interaction) => {
   // Slash Command Handling
   if (interaction.isCommand()) {
-    await interaction.deferReply({ ephemeral: false }).catch(() => {});
+    await interaction.deferReply().catch(() => {});
 
     const cmd = client.slashCommands.get(interaction.commandName);
     if (!cmd)
@@ -26,9 +26,14 @@ client.on("interactionCreate", async (interaction) => {
       interaction.user.id
     );
 
-    if (interaction.member.permissions.has(cmd.userPermissions || []))
+    if (!interaction.member.permissions.has(cmd.userPermissions || ["ADMINISTRATOR"]))
       return interaction.followUp({
-        content: "Error: Insufficient permissions",
+        content: "Your lacking permissions to use this command",
+        ephemeral: true,
+      });
+      if (!interaction.guild.me.permissions.has(cmd.botPermissions || ["ADMINISTRATOR"]))
+      return interaction.followUp({
+        content: "I lack permissions to use this command",
         ephemeral: true,
       });
 
@@ -37,7 +42,7 @@ client.on("interactionCreate", async (interaction) => {
 
   // Context Menu Handling
   if (interaction.isContextMenu()) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ephemeral: true});
     const command = client.slashCommands.get(interaction.commandName);
     if (command) command.run(client, interaction);
   }
