@@ -34,7 +34,7 @@ const globPromise = promisify(glob);
  */
 module.exports = async(client) => {
     // Commands
-    const commandFiles = await globPromise(`${process.cwd()}/commands/**/*.js`);
+    const commandFiles = await globPromise(`${process.cwd()}/slashCommands/**/*.js`);
     commandFiles.map((value) => {
         const file = require(value);
         const splitted = value.split("/");
