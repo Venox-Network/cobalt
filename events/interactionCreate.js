@@ -26,7 +26,7 @@ client.on("interactionCreate", async (interaction) => {
       interaction.user.id
     );
 
-    if (interaction.member.permission.has(cmd.userPermissions || []))
+    if (interaction.member.permissions.has(cmd.userPermissions || []))
       return interaction.followUp({
         content: "Error: Insufficient permissions",
         ephemeral: true,
