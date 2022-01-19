@@ -46,8 +46,8 @@ module.exports = {
           value: "betrayal",
         },
         {
-          name: "Letter Tile",
-          value: "lettertile",
+          name: "Letter League",
+          value: "letterleague",
         },
         {
           name: "Words Snack",
@@ -65,6 +65,10 @@ module.exports = {
           name: "Puttparty",
           value: "puttparty",
         },
+		{
+		  name: "Sketch Heads",
+		  value: "sketchheads",
+		},
       ],
     },
     {
@@ -152,7 +156,7 @@ module.exports = {
             `[Click to start ${name} in ${channel.name}!](${x.code})`
           )
         );
-    } else if (value === "lettertile") {
+    } else if (value === "letterleague") {
       discordTogether
         .createTogetherCode(channelID, "lettertile")
         .then((x) =>
@@ -187,6 +191,14 @@ module.exports = {
     } else if (value === "puttparty") {
       discordTogether
         .createTogetherCode(channelID, "puttparty")
+        .then((x) =>
+          interaction.followUp(
+            `[Click to start ${name} in ${channel.name}!](${x.code})`
+          )
+        );
+    } else if (value === "sketchheads") {
+      discordTogether
+        .createTogetherCode(channelID, "sketchheads")
         .then((x) =>
           interaction.followUp(
             `[Click to start ${name} in ${channel.name}!](${x.code})`
