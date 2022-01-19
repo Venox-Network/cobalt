@@ -3,6 +3,8 @@ const ms = require("ms");
 module.exports = {
   name: "timeout",
   description: "timeout a member",
+  userPermissions: "MODERATE_MEMBERS",
+  botPermissions: "MODERATE_MEMBERS",
   options: [
     {
       name: "user",
@@ -12,7 +14,7 @@ module.exports = {
     },
     {
       name: "length",
-      description: "length of the timeout",
+      description: "Example: 1 minute",
       type: "STRING",
       required: true,
     },
@@ -24,33 +26,37 @@ module.exports = {
     },
   ],
   run: async (client, interaction) => {
-    if (!interaction.member.permissions.has("MODERATE_MEMBERS"))
+    
+    const target = interaction.options.getMember("user");
+    const length = interaction.options.getString("length");
+    const reason =
+      interaction.options.getString("reason") || "No reason provided";
+    const member = interaction.guild.members.cache.get(target.id);
+    const timeInMs = ms(length);
+
+    if (
+      target.roles.highest.position >= interaction.member.roles.highest.position
+    )
       return interaction.followUp({
-        content: " You don't have permission to use that command!",
-      });
-    if (!interaction.guild.me.permissions.has("MODERATE_MEMBERS"))
-      return interaction.followUp({
-        content: "I don't have permission to timeout members!",
+        content: "This user's role is higher than yours :/",
       });
 
+      
+
     try {
-        const user = interaction.options.getUser("user");
-        const length = interaction.options.getString("length");
-        const reason = interaction.options.getString("reason");
-        const member = interaction.guild.members.cache.get(user.id);
-        const timeInMs = ms(length);
       if (!timeInMs)
         return interaction.followUp("Please specify a valid time!");
 
       member.timeout(timeInMs, reason);
-      interaction.followUp(
-        `${user} has been muted for ${length}.\nReason: ${reason}`
-      );
-    } catch (error) {
       interaction.followUp({
-        content:
-          "Couldn't timeout that user, check if my roles/permissions are higher than the user.",
+        content: `${target} has been muted for ${length}.\nReason: ${reason}`,
+        ephemeral: true,
       });
+
+      target.send(`You've been timed out in **${interaction.guild.name}** for **${length}**\nReason: ${reason}`)
+
+    } catch (error) {
+      console.log("timeout cmd fluked or something");
     }
   },
 };

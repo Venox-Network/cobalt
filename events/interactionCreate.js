@@ -3,12 +3,13 @@ const client = require("../index.js");
 client.on("interactionCreate", async (interaction) => {
   // Slash Command Handling
   if (interaction.isCommand()) {
-    await interaction.deferReply({ ephemeral: false }).catch(() => {});
+    await interaction.deferReply().catch(() => {});
 
     const cmd = client.slashCommands.get(interaction.commandName);
     if (!cmd)
       return interaction.followUp({
         content: "Uh oh.... srnyx broke the bot.. ",
+        ephemeral: true,
       });
 
     const args = [];
@@ -25,15 +26,26 @@ client.on("interactionCreate", async (interaction) => {
       interaction.user.id
     );
 
+    if (!interaction.member.permissions.has(cmd.userPermissions || ["ADMINISTRATOR"]))
+      return interaction.followUp({
+        content: "Your lacking permissions to use this command",
+        ephemeral: true,
+      });
+      if (!interaction.guild.me.permissions.has(cmd.botPermissions || ["ADMINISTRATOR"]))
+      return interaction.followUp({
+        content: "I lack permissions to use this command",
+        ephemeral: true,
+      });
+
     cmd.run(client, interaction, args);
   }
 
   // Context Menu Handling
   if (interaction.isContextMenu()) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ephemeral: true});
     const command = client.slashCommands.get(interaction.commandName);
     if (command) command.run(client, interaction);
-}
+  }
 
   /*
   if (interaction.isSelectMenu()) {
@@ -42,6 +54,4 @@ client.on("interactionCreate", async (interaction) => {
       content: `You chose ${interaction.values[0]}`,
     });
 }*/
-
-
 });

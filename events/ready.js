@@ -20,6 +20,7 @@ bot.on("ready", () => {
     { type: "PLAYING", message: "on play.commandgeek.com" },
     { type: "PLAYING", message: "on play.bapplause.xyz" },
     { type: "LISTENING", message: "bapplause.xyz/playlist" },
+    { type: "LISTENING", message: "chrizftw.cf/playlist" },
     { type: "WATCHING", message: "over discord.gg/bapplause" },
     { type: "WATCHING", message: "over srnyx.xyz/discord" },
     { type: "WATCHING", message: "over discord.gg/commandgeek" },

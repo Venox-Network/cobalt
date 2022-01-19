@@ -34,7 +34,7 @@ const globPromise = promisify(glob);
  */
 module.exports = async(client) => {
     // Commands
-    const commandFiles = await globPromise(`${process.cwd()}/commands/**/*.js`);
+    const commandFiles = await globPromise(`${process.cwd()}/slashCommands/**/*.js`);
     commandFiles.map((value) => {
         const file = require(value);
         const splitted = value.split("/");
@@ -62,13 +62,55 @@ module.exports = async(client) => {
         client.slashCommands.set(file.name, file);
 
         if (["MESSAGE", "USER"].includes(file.type)) delete file.description;
+        if (file.permissions) file.defaultPermissions = false;
         arrayOfSlashCommands.push(file);
     });
     client.on("ready", async() => {
         // Register for a single guild
-        /*await client.guilds.cache
-            .get("879734848946847774")
-            .commands.set(arrayOfSlashCommands);*/
+      /*  const guild = client.guilds.cache.get("879734848946847774");
+        await guild.commands.set(arrayOfSlashCommands).then((cmd) => {
+          const getRoles = (commandName) => {
+            const permissions = arrayOfSlashCommands.find(
+              (x) => x.name === commandName
+            ).userPermissions;
+
+            if (!permissions) return null;
+            return guild.roles.cache.filter(
+              (x) => x.permissions.has(permissions) && !x.managed
+            );
+          };
+
+          const fullPermissions = cmd.reduce((accumulator, x) => {
+            const roles = getRoles(x.name);
+            if (!roles) return accumulator;
+
+            const permissions = roles.reduce((a,v) => {
+              return [
+                ...a,
+                {
+                  id:v.id,
+                  type: "ROLE",
+                  permissions: true,s
+                },
+              ]; 
+            }, []);
+
+            return [
+              ...accumulator,
+              {
+                id: x.id,
+                permissions,
+              },
+            ];
+
+          }, [])
+          
+          guild.commands.permissions.set({ fullPermissions });
+
+        });
+        
+        */
+
 
         // Register for all the guilds the client is in
         await client.application.commands.set(arrayOfSlashCommands);
@@ -81,7 +123,7 @@ module.exports = async(client) => {
     mongoose.connect(mongooseConnectionString).then(() => console.log('Connected to mongodb'));
 
 };
-
+/*
 //const client = new Client();
 const player = new Player(client);
 
@@ -112,8 +154,8 @@ player.on('error', (queue, error) => {
   player.on('queueEnd', queue => {
     queue.metadata.send('✅ | Queue finished!');
   });
-
-
+*/
+/*
   client.on('voiceStateUpdate', (oldState, newState) => {
 
     // if nobody left the channel in question, return.
@@ -130,7 +172,7 @@ player.on('error', (queue, error) => {
   
 
   const db = require('quick.db')
-
+*/
 //under if(message.author.bot)
 /*
 client.on('message', async (message) =>{
