@@ -65,10 +65,10 @@ module.exports = {
           name: "Puttparty",
           value: "puttparty",
         },
-		{
-		  name: "Sketch Heads",
-		  value: "sketchheads",
-		},
+	{
+	  name: "Sketch Heads (Coming Soon)",
+	  value: "sketchheads",
+	},
       ],
     },
     {
@@ -197,6 +197,14 @@ module.exports = {
           )
         );
     } else if (value === "sketchheads") {
+	interaction.followUp(
+		`**Coming soon!**`
+        )
+      );
+    }
+
+    /*
+    else if (value === "sketchheads") {
       discordTogether
         .createTogetherCode(channelID, "sketchheads")
         .then((x) =>
@@ -204,17 +212,6 @@ module.exports = {
             `[Click to start ${name} in ${channel.name}!](${x.code})`
           )
         );
-    }
-
-    /*
-      const row = new MessageActionRow().addComponents(
-          new MessageButton()
-              .setCustomId('random')
-              .setLabel('success') //title of bttn
-              .setStyle('SUCCESS')
-              .setDisabled(false)
-              .setURL(``)
-      )
       */
   },
 };
