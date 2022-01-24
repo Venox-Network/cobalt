@@ -198,8 +198,7 @@ module.exports = {
         );
     } else if (value === "sketchheads") {
 	interaction.followUp(
-		`**Coming soon!**`
-        )
+	  `**Coming soon!**`
       );
     }
 
