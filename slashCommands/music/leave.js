@@ -14,23 +14,16 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     const channel = interaction.member.voice.channel;
-    const connection = joinVoiceChannel({
-      channelId: channel.id,
-      guildId: channel.guild.id,
-      adapterCreator: channel.guild.voiceAdapterCreator,
-    });
+    const connection = getVoiceConnection(channel.guild.id);
+    const queue = player.getQueue(interaction.guildId);
 
-    //const connection = getVoiceConnection(interaction.member.voice.channel);
-
-    if (interaction.member.voice.channel) {
-        await queue.delete();
-        await connection.destroy();
-        await interaction.followUp({content: "Disconnected ✅"});
+    if (channel) {
+        await queue?.playing ? queue.destroy() : interaction.followUp({content: "Nothing was in the queue", ephemeral:true});
+        await interaction.followUp({content: "Disconnected ✅", ephemeral: true});
     } else {
       interaction.followUp({content: "I'm not connected to a voice channel.."});
     }
 
-    const queue = player.getQueue(interaction.guildId);
     
     
 
