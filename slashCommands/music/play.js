@@ -6,6 +6,8 @@ const { getVoiceConnection } = require('@discordjs/voice');
 module.exports = {
   name: "play",
   description: "play a song",
+  userPermissions: "CONNECT",
+  botPermissions: "",
   options: [
     {
       name: "song",

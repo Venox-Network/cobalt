@@ -26,12 +26,12 @@ client.on("interactionCreate", async (interaction) => {
       interaction.user.id
     );
 
-    if (!interaction.member.permissions.has(cmd.userPermissions || ["ADMINISTRATOR"]))
+    if (!interaction.member.permissions.has(cmd.userPermissions || []))
       return interaction.followUp({
         content: "Your lacking permissions to use this command",
         ephemeral: true,
       });
-      if (!interaction.guild.me.permissions.has(cmd.botPermissions || ["ADMINISTRATOR"]))
+      if (!interaction.guild.me.permissions.has(cmd.botPermissions || []))
       return interaction.followUp({
         content: "I lack permissions to use this command",
         ephemeral: true,
