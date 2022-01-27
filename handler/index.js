@@ -123,9 +123,17 @@ module.exports = async(client) => {
     mongoose.connect(mongooseConnectionString).then(() => console.log('Connected to mongodb'));
 
 };
+
+const player = require("../client/player");
+
+player.on('queueEnd', queue => {
+  queue.metadata.send('✅ | Queue finished');
+});
+
 /*
-//const client = new Client();
-const player = new Player(client);
+
+//const player = new Player(client);
+const player = require("../../client/player");
 
 player.on('error', (queue, error) => {
     console.log(`[${queue.guild.name}] Error emitted from the queue: ${error.message}`);
@@ -149,10 +157,6 @@ player.on('error', (queue, error) => {
   
   player.on('channelEmpty', queue => {
     queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
-  });
-  
-  player.on('queueEnd', queue => {
-    queue.metadata.send('✅ | Queue finished!');
   });
 */
 /*

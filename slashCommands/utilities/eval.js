@@ -25,7 +25,7 @@ module.exports = {
     try {
       if (!owners.includes(interaction.user.id))
         return interaction.followUp(
-          "Only the bot owners can use this command."
+          "❌ | Only the bot owners can use this command."
         );
       const toEval = interaction.options.get("code").value;
       const hrStart = process.hrtime();
@@ -34,7 +34,7 @@ module.exports = {
 
       if (evaluated.length >= 2000)
         return interaction.followUp(
-          "Evaluation is too long!"
+          "❌ | Evaluation is too long!"
         );
 
       interaction.followUp(
@@ -45,7 +45,7 @@ module.exports = {
     } catch (e) {
       console.log(e);
       interaction.followUp(
-        `Error while evaluating: \`${e}\``
+        `❌ | Error while evaluating: \`${e}\``
       );
     }
   },

@@ -38,25 +38,29 @@ module.exports = {
       target.roles.highest.position >= interaction.member.roles.highest.position
     )
       return interaction.followUp({
-        content: "This user's role is higher than yours :/",
+        content: "❌ | This user's role is higher than yours",
       });
 
       
 
     try {
       if (!timeInMs)
-        return interaction.followUp("Please specify a valid time!");
+        return interaction.followUp("❌ | Please specify a valid time!");
 
       member.timeout(timeInMs, reason);
       interaction.followUp({
-        content: `${target} has been muted for ${length}.\nReason: ${reason}`,
+        content: `✅ | ${target} has been muted for ${length}.\nReason: ${reason}`,
         ephemeral: true,
       });
 
       target.send(`You've been timed out in **${interaction.guild.name}** for **${length}**\nReason: ${reason}`)
 
-    } catch (error) {
-      console.log("timeout cmd fluked or something");
+    } catch(error) {
+      console.log(error);
+      interaction.followUp({
+        content:
+        "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+      });
     }
   },
 };

@@ -18,11 +18,22 @@ module.exports = {
   ],
   run: async (client, interaction) => {
     const query = interaction.options.getString("song");
-
     if (!interaction.member.voice.channel)
       return interaction.followUp({
-        content: "Join a voice channel first!",
+        content: "❌ | Join a voice channel first",
       });
+
+    if (
+      interaction.guild.me.voice.channelId &&
+      interaction.member.voice.channelId !==
+        interaction.guild.me.voice.channelId
+    ) {
+      interaction.followUp({
+        content: "❌ | You are not in my voice channel",
+        ephemeral: true,
+      });
+    }
+
 
     const searchResult = await player.search(query, {
       requestedBy: interaction.user,
@@ -41,16 +52,17 @@ module.exports = {
         requestedBy: interaction.user,
         searchEngine: QueryType.AUTO,
       }).then(x => x.tracks[0]);
-      if (!searchResults) return await interaction.followUp({ content: `Sorry, **${query}** not found :(` });
+      if (!searchResults) return await interaction.followUp({ content: `❌ | Error, **${query}** not found` });
 
       function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
       }
-
+    
+    /*
     interaction.followUp({
-      content: `Playing **${searchResults.title}** :musical_note:`,
+      content: `▶ | Playing **${searchResults.title}**`,
     });
-
+    */
 
     searchResult.playlist
       ? queue.addTracks(searchResult.tracks)
@@ -58,5 +70,12 @@ module.exports = {
 
     if (!queue.playing) await queue.play();
 
+  },
+  catch(error) {
+    console.log(error);
+    interaction.followUp({
+      content:
+        "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+    });
   },
 };
