@@ -28,7 +28,7 @@ module.exports = {
 
     queue.skip();
 
-    await interaction.followUp({ content: `⏭ | Playing **${queue.current.title}**` });
+    await interaction.followUp({ content: queue ? `⏭ | Playing **${queue.current.title}**` : `⏭ | Skipped song` });
   },
   catch(error) {
     console.log(error);

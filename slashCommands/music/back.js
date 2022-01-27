@@ -26,15 +26,24 @@ module.exports = {
         content: "❌ | No music is currently being played",
       });
 
-    await queue.back();
+    if (queue.back()) {
+      queue.back();
+      await interaction.followUp({
+        content: `🔙 | Playing **${queue.current.title}** `,
+      });
+    } else {
+      interaction.followUp({
+        content: `❌ | There is no previous music available`,
+      });
+    }
 
-    interaction.followUp({ content: `🔙 | Playing **${queue.current.title}** ` });
   },
   catch(error) {
     console.log(error);
     interaction.followUp({
       content:
-        "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+        "❌ | There was an error trying to execute that command: " +
+        `\`${error.message}\``,
     });
   },
 };
