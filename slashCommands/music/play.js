@@ -58,11 +58,11 @@ module.exports = {
         return string.charAt(0).toUpperCase() + string.slice(1);
       }
     
-    /*
+    
     interaction.followUp({
       content: `▶ | Playing **${searchResults.title}**`,
     });
-    */
+    
 
     searchResult.playlist
       ? queue.addTracks(searchResult.tracks)

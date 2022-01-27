@@ -26,9 +26,9 @@ module.exports = {
         content: "❌ | No music is currently being played",
       });
 
-    await queue.skip();
+    queue.skip();
 
-    interaction.followUp({ content: `⏭ | Playing **${queue.current.title}**` });
+    await interaction.followUp({ content: `⏭ | Playing **${queue.current.title}**` });
   },
   catch(error) {
     console.log(error);
