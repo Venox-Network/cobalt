@@ -34,10 +34,16 @@ module.exports = {
         const reason = interaction.options.getString("reason"); 
     if (!targetID) return interaction.followUp("Please provide the targets ID");
 
-    //client.guilds.cache.forEach(a => a.members.ban(targetID));
-
+   try { 
+    client.guilds.cache.forEach(a => a.members.ban(targetID));
     target.send(`You've been banned from all Venox Network servers\n> Reason: ${reason || `no reason provided`}`);
-
+        } catch(error) {
+          console.log(error);
+          interaction.followUp({
+            content:
+            "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+          });
+        }
     interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
   },
