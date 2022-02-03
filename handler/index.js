@@ -130,6 +130,10 @@ player.on('queueEnd', queue => {
   queue.metadata.send('✅ | Queue finished');
 });
 
+player.on('channelEmpty', queue => {
+  queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
+});
+
 /*
 
 //const player = new Player(client);

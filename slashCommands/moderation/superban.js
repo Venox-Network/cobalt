@@ -11,6 +11,12 @@ module.exports = {
       type: "USER",
       required: true,
     },
+    {
+      name: "reason",
+      description: "reason for the superban",
+      type: "STRING",
+      required: false,
+    },
   ],
   /**
    *
@@ -27,9 +33,9 @@ module.exports = {
         const target = interaction.options.getUser("user"); 
     if (!targetID) return interaction.followUp("Please provide the targets ID");
 
-    client.guilds.cache.forEach(a => a.members.ban(targetID));
+    //client.guilds.cache.forEach(a => a.members.ban(targetID));
 
-    target.send("You've been banned from all Venox Network servers\n");
+    target.send(`You've been banned from all Venox Network servers\n> Reason: ${reason || `no reason provided`}`);
 
     interaction.followUp(`**Successfully banned ** <@${targetID}>`);
     
