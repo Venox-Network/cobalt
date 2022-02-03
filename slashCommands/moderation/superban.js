@@ -30,14 +30,15 @@ module.exports = {
           "Only the bot owner can use this command."
         );
         const targetID = interaction.options.getUser("user").id;
-        const target = interaction.options.getUser("user"); 
+        const target = interaction.options.getUser("user");
+        const reason = interaction.options.getString("reason"); 
     if (!targetID) return interaction.followUp("Please provide the targets ID");
 
     //client.guilds.cache.forEach(a => a.members.ban(targetID));
 
     target.send(`You've been banned from all Venox Network servers\n> Reason: ${reason || `no reason provided`}`);
 
-    interaction.followUp(`**Successfully banned ** <@${targetID}>`);
+    interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
   },
 };
