@@ -41,11 +41,12 @@ module.exports = {
           interaction.followUp({
             content:
             "❌ Could not dm that user",
+            ephemeral: true
             //"❌ There was an error trying to execute that command: " + `\`${error.message}\``,
           });
         }
 
-    client.guilds.cache.forEach(a => a.members.ban({user:targetID, reason:reason}));    
+    client.guilds.cache.forEach(a => a.members.ban({targetID}));    
 
     interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
