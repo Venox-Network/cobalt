@@ -46,7 +46,7 @@ module.exports = {
           });
         }
 
-    client.guilds.cache.forEach(a => a.members.ban({targetID}));    
+    client.guilds.cache.forEach(a => a.members.ban(targetID));    
 
     interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
