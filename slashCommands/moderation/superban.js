@@ -35,7 +35,7 @@ module.exports = {
     if (!targetID) return interaction.followUp("Please provide the targets ID");
 
    try { 
-    target.send(`You've been banned from all Venox Network servers\n> Reason: ${reason || `no reason provided`}`);
+    target.send(`You've been banned from all **Venox Network** servers\n> Reason: ${reason || `no reason provided`}`);
         } catch(error) {
           console.log(error);
           interaction.followUp({
@@ -45,7 +45,7 @@ module.exports = {
           });
         }
 
-    client.guilds.cache.forEach(a => a.members.cache.get(targetID).ban(reason));    
+    client.guilds.cache.forEach(a => a.members.ban({user:targetID, reason:reason}));    
 
     interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
