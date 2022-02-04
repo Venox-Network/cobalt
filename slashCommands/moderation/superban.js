@@ -36,14 +36,17 @@ module.exports = {
 
    try { 
     target.send(`You've been banned from all Venox Network servers\n> Reason: ${reason || `no reason provided`}`);
-    client.guilds.cache.forEach(a => a.members.ban(targetID));
         } catch(error) {
           console.log(error);
           interaction.followUp({
             content:
-            "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+            "❌ Could not dm that user",
+            //"❌ There was an error trying to execute that command: " + `\`${error.message}\``,
           });
         }
+
+    client.guilds.cache.forEach(a => a.members.get(targetID).ban(reason));    
+
     interaction.followUp(`**Successfully banned** <@${targetID}>`);
     
   },
