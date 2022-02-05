@@ -27,10 +27,10 @@ module.exports = {
       });
 
     await queue.back().catch((err) => interaction.followUp({
-      content: `❌ There was an error trying to execute that command: \`${err.message}\``
+      content: `❌ Could not find previous song` //`❌ There was an error trying to execute that command: \`${err.message}\``
     }));;
 
-    interaction.followUp({ content: `:arrow_backward: | Playing **${queue.current.title}** ` });
+    interaction.followUp({ content: `:arrow_backward: Playing **${queue.current.title}** ` });
   },
   catch(error) {
     console.log(error);

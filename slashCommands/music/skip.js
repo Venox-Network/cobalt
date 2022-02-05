@@ -26,14 +26,14 @@ module.exports = {
         content: "❌ No music is currently being played",
       });
 
-    queue.skip().catch((err) => interaction.followUp({
-      content: `❌ There was an error trying to execute that command: \`${err.message}\``
+    await queue.skip().catch((err) => interaction.followUp({
+      content: `❌ Could not find next song` //`❌ There was an error trying to execute that command: \`${err.message}\``
     }));
 
     setTimeout(function () {
       interaction.followUp({
-        content: `⏭ | Playing **${queue.current.title}**`
-        //queue ? `⏭ | Playing **${queue.current.title}**` : `⏭ | Skipped song`,
+        //content: `⏭ Playing **${queue.current.title}**`
+        content: err ? `⏭ Playing **${queue.current.title}**` : `⏭ | Skipped song`,
       });
     }, 1200);
   },
