@@ -1,5 +1,5 @@
 const { Client, CommandInteraction } = require("discord.js");
-//const { getVoiceConnection } = require('@discordjs/voice');
+const { getVoiceConnection } = require('@discordjs/voice');
 //const { joinVoiceChannel } = require('@discordjs/voice');
 const player = require("../../client/player");
 
@@ -31,11 +31,11 @@ module.exports = {
 
     const channel = interaction.member.voice.channel;
     const queue = player.getQueue(interaction.guildId);
-    //const connection = getVoiceConnection(interaction.guild.me.voice.channel);
+    const connection = getVoiceConnection(interaction.guild.me.voice.channelId);
 
     if (channel) {
-        await queue?.playing || queue ? queue.destroy() : interaction.followUp({content: "❌ | Nothing was in the queue", ephemeral:true});
-        await interaction.followUp({content: "✅ | Disconnected", ephemeral: true});
+        await queue?.playing || queue ? queue.destroy() : interaction.followUp({content: "❌ | Nothing was in the queue", ephemeral:true}).then(connection.destroy());
+        await interaction.followUp({content: "✅ | Disconnected"});
     } else {
       interaction.followUp({content: "❌ | I'm not connected to a voice channel"});
     }
