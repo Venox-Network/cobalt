@@ -26,10 +26,10 @@ module.exports = {
         content: "❌ | No music is currently being played",
       });
 
-    await queue.shuffle();
-    queue.skip();
+    await queue.shuffle(); //.then(await queue.skip());
+    
 
-    interaction.followUp({ content: "Shuffled 🔀" });
+    interaction.followUp({ content: "🔀 Shuffled" });
   },
   catch(error) {
     console.log(error);

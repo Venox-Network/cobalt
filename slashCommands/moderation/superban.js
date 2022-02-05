@@ -24,31 +24,33 @@ module.exports = {
    * @param {CommandInteraction} interaction
    * @param {String[]} args
    */
-   run: async (client, interaction) => {
+  run: async (client, interaction) => {
     if (!owners.includes(interaction.user.id))
-        return interaction.followUp(
-          "Only the bot owner can use this command."
-        );
-        const targetID = interaction.options.getUser("user").id;
-        const target = interaction.options.getUser("user");
-        const reason = interaction.options.getString("reason"); 
+      return interaction.followUp("Only the bot owner can use this command.");
+    const targetID = interaction.options.getUser("user").id;
+    const target = interaction.options.getUser("user");
+    const reason = interaction.options.getString("reason");
     if (!targetID) return interaction.followUp("Please provide the targets ID");
 
-   try { 
-    target.send(`You've been banned from all **Venox Network** servers\n> Reason: ${reason || `no reason provided`}`);
-        } catch(error) {
-          console.log(error);
-          interaction.followUp({
-            content:
-            "❌ Could not dm that user",
-            ephemeral: true
-            //"❌ There was an error trying to execute that command: " + `\`${error.message}\``,
-          });
-        }
-
-    client.guilds.cache.forEach(a => a.members.ban(targetID));    
-
-    interaction.followUp(`**Successfully banned** <@${targetID}>`);
+      target
+        .send(
+          `You've been banned from all **Venox Network** servers\n> Reason: ${
+            reason || `no reason provided`
+          }`
+        )
+        .catch((error) =>
+          interaction
+            .followUp({
+              content: "❌ Could not dm that user",
+              ephemeral: true,
+              //"❌ There was an error trying to execute that command: " + `\`${error.message}\``,
+            })
+            .then(console.log(error))
+        );
     
+
+    client.guilds.cache.forEach((a) => a.members.ban(targetID));
+    //client.on("error", () => { client.login(token) });
+    interaction.followUp(`**Successfully banned** <@${targetID}>`);
   },
 };

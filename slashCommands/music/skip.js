@@ -6,7 +6,7 @@ module.exports = {
   run: async (client, interaction, args) => {
     if (!interaction.member.voice.channel)
       return interaction.followUp({
-        content: "❌ | Join a voice channel first",
+        content: "❌ Join a voice channel first",
       });
 
     if (
@@ -15,7 +15,7 @@ module.exports = {
         interaction.guild.me.voice.channelId
     ) {
       interaction.followUp({
-        content: "❌ | You are not in my voice channel",
+        content: "❌ You are not in my voice channel",
         ephemeral: true,
       });
     }
@@ -23,18 +23,25 @@ module.exports = {
     const queue = player.getQueue(interaction.guildId);
     if (!queue?.playing)
       return interaction.followUp({
-        content: "❌ | No music is currently being played",
+        content: "❌ No music is currently being played",
       });
 
-    queue.skip();
+    queue.skip().catch((err) => interaction.followUp({
+      content: `❌ There was an error trying to execute that command: \`${err.message}\``
+    }));
 
-    await interaction.followUp({ content: queue ? `⏭ | Playing **${queue.current.title}**` : `⏭ | Skipped song` });
+    setTimeout(function () {
+      await interaction.followUp({
+        content: `⏭ | Playing **${queue.current.title}**`
+        //queue ? `⏭ | Playing **${queue.current.title}**` : `⏭ | Skipped song`,
+      });
+    }, 1200);
   },
   catch(error) {
     console.log(error);
     interaction.followUp({
       content:
-        "❌ | There was an error trying to execute that command: " +
+        "❌ There was an error trying to execute that command: " +
         `\`${error.message}\``,
     });
   },

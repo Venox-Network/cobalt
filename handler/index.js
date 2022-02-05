@@ -134,6 +134,8 @@ player.on('channelEmpty', queue => {
   queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
 });
 
+//client.on("error", () => { client.login(token) });
+
 /*
 
 //const player = new Player(client);
