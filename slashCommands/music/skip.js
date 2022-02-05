@@ -31,7 +31,7 @@ module.exports = {
     }));
 
     setTimeout(function () {
-      await interaction.followUp({
+      interaction.followUp({
         content: `⏭ | Playing **${queue.current.title}**`
         //queue ? `⏭ | Playing **${queue.current.title}**` : `⏭ | Skipped song`,
       });
