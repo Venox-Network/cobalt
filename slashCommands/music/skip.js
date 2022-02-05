@@ -33,7 +33,7 @@ module.exports = {
     setTimeout(function () {
       interaction.followUp({
         //content: `⏭ Playing **${queue.current.title}**`
-        content: err ? `⏭ Playing **${queue.current.title}**` : `⏭ | Skipped song`,
+        content: !err ? `⏭ Playing **${queue.current.title}**` : `⏭ Skipped song`,
       });
     }, 1200);
   },
