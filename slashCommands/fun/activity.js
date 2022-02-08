@@ -65,10 +65,14 @@ module.exports = {
           name: "Puttparty",
           value: "puttparty",
         },
-	{
-	  name: "Sketch Heads (Coming Soon)",
-	  value: "sketchheads",
-	},
+        {
+          name: "Sketch Heads (Coming Soon)",
+          value: "sketchheads",
+        },
+        {
+          name: "Ocho",
+          value: "ocho",
+        }
       ],
     },
     {
@@ -197,20 +201,25 @@ module.exports = {
           )
         );
     } else if (value === "sketchheads") {
-	interaction.followUp(
-	  `**Coming soon!**`
-      );
-    }
-
-    /*
-    else if (value === "sketchheads") {
       discordTogether
         .createTogetherCode(channelID, "sketchheads")
         .then((x) =>
           interaction.followUp(
             `[Click to start ${name} in ${channel.name}!](${x.code})`
           )
-        );
-      */
+        )
+      } else if (value === "ocho") {
+        discordTogether
+          .createTogetherCode(channelID, "ocho")
+          .then((x) =>
+            interaction.followUp(
+              `[Click to start ${name} in ${channel.name}!](${x.code})`
+            )
+          )
+      };
+    /*else if (value === "sketchheads") {
+      interaction.followUp(`**Coming soon!**`);
+    }*/
+    
   },
 };
