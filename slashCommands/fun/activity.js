@@ -66,7 +66,7 @@ module.exports = {
           value: "puttparty",
         },
         {
-          name: "Sketch Heads (Coming Soon)",
+          name: "Sketch Heads",
           value: "sketchheads",
         },
         {
