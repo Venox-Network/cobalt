@@ -8,7 +8,7 @@ module.exports = {
   options: [
     {
       name: "user",
-      description: "member to peform the timeout",
+      description: "member to perform the timeout",
       type: "USER",
       required: true,
     },

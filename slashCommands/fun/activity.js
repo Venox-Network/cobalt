@@ -216,7 +216,7 @@ module.exports = {
               `[Click to start ${name} in ${channel.name}!](${x.code})`
             )
           )
-      };
+      }
     /*else if (value === "sketchheads") {
       interaction.followUp(`**Coming soon!**`);
     }*/
