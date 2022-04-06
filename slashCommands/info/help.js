@@ -37,8 +37,8 @@ module.exports = {
         .filter((cmd) => cmd.directory === dir)
         .map((cmd) => {
           return {
-            name: cmd.name || `null`,
-            description: cmd.description || `null`,
+            name: cmd.name || "null",
+            description: cmd.description || "null",
           };
         });
 
@@ -48,7 +48,6 @@ module.exports = {
       };
     });
 
-    
     const embed = new MessageEmbed()
       .setColor("0070c0")
       .setTitle("Venox Commands")
@@ -82,7 +81,7 @@ module.exports = {
       components: components(false),
     });
 
-    const filter = (interaction) => !interaction.user.bot
+    const filter = (interaction) => !interaction.user.bot;
 
     const collector = interaction.channel.createMessageComponentCollector({
       filter,

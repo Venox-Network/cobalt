@@ -14,38 +14,35 @@ module.exports = {
    */
   run: async (client, interaction, args) => {
     if (!interaction.member.voice.channel)
-    return interaction.followUp({
-      content: "❌ | Join a voice channel first",
-    });
+      return interaction.followUp({
+        content: "❌ | Join a voice channel first",
+      });
 
-  if (
-    interaction.guild.me.voice.channelId &&
-    interaction.member.voice.channelId !==
-      interaction.guild.me.voice.channelId
-  ) {
-    interaction.followUp({
-      content: "❌ | You are not in my voice channel",
-      ephemeral: true,
-    });
-  }
+    if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+      await interaction.followUp({
+        content: "❌ | You are not in my voice channel",
+        ephemeral: true,
+      });
+    }
 
     const channel = interaction.member.voice.channel;
     const queue = player.getQueue(interaction.guildId);
     const connection = getVoiceConnection(interaction.guild.me.voice.channelId);
-
     if (channel) {
-        await queue?.playing || queue ? queue.destroy() : interaction.followUp({content: "❌ | Nothing was in the queue", ephemeral:true}).then(connection.destroy());
-        await interaction.followUp({content: "✅ | Disconnected"});
+      //FIXME Void function return value is used
+      await queue?.playing || queue ? queue.destroy() : interaction.followUp({content: "❌ | Nothing was in the queue", ephemeral:true}).then(connection.destroy());
+      await interaction.followUp({content: "✅ | Disconnected"});
     } else {
-      interaction.followUp({content: "❌ | I'm not connected to a voice channel"});
+      await interaction.followUp({content: "❌ | I'm not connected to a voice channel"});
     }
-
   },
+
   catch(error) {
     console.log(error);
+    //FIXME interaction is undefined
     interaction.followUp({
       content:
-        "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+          "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
     });
   },
 };

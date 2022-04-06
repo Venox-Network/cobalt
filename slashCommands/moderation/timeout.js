@@ -53,7 +53,7 @@ module.exports = {
         ephemeral: true,
       });
 
-      target.send(`You've been timed out in **${interaction.guild.name}** for **${length}**\nReason: ${reason}`)
+      target.send(`You've been timed out in **${interaction.guild.name}** for **${length}**\nReason: ${reason}`);
 
     } catch(error) {
       console.log(error);

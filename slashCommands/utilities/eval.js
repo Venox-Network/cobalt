@@ -1,4 +1,4 @@
-const { inspect } = require("util");
+const inspect = require("util");
 const owners = [
   "273538684526264320",
   "242385234992037888",
@@ -18,6 +18,7 @@ module.exports = {
     /**
      *
      * @param {Client} client
+     * //FIXME Unresolved variable or type 'CommandInteraction'
      * @param {CommandInteraction} interaction
      * @param {String[]} args
      */
@@ -29,7 +30,8 @@ module.exports = {
         );
       const toEval = interaction.options.get("code").value;
       const hrStart = process.hrtime();
-      const evaluated = inspect(eval(toEval), { depth: 0 });
+      //FIXME Method expression is not of Function type
+      const evaluated = inspect(eval(toEval), {depth: 0});
       const hrDiff = process.hrtime(hrStart);
 
       if (evaluated.length >= 2000)
@@ -37,15 +39,15 @@ module.exports = {
           "❌ | Evaluation is too long!"
         );
 
-      interaction.followUp(
-        `Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ""}${
-          hrDiff[1] / 1000000
-        }ms. \`\`\`js\n${evaluated}\`\`\``
+      await interaction.followUp(
+          `Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ""}${
+              hrDiff[1] / 1000000
+          }ms. \`\`\`js\n${evaluated}\`\`\``
       );
     } catch (e) {
       console.log(e);
-      interaction.followUp(
-        `❌ | Error while evaluating: \`${e}\``
+      await interaction.followUp(
+          `❌ | Error while evaluating: \`${e}\``
       );
     }
   },

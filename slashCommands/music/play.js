@@ -1,7 +1,7 @@
 const { QueryType } = require("discord-player");
 const player = require("../../client/player");
-const { MessageEmbed } = require("discord.js");
-const { getVoiceConnection } = require('@discordjs/voice');
+//const { MessageEmbed } = require("discord.js");
+//const { getVoiceConnection } = require("@discordjs/voice");
 
 module.exports = {
   name: "play",
@@ -28,7 +28,7 @@ module.exports = {
       interaction.member.voice.channelId !==
         interaction.guild.me.voice.channelId
     ) {
-      interaction.followUp({
+      await interaction.followUp({
         content: "❌ | You are not in my voice channel",
         ephemeral: true,
       });
@@ -51,7 +51,7 @@ module.exports = {
       const searchResults = await player.search(query, {
         requestedBy: interaction.user,
         searchEngine: QueryType.AUTO,
-      }).then(x => x.tracks[0]);
+      }).then((x) => x.tracks[0]);
       if (!searchResults) return await interaction.followUp({ content: `❌ | Error, **${query}** not found` });
 
       function capitalizeFirstLetter(string) {
@@ -59,7 +59,7 @@ module.exports = {
       }
     
     
-    interaction.followUp({
+    await interaction.followUp({
       content: `▶ | Playing **${searchResults.title}**`,
     });
     
@@ -73,6 +73,7 @@ module.exports = {
   },
   catch(error) {
     console.log(error);
+    //FIXME interaction is undefined
     interaction.followUp({
       content:
         "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

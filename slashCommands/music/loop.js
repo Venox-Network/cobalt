@@ -1,5 +1,5 @@
 const player = require("../../client/player");
-const { GuildMember } = require("discord.js");
+//const { GuildMember } = require("discord.js");
 const { QueueRepeatMode } = require("discord-player");
 const { Client, CommandInteraction } = require("discord.js");
 
@@ -51,7 +51,7 @@ module.exports = {
       interaction.member.voice.channelId !==
         interaction.guild.me.voice.channelId
     ) {
-      interaction.followUp({
+      await interaction.followUp({
         content: "❌ | You are not in my voice channel",
         ephemeral: true,
       });
@@ -61,7 +61,7 @@ module.exports = {
     if (channel) {
       const queue = player.getQueue(interaction.guildId);
       if (!queue || !queue.playing) {
-        return void interaction.followUp({
+        return void await interaction.followUp({
           content: "❌ | No music is being played",
         });
       }
@@ -81,19 +81,20 @@ module.exports = {
           ? "🔁"
           : "▶";
 
-      return void interaction.followUp({
+      return void await interaction.followUp({
         content: success
-          ? `${mode} | Looping ${loopName}`
-          : "❌ | Could not update loop mode",
+            ? `${mode} | Looping ${loopName}`
+            : "❌ | Could not update loop mode",
       });
     } else {
-      interaction.followUp({
+      await interaction.followUp({
         content: "❌ | I'm not connected to a voice channel",
       });
     }
   },
   catch(error) {
     console.log(error);
+    //FIXME interaction is undefined
     interaction.followUp({
       content:
         "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

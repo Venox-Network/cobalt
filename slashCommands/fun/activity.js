@@ -207,7 +207,7 @@ module.exports = {
           interaction.followUp(
             `[Click to start ${name} in ${channel.name}!](${x.code})`
           )
-        )
+        );
       } else if (value === "ocho") {
         discordTogether
           .createTogetherCode(channelID, "ocho")

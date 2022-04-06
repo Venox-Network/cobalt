@@ -9,13 +9,9 @@ module.exports = {
         content: "❌ Join a voice channel first",
       });
 
-    if (
-      interaction.guild.me.voice.channelId &&
-      interaction.member.voice.channelId !==
-        interaction.guild.me.voice.channelId
-    ) {
-      interaction.followUp({
-        content: "❌ You are not in my voice channel",
+    if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+      await interaction.followUp({
+        content: "❌ | You are not in my voice channel",
         ephemeral: true,
       });
     }
@@ -26,17 +22,20 @@ module.exports = {
         content: "❌ No music is currently being played",
       });
 
+    //FIXME Unused parameter err
     await queue.back().catch((err) => interaction.followUp({
-      content: `❌ Could not find previous song` //`❌ There was an error trying to execute that command: \`${err.message}\``
+      content: "❌ Could not find previous song" //`❌ There was an error trying to execute that command: \`${err.message}\``
     }));
 
-    interaction.followUp({ content: `:arrow_backward: Playing **${queue.current.title}** ` });
+    await interaction.followUp({content: `:arrow_backward: Playing **${queue.current.title}** `});
   },
+
   catch(error) {
     console.log(error);
+    //FIXME interaction is undefined
     interaction.followUp({
       content:
-        "❌ There was an error trying to execute that command: " + `\`${error.message}\``,
+          "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
     });
   },
 };

@@ -1,14 +1,14 @@
-const { glob } = require("glob");
+const glob = require("glob");
 const mongoose = require("mongoose");
-const { promisify } = require("util");
-const { Client } = require("discord.js");
-const express = require('express');
-const app = express();
-const Discord = require("discord.js");
-const {Player} = require('discord-player');
-const client = require("../index.js");
+const promisify = require("util");
+//const Client = require("discord.js");
+//const express = require("express");
+//const app = express();
+//const Discord = require("discord.js");
+//const {Player} = require("discord-player");
+//const client = require("../index.js");
 //const client = new Discord.Client({ ws: { intents: 32509 }});
-/*const { Client, Intents } = require('discord.js');
+/*const { Client, Intents } = require("discord.js");
 const myIntents = new Intents();
 myIntents.add(
     Intents.FLAGS.GUILD_PRESENCES, 
@@ -42,6 +42,7 @@ module.exports = async(client) => {
 
         if (file.name) {
             const properties = { directory, ...file };
+            //FIXME Unresolved variable commands
             client.commands.set(file.name, properties);
         }
     });
@@ -59,6 +60,7 @@ module.exports = async(client) => {
     slashCommands.map((value) => {
         const file = require(value);
         if (!file?.name) return;
+        //FIXME Unresolved variable slashCommands
         client.slashCommands.set(file.name, file);
 
         if (["MESSAGE", "USER"].includes(file.type)) delete file.description;
@@ -117,21 +119,21 @@ module.exports = async(client) => {
     });
 
     // mongoose
-    const { mongooseConnectionString } = require('../config.json')
+    const { mongooseConnectionString } = require('../config.json');
     if (!mongooseConnectionString) return;
 
-    mongoose.connect(mongooseConnectionString).then(() => console.log('Connected to mongodb'));
+    mongoose.connect(mongooseConnectionString).then(() => console.log("Connected to mongodb"));
 
 };
 
 const player = require("../client/player");
 
-player.on('queueEnd', queue => {
-  queue.metadata.send('✅ | Queue finished');
+player.on("queueEnd", (queue) => {
+  queue.metadata.send("✅ | Queue finished");
 });
 
-player.on('channelEmpty', queue => {
-  queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
+player.on("channelEmpty", (queue) => {
+  queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 });
 
 //client.on("error", () => { client.login(token) });

@@ -14,7 +14,7 @@ module.exports = {
       interaction.member.voice.channelId !==
         interaction.guild.me.voice.channelId
     ) {
-      interaction.followUp({
+      await interaction.followUp({
         content: "❌ | You are not in my voice channel",
         ephemeral: true,
       });
@@ -52,7 +52,7 @@ module.exports = {
             },
           ],
           footer: {
-            text: `Venox Music`,
+            text: "Venox Music",
             icon_url: client.user.displayAvatarURL()
           },
         },
@@ -61,6 +61,7 @@ module.exports = {
   },
   catch(error) {
     console.log(error);
+    //FIXME interaction is undefined
     interaction.followUp({
       content:
         "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

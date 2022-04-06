@@ -10,7 +10,7 @@ const getLyrics = (title) =>
         url.searchParams.append("title", title);
 
         try {
-            const { data } = await axios.get(url.href);
+            const data = await axios.get(url.href);
             ful(data);
         } catch (error) {
             rej(error);
@@ -28,23 +28,21 @@ const substring = (length, value) => {
 const createResponse = async (title) => {
     try {
         const data = await getLyrics(title);
-
-        const embeds = substring(4096, data.lyrics).map((value, index) => {
+        //FIXME lyrics is undefined
+        return substring(4096, data.lyrics).map((value, index) => {
             const isFirst = index === 0;
-
             return new MessageEmbed({
                 title: isFirst ? `${data.title} - ${data.author}` : null,
-                thumbnail: isFirst ? { url: data.thumbnail.genius } : null,
+                //FIXME genius is undefined
+                thumbnail: isFirst ? {url: data.thumbnail.genius} : null,
                 description: value,
                 color: "0070c0",
                 footer: {
-                  text: "Venox Music",
-                  icon_url: client.user.displayAvatarURL()
+                    text: "Venox Music",
+                    icon_url: client.user.displayAvatarURL()
                 },
             });
         });
-
-        return { embeds };
     } catch (error) {
         return "❌ | I am not able to find lyrics for this song";
     }
@@ -72,9 +70,9 @@ module.exports = {
       interaction.member.voice.channelId !==
         interaction.guild.me.voice.channelId
     ) {
-      interaction.followUp({
-        content: "❌ | You are not in my voice channel",
-        ephemeral: true,
+      await interaction.followUp({
+          content: "❌ | You are not in my voice channel",
+          ephemeral: true,
       });
     }
 
@@ -82,10 +80,10 @@ module.exports = {
         const sendLyrics = (songTitle) => {
             return createResponse(songTitle)
                 .then((res) => {
-                    console.log({ res });
+                    console.log(res);
                     interaction.followUp(res);
                 })
-                .catch((err) => console.log({ err }));
+                .catch((err) => console.log(err));
         };
 
         if (title) return sendLyrics(title);
@@ -100,6 +98,7 @@ module.exports = {
     },
     catch(error) {
         console.log(error);
+        //FIXME interaction is undefined
         interaction.followUp({
           content:
             "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

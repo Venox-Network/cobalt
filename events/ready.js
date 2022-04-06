@@ -1,5 +1,5 @@
 const bot = require("../index");
-const config = require("../config.json");
+//const config = require("../config.json");
 
 bot.on("ready", () =>
   console.log(`${bot.user.tag} is up and ready to go! Also I like cookies :) - yo same!!`)
