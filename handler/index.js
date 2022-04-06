@@ -1,14 +1,14 @@
 const glob = require("glob");
 const mongoose = require("mongoose");
 const promisify = require("util");
-//const Client = require("discord.js");
-//const express = require("express");
-//const app = express();
-//const Discord = require("discord.js");
-//const {Player} = require("discord-player");
-//const client = require("../index.js");
-//const client = new Discord.Client({ ws: { intents: 32509 }});
-/*const { Client, Intents } = require("discord.js");
+/*const Client = require("discord.js");
+const express = require("express");
+const app = express();
+const Discord = require("discord.js");
+const {Player} = require("discord-player");
+const client = require("../index.js");
+const client = new Discord.Client({ ws: { intents: 32509 }});
+const { Client, Intents } = require("discord.js");
 const myIntents = new Intents();
 myIntents.add(
     Intents.FLAGS.GUILD_PRESENCES, 
@@ -19,14 +19,14 @@ myIntents.add(
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     Intents.FLAGS.GUILD_MESSAGE_TYPING
-             );*/
+);
 
-//const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", /*"GUILD_MEMBERS", "GUILD_PRESENCES",*/ "GUILD_WEBHOOKS", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING"] }); //new Client({ intents: myIntents });
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_INTEGRATIONS", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_WEBHOOKS", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING"] }); //new Client({ intents: myIntents });
 
-/*const bot = new Discord.Client({
+const bot = new Discord.Client({
     intents: 32767,
-});
-*/
+});*/
+
 const globPromise = promisify(glob);
 
 /**
@@ -69,7 +69,7 @@ module.exports = async(client) => {
     });
     client.on("ready", async() => {
         // Register for a single guild
-      /*  const guild = client.guilds.cache.get("879734848946847774");
+      /*const guild = client.guilds.cache.get("879734848946847774");
         await guild.commands.set(arrayOfSlashCommands).then((cmd) => {
           const getRoles = (commandName) => {
             const permissions = arrayOfSlashCommands.find(
@@ -109,10 +109,7 @@ module.exports = async(client) => {
           
           guild.commands.permissions.set({ fullPermissions });
 
-        });
-        
-        */
-
+        });*/
 
         // Register for all the guilds the client is in
         await client.application.commands.set(arrayOfSlashCommands);
@@ -136,11 +133,8 @@ player.on("channelEmpty", (queue) => {
   queue.metadata.send("❌ | Nobody is in the voice channel, leaving...");
 });
 
-//client.on("error", () => { client.login(token) });
-
-/*
-
-//const player = new Player(client);
+/*client.on("error", () => { client.login(token) });
+const player = new Player(client);
 const player = require("../../client/player");
 
 player.on('error', (queue, error) => {
@@ -166,8 +160,7 @@ player.on('error', (queue, error) => {
   player.on('channelEmpty', queue => {
     queue.metadata.send('❌ | Nobody is in the voice channel, leaving...');
   });
-*/
-/*
+
   client.on('voiceStateUpdate', (oldState, newState) => {
 
     // if nobody left the channel in question, return.
@@ -184,9 +177,9 @@ player.on('error', (queue, error) => {
   
 
   const db = require('quick.db')
-*/
-//under if(message.author.bot)
-/*
+
+under if(message.author.bot)
+
 client.on('message', async (message) =>{
 if(db.has(`afk-${message.author.id}+${message.guild.id}`)) {
         const info = db.get(`afk-${message.author.id}+${message.guild.id}`)
@@ -199,5 +192,4 @@ if(db.has(`afk-${message.author.id}+${message.guild.id}`)) {
             message.channel.send(message.mentions.members.first().user.tag + ":" + db.get(`afk-${message.mentions.members.first().id}+${message.guild.id}`))
         }else return;
     }else;
-  });
-  */
+  });*/

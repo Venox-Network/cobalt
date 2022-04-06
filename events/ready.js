@@ -8,9 +8,8 @@ bot.on("ready", () =>
 bot.on("ready", () => {
   const servers = bot.guilds.cache.size;
   const usercount = bot.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
-
   const activities = [
-    { type: "PLAYING", message: "you can't see this" }, // <= don't remove srnyx
+    { type: "PLAYING", message: "you can't see this" },
     { type: "WATCHING", message: "over chrizftw.cf" },
     { type: "LISTENING", message: "srnyx.xyz/playlist" },
     { type: "WATCHING", message: `${servers} servers (${usercount} users)` },
@@ -31,7 +30,6 @@ bot.on("ready", () => {
 
   setInterval(() => {
     const randomIndex = Math.floor(Math.random() * (activities.length - 1) + 1);
-
     bot.user.setActivity(activities[randomIndex].message, {
       type: activities[randomIndex].type,
     });
@@ -45,7 +43,4 @@ bot.on('ready', function() {
     // ${servers} servers & ${servercount} users
     bot.user.setActivity(`the future: v.srnyx.xyz`, { type: `WATCHING` }); // PLAYING, WATCHING, LISTENING, STREAMING, COMPETING
     bot.user.setStatus("online");
-  });
-
- 
-*/
+  });*/
