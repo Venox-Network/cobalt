@@ -21,7 +21,7 @@ body:
       description: If you have an idea of how this idea can be implemented, please provide it below.
     validations:
       required: false
-  - type: textara
+  - type: textarea
     attributes:
       label: Media
       description: Please include any screenshots/videos/etc... to help understand your idea.
