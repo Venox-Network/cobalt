@@ -1,0 +1,8 @@
+Bot token on next line no quotes:
+OTYwOTUwMTc3Njg5MTI0ODk0.Ykx4lw.M6NsNLIwHaX8BDItCaxnAWL1yfM
+MongoDB connection string on next line no quotes:
+mongodb+srv://DWAA:VENOXPASS@venoxclustername.zhflv.mongodb.net/VenoxDB?retryWrites=true
+Global report channel id on next line:
+892567021772996658
+Global log channel on next line:
+873801735213297745
