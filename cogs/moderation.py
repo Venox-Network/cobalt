@@ -13,7 +13,7 @@ import nextcord
 from nextcord import Interaction, slash_command
 from nextcord.ext import commands
 
-from bot import client, guild_id, guild_id2, CLUSTER, Global_Report_Channel, Global_Log_Channel
+from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
 
 cluster_local = CLUSTER
 

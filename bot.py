@@ -15,10 +15,6 @@ with open("soontobeconfig.txt") as f:
 
 client = commands.Bot(command_prefix=",")
 
-guild_id = 873789547362803755
-guild_id2 = 960994329340547143
-
-
 @client.event
 async def on_ready():
     print("bot is ready")
