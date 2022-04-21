@@ -15,6 +15,7 @@ with open("soontobeconfig.txt") as f:
 
 client = commands.Bot(command_prefix=",")
 
+
 @client.event
 async def on_ready():
     print("bot is ready")
@@ -31,8 +32,6 @@ async def node_connect(self):
                                         host='kerosine.darrennathanael.com',
                                         port=2124,
                                         password='SleepingOnTrains')
-
-
 
 
 class Confirm(nextcord.ui.View):
