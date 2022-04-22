@@ -4,8 +4,6 @@ from nextcord.abc import GuildChannel
 from nextcord.ext import commands
 import wavelink
 
-from cogs.moderation import guild_id
-
 
 class music(commands.Cog):
 
