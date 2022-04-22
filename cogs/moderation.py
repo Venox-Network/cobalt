@@ -4,9 +4,10 @@ import os
 import nextcord
 import pymongo as pymongo
 import asyncio
-from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild
+from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
 import os
+from datetime import datetime
 import humanfriendly
 import motor.motor_asyncio
 import nextcord
@@ -64,43 +65,34 @@ class moderation(commands.Cog):
         except:
             await interaction.send("Report failed please notify staff", ephemeral=True)
 
-    @slash_command(description="Warn a member for there wrong doing")
+
     @commands.has_permissions(moderate_members=True)
+    @slash_command(description="Warn a member for there wrong doing")
     async def warn(self, interaction: Interaction, member: nextcord.User, reason=None):
         id = member.id
         member_name = member.name
         ctx_guild_id = interaction.guild.id
         guildname = interaction.guild.name
-        results = await warn_collection.find_one({"warn_guild": ctx_guild_id, "memberid": id})
-        if results is not None:
-            count = results["warns"]
-            count_done = count + 1
-            reasons = results["reasons"]
-            reasons_updated = f"{reasons}, {reason}"
-            await warn_collection.update_one({"warn_guild": ctx_guild_id, "memberid": id},
-                                             {"$set": {"warns": count_done, "reasons": reasons_updated}})
-            await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
-        else:
-            await warn_collection.insert_one(
-                {"name": member_name, "memberid": id, "warns": 1, "warn_guild": ctx_guild_id, "guildname": guildname,
-                 "reasons": reason})
-            await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `1`")
+        count_done = 1
+        date = datetime.now().strftime("%Y-%m-%d")
+        await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "reason": reason, "date": date})
+        count_done = await warn_collection.count_documents({"warn_guild": ctx_guild_id, "memberid": id})
+        await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
 
-    @slash_command(description="See a members warns")
     @commands.has_permissions(moderate_members=True)
+    @slash_command(description="See a members warns")
     async def warns(self, interaction: Interaction, member: nextcord.User):
         ctx_guild_id = interaction.guild.id
         id = member.id
-        results = await warn_collection.find_one({"warn_guild": ctx_guild_id, "memberid": id})
-        if results is not None:
-            warns = results["warns"]
-            reason_results = results["reasons"]
-            embed = nextcord.Embed(title=f"Warns for {member}", description="Shows all the warns for member")
-            embed.add_field(name=f"Warns amount: ", value=f"{warns}")
-            embed.add_field(name=f"Reasons: ", value=f"{reason_results}")
-            await interaction.send(embed=embed)
-        else:
-            await interaction.send(f"**`{member}`** does not have any warns")
+        warn_counts = await warn_collection.count_documents({"warn_guild": ctx_guild_id, "memberid": id})
+        embed = nextcord.Embed(title=f"Warns for {member.name}:", description=f"`{member.name}` has `{warn_counts}` warns")
+
+        cursor = warn_collection.find({"warn_guild": ctx_guild_id, "memberid": id})
+        async for document in cursor:
+            datelocal = document["date"]
+            reasonlocal = document["reason"]
+            embed.add_field(name="Warn: ", value=f"Date: `{datelocal}` Reason: `{reasonlocal}`")
+        await interaction.send(embed=embed)
 
     @slash_command(description="Mute a member using the timeout function")
     @commands.has_permissions(moderate_members=True)
@@ -109,11 +101,11 @@ class moderation(commands.Cog):
         await member.edit(timeout=nextcord.utils.utcnow() + datetime.timedelta(seconds=time))
         log_channel = await client.fetch_channel(channel_id)
         await log_channel.send(f" `{member}` has been muted `{time}` for reason `{reason}`")
-        await member.send(f"You have been muted for {time} for the reason {reason}")
+        await member.send(f"You have been muted for **{time}** for the reason **{reason}** in **{interaction.guild.name}**")
         await interaction.response.send_message(f" `{member}` has been muted `{time}` for reason `{reason}`")
 
-    @slash_command(description="Un timeouts a member")
     @commands.has_permissions(moderate_members=True)
+    @slash_command(description="Un timeouts a member")
     async def unmute(self, interaction: Interaction, member: nextcord.Member):
 
         await member.edit(timeout=nextcord.utils.utcnow() + datetime.timedelta(seconds=1))
@@ -122,8 +114,8 @@ class moderation(commands.Cog):
         await member.send(f"you have been unmuted")
         await interaction.response.send_message(f" {member} has been unmuted")
 
-    @slash_command(description="Kick a member")
     @commands.has_permissions(kick_members=True)
+    @slash_command(description="Kick a member")
     async def kick(self, interaction: Interaction, member: nextcord.User, *, reason=None):
         await member.kick(reason=reason)
         log_channel = await client.fetch_channel(channel_id)
@@ -131,8 +123,8 @@ class moderation(commands.Cog):
         await member.send(f"You have been kicked for {reason}")
         await interaction.response.send_message(f"{member} has been kicked for {reason}")
 
-    @slash_command(description="Bans a member from the guild")
     @commands.has_permissions(ban_members=True)
+    @slash_command(description="Bans a member from the guild")
     async def ban(self, interaction: Interaction, member: nextcord.User, *, reason=None):
         await member.ban(reason=reason)
         log_channel = await client.fetch_channel(channel_id)
@@ -164,9 +156,9 @@ class moderation(commands.Cog):
     async def guilds(self, interaction: Interaction):
         await interaction.response.send_message(f"Venox is in {len(client.guilds)} servers")
 
+    @commands.has_permissions(manage_messages=True)
     @slash_command(
         description="With a member it checks the last defined amount of messages and purges any that was sent by user")
-    @commands.has_permissions(manage_messages=True)
     async def purge(self, interaction: Interaction, amount: int = 5, member: nextcord.User = "None"):
         if member != "None":
             await interaction.channel.purge(limit=amount, check=lambda message: message.author == member)
