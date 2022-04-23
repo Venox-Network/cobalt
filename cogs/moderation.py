@@ -1,18 +1,16 @@
 import datetime
 import os
-
 import nextcord
 import pymongo as pymongo
 import asyncio
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
 import os
-from datetime import datetime
 import humanfriendly
 import motor.motor_asyncio
 import nextcord
 from nextcord import Interaction, slash_command
-from nextcord.ext import commands
+from nextcord.ext import commands, application_checks
 
 from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
 
@@ -32,7 +30,7 @@ class moderation(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.has_permissions(manage_guild=True)
+    @application_checks.has_permissions(manage_guild=True)
     @slash_command(description="Setup the report command")
     async def reportsetup(self, interaction: Interaction, report_channel_id):
         try:
@@ -65,21 +63,22 @@ class moderation(commands.Cog):
         except:
             await interaction.send("Report failed please notify staff", ephemeral=True)
 
-
-    @commands.has_permissions(moderate_members=True)
+    @application_checks.has_permissions(moderate_members=True)
     @slash_command(description="Warn a member for there wrong doing")
     async def warn(self, interaction: Interaction, member: nextcord.User, reason=None):
+        from datetime import datetime
         id = member.id
         member_name = member.name
         ctx_guild_id = interaction.guild.id
         guildname = interaction.guild.name
         count_done = 1
+
         date = datetime.now().strftime("%Y-%m-%d")
         await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "reason": reason, "date": date})
         count_done = await warn_collection.count_documents({"warn_guild": ctx_guild_id, "memberid": id})
         await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
 
-    @commands.has_permissions(moderate_members=True)
+    @application_checks.has_permissions(moderate_members=True)
     @slash_command(description="See a members warns")
     async def warns(self, interaction: Interaction, member: nextcord.User):
         ctx_guild_id = interaction.guild.id
@@ -95,7 +94,7 @@ class moderation(commands.Cog):
         await interaction.send(embed=embed)
 
     @slash_command(description="Mute a member using the timeout function")
-    @commands.has_permissions(moderate_members=True)
+    @application_checks.has_permissions(moderate_members=True)
     async def mute(self, interaction: Interaction, member: nextcord.User, time, *, reason='None'):
         time = humanfriendly.parse_timespan(time)
         await member.edit(timeout=nextcord.utils.utcnow() + datetime.timedelta(seconds=time))
@@ -104,7 +103,7 @@ class moderation(commands.Cog):
         await member.send(f"You have been muted for **{time}** for the reason **{reason}** in **{interaction.guild.name}**")
         await interaction.response.send_message(f" `{member}` has been muted `{time}` for reason `{reason}`")
 
-    @commands.has_permissions(moderate_members=True)
+    @application_checks.has_permissions(moderate_members=True)
     @slash_command(description="Un timeouts a member")
     async def unmute(self, interaction: Interaction, member: nextcord.Member):
 
@@ -114,7 +113,7 @@ class moderation(commands.Cog):
         await member.send(f"you have been unmuted")
         await interaction.response.send_message(f" {member} has been unmuted")
 
-    @commands.has_permissions(kick_members=True)
+    @application_checks.has_permissions(kick_members=True)
     @slash_command(description="Kick a member")
     async def kick(self, interaction: Interaction, member: nextcord.User, *, reason=None):
         await member.kick(reason=reason)
@@ -123,7 +122,7 @@ class moderation(commands.Cog):
         await member.send(f"You have been kicked for {reason}")
         await interaction.response.send_message(f"{member} has been kicked for {reason}")
 
-    @commands.has_permissions(ban_members=True)
+    @application_checks.has_permissions(ban_members=True)
     @slash_command(description="Bans a member from the guild")
     async def ban(self, interaction: Interaction, member: nextcord.User, *, reason=None):
         await member.ban(reason=reason)
@@ -136,7 +135,7 @@ class moderation(commands.Cog):
     async def support(self, interaction: Interaction):
         await interaction.response.send_message('Join our support server https://discord.gg/kaddCVeRj6')
 
-    @commands.has_permissions(ban_members=True)
+    @application_checks.has_permissions(ban_members=True)
     @slash_command(description="Bans a member from all guilds Venox is in")
     async def superban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
         # srnyx and chrizs id
@@ -156,7 +155,7 @@ class moderation(commands.Cog):
     async def guilds(self, interaction: Interaction):
         await interaction.response.send_message(f"Venox is in {len(client.guilds)} servers")
 
-    @commands.has_permissions(manage_messages=True)
+    @application_checks.has_permissions(manage_messages=True)
     @slash_command(
         description="With a member it checks the last defined amount of messages and purges any that was sent by user")
     async def purge(self, interaction: Interaction, amount: int = 5, member: nextcord.User = "None"):
