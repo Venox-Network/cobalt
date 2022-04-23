@@ -13,7 +13,9 @@ with open("soontobeconfig.txt") as f:
 with open("soontobeconfig.txt") as f:
     Global_Log_Channel = f.readlines()[7]
 
-client = commands.Bot(command_prefix=",")
+intents = nextcord.Intents.default()
+intents.members = True
+client = commands.Bot(intents=intents)
 
 
 @client.event
