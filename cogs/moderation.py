@@ -139,7 +139,16 @@ class moderation(commands.Cog):
     @slash_command(description="Bans a member from all guilds Venox is in")
     async def superban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
         # srnyx and chrizs id
-        if interaction.user.id == 242385234992037888 or 273538684526264320:
+        if interaction.user.id == 242385234992037888:
+            member_id = member.id
+            for g in client.guilds:
+                if m := await g.fetch_member(member_id):
+                    await m.ban()
+                    member.send(f"You have been banned from all venox servers for reason {reason}")
+                    log_channel = await client.fetch_channel(channel_id)
+                    await log_channel.send(f" `{member}` has been superbanned for reason `{reason}`")
+                    await interaction.response.send_message("User was super banned for `" + reason + "`")
+        elif interaction.user.id == 273538684526264320:
             member_id = member.id
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
