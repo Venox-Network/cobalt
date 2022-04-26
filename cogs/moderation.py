@@ -35,7 +35,7 @@ class moderation(commands.Cog):
     async def reportsetup(self, interaction: Interaction, report_channel_id):
         ctxchannel = interaction.channel.id
         channelfletched = await client.fetch_channel(ctxchannel)
-        channelfletched.send("ran")
+        await channelfletched.send("ran")
         try:
             ctxguild_id = str(interaction.guild.id)
             data = {"_id": ctxguild_id, "guildid": ctxguild_id, "reports_id": report_channel_id}
@@ -44,9 +44,11 @@ class moderation(commands.Cog):
             await interaction.send("Report channel setup!")
         except:
             getting_replaced = await collection.find_one({"_id": ctxguild_id})
-            channelfletched.send("found existed")
+            for data in getting_replaced:
+                await channelfletched.send(data)
+            await channelfletched.send("found existed")
             await collection.replace_one(getting_replaced, data)
-            channelfletched.send("replaced")
+            await channelfletched.send("replaced")
             await interaction.send("Replaced report channel")
 
     @slash_command(description="Report a user and get a response asap")
