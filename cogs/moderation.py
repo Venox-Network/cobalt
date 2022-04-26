@@ -18,15 +18,16 @@ cluster_local = CLUSTER
 
 cluster = motor.motor_asyncio.AsyncIOMotorClient(cluster_local)
 db = cluster["VenoxDB"]
-db.createCollection("report_channels")
 collection = db["report_channels"]
-db.createCollection("warns")
 warn_collection = db["warns"]
 global_report_channel = Global_Report_Channel
 # global log channel
 channel_id = Global_Log_Channel
-
-
+try:
+    db.createCollection("report_channels")
+    db.createCollection("warns")
+except:
+    pass
 class moderation(commands.Cog):
 
     def __init__(self, client):
