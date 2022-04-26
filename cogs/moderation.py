@@ -23,8 +23,6 @@ warn_collection = db["warns"]
 global_report_channel = Global_Report_Channel
 # global log channel
 channel_id = Global_Log_Channel
-collection.insert_one({"tempdata": "value"})
-warn_collection.insert_one({"tempdata": "value"})
 
 
 class moderation(commands.Cog):
