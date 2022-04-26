@@ -1,0 +1,5 @@
+nextcord~=2.0.0a10
+wavelink~=1.2.4
+pymongo~=3.12.3
+humanfriendly~=10.0
+motor~=2.5.1
