@@ -2,7 +2,6 @@ name: 💡 Suggest your idea(s)
 description: Suggest an idea/enhancement for the bot.
 title: Add a descriptive title
 labels: enhancement
-assignees: Chrizxz
 
 body:
   - type: markdown
