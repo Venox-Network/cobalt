@@ -10,7 +10,7 @@ body:
         Before suggestion an enhancement here, please make sure you've searched to see if it already exists.
   - type: textarea
     attributes:
-      label: General discription
+      label: General description
       description: Please provide a general description of what you want added.
     validations:
       required: true
