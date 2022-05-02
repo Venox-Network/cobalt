@@ -48,6 +48,23 @@ class superban(commands.Cog):
         else:
             await interaction.response.send_message("You are not the almighty Srnyx or Chriz you cannot do this")
 
+    @application_checks.has_permissions(ban_members=True)
+    @slash_command(description="Bans a member from all guilds Venox is in")
+    async def superunban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
+        # srnyx and chrizs id
+        bot_owners = ["242385234992037888", "273538684526264320"]
+        if interaction.user.id in bot_owners:
+            member_id = member.id
+            for g in client.guilds:
+                if m := await g.fetch_member(member_id):
+                    await m.unban()
+                    member.send(f"You have been unbanned from all venox servers for reason {reason}")
+                    log_channel = await client.fetch_channel(channel_id)
+                    await log_channel.send(f" `{member}` has been superunbanned for reason `{reason}`")
+                    await interaction.response.send_message("User was super unbanned for `" + reason + "`")
+        else:
+            await interaction.response.send_message("You are not the almighty Srnyx or Chriz you cannot do this")
+
 
 def setup(client):
     client.add_cog(superban(client))
