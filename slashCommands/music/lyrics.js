@@ -31,6 +31,7 @@ const createResponse = async (title) => {
         //FIXME lyrics is undefined
         return substring(4096, data.lyrics).map((value, index) => {
             const isFirst = index === 0;
+            //FIXME Signature mismatch
             return new MessageEmbed({
                 title: isFirst ? `${data.title} - ${data.author}` : null,
                 //FIXME genius is undefined
@@ -99,6 +100,7 @@ module.exports = {
     catch(error) {
         console.log(error);
         //FIXME interaction is undefined
+        //FIXME Promise returned from followUp is ignored
         interaction.followUp({
           content:
             "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

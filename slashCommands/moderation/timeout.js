@@ -48,7 +48,7 @@ module.exports = {
         return interaction.followUp("❌ | Please specify a valid time!");
 
       member.timeout(timeInMs, reason);
-      interaction.followUp({
+      await interaction.followUp({
         content: `✅ | ${target} has been muted for ${length}.\nReason: ${reason}`,
         ephemeral: true,
       });
@@ -57,9 +57,9 @@ module.exports = {
 
     } catch(error) {
       console.log(error);
-      interaction.followUp({
+      await interaction.followUp({
         content:
-        "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
+            "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,
       });
     }
   },

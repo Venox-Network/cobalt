@@ -54,11 +54,6 @@ module.exports = {
       }).then((x) => x.tracks[0]);
       if (!searchResults) return await interaction.followUp({ content: `❌ | Error, **${query}** not found` });
 
-      function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-      }
-    
-    
     await interaction.followUp({
       content: `▶ | Playing **${searchResults.title}**`,
     });
@@ -74,6 +69,7 @@ module.exports = {
   catch(error) {
     console.log(error);
     //FIXME interaction is undefined
+    //FIXME Promise returned from followUp is ignored
     interaction.followUp({
       content:
         "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

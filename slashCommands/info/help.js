@@ -14,9 +14,8 @@ module.exports = {
    *
    * @param {Client} client
    * @param {CommandInteraction} interaction
-   * @param {String[]} args
    */
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     const emojis = {
       info: "ℹ",
       utilities: "🔧",
@@ -26,6 +25,7 @@ module.exports = {
     };
 
     const directories = [
+        //FIXME Unresolved variable
       ...new Set(client.commands.map((cmd) => cmd.directory)),
     ];
 
@@ -33,6 +33,7 @@ module.exports = {
       `${str[0].toUpperCase()}${str.slice(1).toLowerCase()}`;
 
     const categories = directories.map((dir) => {
+      //FIXME Unresolved variable
       const getCmd = client.commands
         .filter((cmd) => cmd.directory === dir)
         .map((cmd) => {
@@ -49,9 +50,11 @@ module.exports = {
     });
 
     const embed = new MessageEmbed()
+        //FIXME Signature mismatch
       .setColor("0070c0")
       .setTitle("Venox Commands")
       .setDescription("Choose a category")
+        //FIXME Deprecated symbol used
       .setFooter(
         "Venox Network",
         "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
@@ -59,11 +62,13 @@ module.exports = {
 
     const components = (state) => [
       new MessageActionRow().addComponents(
+          //FIXME Signature mismatch
         new MessageSelectMenu()
           .setCustomId("help-menu")
           .setPlaceholder("Select a category")
           .setDisabled(state)
           .addOptions(
+              //FIXME Signature mismatch
             categories.map((cmd) => {
               return {
                 label: cmd.directory,
@@ -98,7 +103,9 @@ module.exports = {
 
       const categoryEmbed = new MessageEmbed()
         .setTitle(`${directory.toUpperCase()}`)
+          //FIXME Signature mismatch
         .setColor("0070c0")
+          //FIXME Deprecated symbol used
         .setFooter(
           "Venox Network",
           "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
@@ -116,10 +123,11 @@ module.exports = {
 
       interaction.update({ embeds: [categoryEmbed] });
 
-      // interaction.reply({embeds: [categoryEmbed], ephermal: true})
+      // interaction.reply({embeds: [categoryEmbed], ephemeral: true})
     });
 
     collector.on("end", () => {
+      //FIXME Unresolved function or method
       initialMessage.edit({ components: components(true) });
     });
   },

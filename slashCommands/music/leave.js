@@ -10,9 +10,8 @@ module.exports = {
    *
    * @param {Client} client
    * @param {CommandInteraction} interaction
-   * @param {String[]} args
    */
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     if (!interaction.member.voice.channel)
       return interaction.followUp({
         content: "❌ | Join a voice channel first",
@@ -30,6 +29,7 @@ module.exports = {
     const connection = getVoiceConnection(interaction.guild.me.voice.channelId);
     if (channel) {
       //FIXME Void function return value is used
+      //FIXME Signature mismatch
       await queue?.playing || queue ? queue.destroy() : interaction.followUp({content: "❌ | Nothing was in the queue", ephemeral:true}).then(connection.destroy());
       await interaction.followUp({content: "✅ | Disconnected"});
     } else {
@@ -40,6 +40,7 @@ module.exports = {
   catch(error) {
     console.log(error);
     //FIXME interaction is undefined
+    //FIXME Promise returned from followUp is ignored
     interaction.followUp({
       content:
           "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

@@ -7,24 +7,24 @@ module.exports = {
    *
    * @param {Client} client
    * @param {ContextMenuInteraction} interaction
-   * @param {String[]} args
    */
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     const target = await interaction.guild.members.fetch(interaction.targetId);
     const embed = new MessageEmbed()
       .setColor(target.roles.cache.size - 1 ? target.displayHexColor : "b9bbbe" )
+        //FIXME Deprecated symbol used
       .setAuthor(target.user.tag)
       .setDescription(`${target.user}`)
       .setThumbnail(target.user.avatarURL({ dynamic: true, size: 512 }))
       .addField(
         "Member Since:",
-        //FIXME Argument type number is not assignable to parameter type string
+          //FIXME Argument type number is not assignable to parameter type string
         `<t:${parseInt(target.joinedTimestamp / 1000)}:R>`,
         true
       )
       .addField(
         "Discord User Since:",
-        //FIXME Argument type number is not assignable to parameter type string
+          //FIXME Argument type number is not assignable to parameter type string
         `<t:${parseInt(target.user.createdTimestamp / 1000)}:R>`,
         true
       )
@@ -46,6 +46,7 @@ module.exports = {
         true
       )*/
       .addField("User's ID:", `${target.user.id}`, true)
+        //FIXME Deprecated symbol used
       .setFooter(
         "Venox Network",
         "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"

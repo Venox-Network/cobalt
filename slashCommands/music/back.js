@@ -3,7 +3,7 @@ const player = require("../../client/player");
 module.exports = {
   name: "back",
   description: "plays previous track",
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     if (!interaction.member.voice.channel)
       return interaction.followUp({
         content: "❌ Join a voice channel first",
@@ -22,8 +22,7 @@ module.exports = {
         content: "❌ No music is currently being played",
       });
 
-    //FIXME Unused parameter err
-    await queue.back().catch((err) => interaction.followUp({
+    await queue.back().catch(() => interaction.followUp({
       content: "❌ Could not find previous song" //`❌ There was an error trying to execute that command: \`${err.message}\``
     }));
 

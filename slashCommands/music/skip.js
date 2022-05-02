@@ -3,7 +3,7 @@ const player = require("../../client/player");
 module.exports = {
   name: "skip",
   description: "skip the current song",
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     if (!interaction.member.voice.channel)
       return interaction.followUp({
         content: "❌ Join a voice channel first",
@@ -27,7 +27,7 @@ module.exports = {
       });
 
     //FIXME Unresolved function or method catch()
-    await queue.skip().catch((err) => interaction.followUp({
+    await queue.skip().catch(() => interaction.followUp({
       content: "❌ Could not find next song" //`❌ There was an error trying to execute that command: \`${err.message}\``
     }));
 
@@ -42,6 +42,7 @@ module.exports = {
   catch(error) {
     console.log(error);
     //FIXME interaction is undefined
+    //FIXME Promise returned from followUp is ignored
     interaction.followUp({
       content:
         "❌ There was an error trying to execute that command: " +

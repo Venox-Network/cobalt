@@ -8,13 +8,13 @@ module.exports = {
    *
    * @param {Client} client
    * @param {CommandInteraction} interaction
-   * @param {String[]} args
    */
-  run: async (client, interaction, args) => {
-    interaction.followUp("Pinging...");
+  run: async (client, interaction) => {
+    await interaction.followUp("Pinging...");
     const reply = await interaction.fetchReply();
     const embed = new MessageEmbed()
       .setTitle("Pong!")
+        //FIXME Signature mismatch
       .setColor("0070c0")
       .addField(
         "❤️ Heartbeat", 
@@ -22,12 +22,15 @@ module.exports = {
         )
       .addField(
         "🔁 Roundtrip",
+          //FIXME Unresolved variable
         `${reply.createdTimestamp - interaction.createdTimestamp}ms`
       )
+        //FIXME Deprecated symbol used
       .setFooter(
         "Venox Network",
         "https://us-east-1.tixte.net/uploads/img.srnyx.xyz/circle.png"
       );
+    //FIXME Unresolved function or method
     reply.edit({ content: " ", embeds: [embed] });
   },
 };

@@ -9,12 +9,8 @@ module.exports = {
         content: "❌ | Join a voice channel first",
       });
 
-    if (
-      interaction.guild.me.voice.channelId &&
-      interaction.member.voice.channelId !==
-        interaction.guild.me.voice.channelId
-    ) {
-      interaction.followUp({
+    if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+      await interaction.followUp({
         content: "❌ | You are not in my voice channel",
         ephemeral: true,
       });
@@ -32,6 +28,8 @@ module.exports = {
   },
   catch(error) {
     console.log(error);
+    //FIXME Unresolved variable or type interaction
+    //FIXME Promise returned from followUp is ignored
     interaction.followUp({
       content:
         "❌ | There was an error trying to execute that command: " + `\`${error.message}\``,

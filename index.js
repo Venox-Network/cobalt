@@ -1,4 +1,4 @@
-const { Client, Collection } = require("discord.js");
+const { Collection } = require("discord.js");
 const Discord = require("discord.js");
 /*
 const client = new Client({
@@ -27,4 +27,5 @@ client.config = require("./config.json");
 // Initializing the project
 require("./handler")(client); 
 
-client.login(client.config.token); 
+//FIXME Promise returned from login is ignored
+client.login(client.config.token);

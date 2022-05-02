@@ -15,40 +15,41 @@ module.exports = {
             required: true,
         }
     ],
+
     /**
      *
      * @param {Client} client
      * //FIXME Unresolved variable or type 'CommandInteraction'
      * @param {CommandInteraction} interaction
-     * @param {String[]} args
      */
-  run: async (client, interaction, args) => {
-    try {
-      if (!owners.includes(interaction.user.id))
-        return interaction.followUp(
-          "❌ | Only the bot owners can use this command."
-        );
-      const toEval = interaction.options.get("code").value;
-      const hrStart = process.hrtime();
-      //FIXME Method expression is not of Function type
-      const evaluated = inspect(eval(toEval), {depth: 0});
-      const hrDiff = process.hrtime(hrStart);
+    run: async (client, interaction) => {
+      try {
+        if (!owners.includes(interaction.user.id))
+            return interaction.followUp(
+                "❌ | Only the bot owners can use this command."
+            );
+        const toEval = interaction.options.get("code").value;
+        const hrStart = process.hrtime();
+        //FIXME Method expression is not of Function type
+        //FIXME Signature mismatch
+        const evaluated = inspect(eval(toEval), {depth: 0});
+        const hrDiff = process.hrtime(hrStart);
 
-      if (evaluated.length >= 2000)
-        return interaction.followUp(
-          "❌ | Evaluation is too long!"
-        );
+        if (evaluated.length >= 2000)
+            return interaction.followUp(
+                "❌ | Evaluation is too long!"
+            );
 
-      await interaction.followUp(
-          `Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ""}${
-              hrDiff[1] / 1000000
-          }ms. \`\`\`js\n${evaluated}\`\`\``
-      );
-    } catch (e) {
-      console.log(e);
-      await interaction.followUp(
-          `❌ | Error while evaluating: \`${e}\``
-      );
-    }
-  },
+        await interaction.followUp(
+            `Executed in ${hrDiff[0] > 0 ? `${hrDiff[0]}s ` : ""}${
+                hrDiff[1] / 1000000
+            }ms. \`\`\`js\n${evaluated}\`\`\``
+        );
+      } catch (e) {
+          console.log(e);
+          await interaction.followUp(
+              `❌ | Error while evaluating: \`${e}\``
+          );
+      }
+      },
 };

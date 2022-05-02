@@ -2,9 +2,6 @@ const discordTogether = require("../../client/discordTogether");
 const {
   CommandInteraction,
   Client,
-  Message,
-  MessageActionRow,
-  MessageButton,
 } = require("discord.js");
 
 module.exports = {
@@ -87,10 +84,9 @@ module.exports = {
    *
    * @param {Client} client
    * @param {CommandInteraction} interaction
-   * @param {String[]} args
    *
    */
-  run: async (client, interaction, args) => {
+  run: async (client, interaction) => {
     //const [channelID] = args[1];
     const channelID = interaction.options.getChannel("channel").id;
     const channel = interaction.options.getChannel("channel");

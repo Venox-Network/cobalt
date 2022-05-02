@@ -44,6 +44,7 @@ module.exports = {
                   //"❌ There was an error trying to execute that command: " + `\`${error.message}\``,
                 })
                 //FIXME Void function return value is used
+                //FIXME Signature mismatch
                 .then(console.log(error))
         );
 

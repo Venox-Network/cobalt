@@ -27,6 +27,7 @@ const bot = new Discord.Client({
     intents: 32767,
 });*/
 
+//FIXME Method expression is not of Function type
 const globPromise = promisify(glob);
 
 /**
