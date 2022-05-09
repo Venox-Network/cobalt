@@ -39,7 +39,7 @@ class kick(commands.Cog):
         try:
             await member.send(f"You have been kicked for **{reason}**")
         except:
-            await interaction.send("Failed to DM **{member}**")
+            await interaction.send(f"Failed to DM **{member}**")
         await interaction.response.send_message(f"**{member}** has been kicked for **{reason}**")
 
 
