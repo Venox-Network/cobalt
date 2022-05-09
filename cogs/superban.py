@@ -41,7 +41,7 @@ class superban(commands.Cog):
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
                     await m.ban()
-                    member.send(f"You have been banned from all Venox Network servers for `{reason}`
+                    member.send(f"You have been banned from all Venox Network servers for `{reason}`")
                     log_channel = await client.fetch_channel(channel_id)
                     await log_channel.send(f"`{member.name}` has been superbanned for `{reason}`")
                     await interaction.response.send_message("User was super banned for `" + reason + "`")

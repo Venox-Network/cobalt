@@ -36,7 +36,11 @@ class info(commands.Cog):
 
     @slash_command(description="Sends the number of guilds Venox is in")
     async def guilds(self, interaction: Interaction):
+        r = ""
+        for guild in client.guilds:
+            r += f"`{guild}`, "
         await interaction.response.send_message(f"Venox is in {len(client.guilds)} servers")
+        await interaction.send(r)
 
 
 def setup(client):
