@@ -37,7 +37,7 @@ class kick(commands.Cog):
         try:
             await member.kick(reason=reason)
         except nextcord.DiscordException as e:
-            await interaction.response.send_message(f"Could not kick user: {member.mention}\nError: {str(e)}", ephemeral=True)
+            await interaction.response.send_message(f"Could not kick user: {member.mention}\n**Error:** `{str(e)}`", ephemeral=True)
 
         log_channel = await client.fetch_channel(channel_id)
         await log_channel.send(f" `{member}` has been kicked for reason `{reason}`")
@@ -45,9 +45,9 @@ class kick(commands.Cog):
         try:
             await member.send(f"You have been kicked for {reason}")
         except nextcord.DiscordException as e:
-            await interaction.response.send_message(f"Could not send a message to user: {member.mention}\nError: {str(e)}", ephemeral=True)
+            await interaction.response.send_message(f"Could not send a message to user: {member.mention}\n**Error:** `{str(e)}`", ephemeral=True)
 
-        await interaction.response.send_message(f"{member} has been kicked for {reason}")
+        await interaction.response.send_message(f"**{member}** has been kicked for `{reason}`")
 
 
 def setup(client):
