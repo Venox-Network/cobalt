@@ -41,7 +41,7 @@ class warnings(commands.Cog):
         count_done = 1
 
         date = datetime.now().strftime("%Y-%m-%d")
-        await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "reason": reason, "date": date})
+        await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "membername": member_name, "guildname": guildname, "reason": reason, "date": date, "moderator": interaction.user.name})
         count_done = await warn_collection.count_documents({"warn_guild": ctx_guild_id, "memberid": id})
         await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
 
@@ -57,7 +57,8 @@ class warnings(commands.Cog):
         async for document in cursor:
             datelocal = document["date"]
             reasonlocal = document["reason"]
-            embed.add_field(name="Warn: ", value=f"Date: `{datelocal}` Reason: `{reasonlocal}`")
+            rmoderator = document["moderator"]
+            embed.add_field(name="Warn: ", value=f"Date: `{datelocal}` Reason: `{reasonlocal}` Responsible moderator: `{rmoderator}`")
         await interaction.send(embed=embed)
 
 
