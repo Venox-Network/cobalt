@@ -36,7 +36,10 @@ class kick(commands.Cog):
         await member.kick(reason=reason)
         log_channel = await client.fetch_channel(channel_id)
         await log_channel.send(f" `{member}` has been kicked for reason `{reason}`")
-        await member.send(f"You have been kicked for {reason}")
+        try:
+            await member.send(f"You have been kicked for {reason}")
+        except:
+            await interaction.send("Failed to dm")
         await interaction.response.send_message(f"{member} has been kicked for {reason}")
 
 
