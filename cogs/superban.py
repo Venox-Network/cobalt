@@ -41,12 +41,12 @@ class superban(commands.Cog):
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
                     await m.ban()
-                    member.send(f"You have been banned from all venox servers for reason {reason}")
+                    member.send(f"You have been banned from all Venox Network servers for `{reason}`
                     log_channel = await client.fetch_channel(channel_id)
-                    await log_channel.send(f" `{member.name}` has been superbanned for reason `{reason}`")
+                    await log_channel.send(f"`{member.name}` has been superbanned for `{reason}`")
                     await interaction.response.send_message("User was super banned for `" + reason + "`")
         else:
-            await interaction.response.send_message("You are not the almighty Srnyx or Chriz you cannot do this")
+            await interaction.response.send_message("You do not have permission to run this command")
 
     @application_checks.has_permissions(ban_members=True)
     @slash_command(description="Bans a member from all guilds Venox is in")
@@ -58,12 +58,12 @@ class superban(commands.Cog):
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
                     await m.unban()
-                    member.send(f"You have been unbanned from all venox servers for reason {reason}")
+                    member.send(f"You have been unbanned from all Venox Network servers for `{reason}`")
                     log_channel = await client.fetch_channel(channel_id)
-                    await log_channel.send(f" `{member}` has been superunbanned for reason `{reason}`")
-                    await interaction.response.send_message("User was super unbanned for `" + reason + "`")
+                    await log_channel.send(f"`{member}` has been superunbanned for `{reason}`")
+                    await interaction.response.send_message("User was un-superbanned for `" + reason + "`")
         else:
-            await interaction.response.send_message("You are not the almighty Srnyx or Chriz you cannot do this")
+            await interaction.response.send_message("You do not have permission to run this command")
 
 
 def setup(client):

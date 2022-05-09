@@ -31,7 +31,7 @@ class warnings(commands.Cog):
         self.client = client
 
     @application_checks.has_permissions(moderate_members=True)
-    @slash_command(description="Warn a member for there wrong doing")
+    @slash_command(description="Warns a member")
     async def warn(self, interaction: Interaction, member: nextcord.User, reason=None):
         from datetime import datetime
         id = member.id
@@ -46,7 +46,7 @@ class warnings(commands.Cog):
         await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
 
     @application_checks.has_permissions(moderate_members=True)
-    @slash_command(description="See a members warns")
+    @slash_command(description="Shows a member's warnings")
     async def warns(self, interaction: Interaction, member: nextcord.User):
         ctx_guild_id = interaction.guild.id
         id = member.id
@@ -58,7 +58,7 @@ class warnings(commands.Cog):
             datelocal = document["date"]
             reasonlocal = document["reason"]
             rmoderator = document["moderator"]
-            embed.add_field(name="Warn: ", value=f"Date: `{datelocal}` Reason: `{reasonlocal}` Responsible moderator: `{rmoderator}`")
+            embed.add_field(name="Warn: ", value=f"**Date:** `{datelocal}` **Reason:** `{reasonlocal}` **Moderator:** `{rmoderator}`")
         await interaction.send(embed=embed)
 
 
