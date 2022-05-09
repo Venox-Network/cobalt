@@ -35,7 +35,7 @@ class superban(commands.Cog):
     @slash_command(description="Bans a member from all guilds Venox is in")
     async def superban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
         # srnyx and chrizs id
-        bot_owners = ["242385234992037888", "273538684526264320"]
+        bot_owners = [242385234992037888, 273538684526264320]
         if interaction.user.id in bot_owners:
             member_id = member.id
             for g in client.guilds:
@@ -43,7 +43,7 @@ class superban(commands.Cog):
                     await m.ban()
                     member.send(f"You have been banned from all venox servers for reason {reason}")
                     log_channel = await client.fetch_channel(channel_id)
-                    await log_channel.send(f" `{member}` has been superbanned for reason `{reason}`")
+                    await log_channel.send(f" `{member.name}` has been superbanned for reason `{reason}`")
                     await interaction.response.send_message("User was super banned for `" + reason + "`")
         else:
             await interaction.response.send_message("You are not the almighty Srnyx or Chriz you cannot do this")
@@ -52,7 +52,7 @@ class superban(commands.Cog):
     @slash_command(description="Bans a member from all guilds Venox is in")
     async def superunban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
         # srnyx and chrizs id
-        bot_owners = ["242385234992037888", "273538684526264320"]
+        bot_owners = [242385234992037888, 273538684526264320]
         if interaction.user.id in bot_owners:
             member_id = member.id
             for g in client.guilds:
