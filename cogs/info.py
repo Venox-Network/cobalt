@@ -38,7 +38,7 @@ class info(commands.Cog):
     async def guilds(self, interaction: Interaction):
         r = ""
         for guild in client.guilds:
-            r += f"`{guild}`, "
+            r += f"`{guild}` \n"
         await interaction.response.send_message(f"Venox is in {len(client.guilds)} servers")
         await interaction.send(r)
 
