@@ -1,6 +1,4 @@
 import datetime
-import os
-import nextcord
 import pymongo as pymongo
 import asyncio
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
@@ -14,12 +12,6 @@ from nextcord.ext import commands, application_checks
 
 from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
 
-cluster_local = CLUSTER
-
-cluster = motor.motor_asyncio.AsyncIOMotorClient(cluster_local)
-db = cluster["VenoxDB"]
-collection = db["report_channels"]
-warn_collection = db["warns"]
 global_report_channel = Global_Report_Channel
 # global log channel
 channel_id = Global_Log_Channel

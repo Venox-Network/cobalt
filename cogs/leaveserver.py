@@ -1,4 +1,3 @@
-import nextcord
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
 import nextcord
