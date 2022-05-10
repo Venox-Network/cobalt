@@ -1,7 +1,10 @@
-import json
+import asyncio
 import os
+import random
+import time
 import wavelink
 import nextcord
+from nextcord import slash_command, Interaction
 from nextcord.ext import commands
 
 with open("soontobeconfig.txt") as f:
@@ -21,6 +24,18 @@ client = commands.Bot(intents=intents)
 @client.event
 async def on_ready():
     print("bot is ready")
+
+    tasks = [["Vanadium SMP", "g"], [[f"{len(client.guilds)} servers"], "s"], ]
+    ts = []
+    for task in tasks:
+        if task[1] == "g":
+            ts.append(nextcord.Game(task[0]))
+        elif task[1] == "s":
+            ts.append(nextcord.Activity(type=nextcord.ActivityType.watching, name=task[0][0], ))
+    while 1:
+        for g in ts:
+            await client.change_presence(status=nextcord.Status.online, activity=g)
+            await asyncio.sleep(60)
 
 
 @commands.Cog.listener()
