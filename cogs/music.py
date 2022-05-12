@@ -36,9 +36,11 @@ class music(commands.Cog):
 
         if vc.queue.is_empty and not vc.is_playing():
             await vc.play(search)
+            await interaction.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
             await interaction.send(f"Now playing `{search.title}`")
         else:
             await vc.queue.put_wait(search)
+            await interaction.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
             await interaction.response.send_message(f"added `{search.title}` to the queue")
         vc.interaction = interaction
         setattr(vc, "loop", False)

@@ -1,8 +1,8 @@
+
 import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
-import pymongo as pymongo
+import pymongo
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
-from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
 
 from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel

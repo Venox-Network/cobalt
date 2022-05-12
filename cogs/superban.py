@@ -2,17 +2,10 @@ import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
 import pymongo as pymongo
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
-from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
 
 from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
 
-cluster_local = CLUSTER
-
-cluster = motor.motor_asyncio.AsyncIOMotorClient(cluster_local)
-db = cluster["VenoxDB"]
-collection = db["report_channels"]
-warn_collection = db["warns"]
 global_report_channel = Global_Report_Channel
 # global log channel
 channel_id = Global_Log_Channel
@@ -34,7 +27,7 @@ class superban(commands.Cog):
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
                     await m.ban()
-                    member.send(f"You have been banned from all Venox Network servers for `{reason}`")
+                    await member.send(f"You have been banned from all Venox Network servers for `{reason}`")
                     log_channel = await client.fetch_channel(channel_id)
                     await log_channel.send(f"`{member.name}` has been superbanned for `{reason}`")
                     await interaction.response.send_message("User was super banned for `" + reason + "`")
@@ -51,7 +44,7 @@ class superban(commands.Cog):
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
                     await m.unban()
-                    member.send(f"You have been unbanned from all Venox Network servers for `{reason}`")
+                    await member.send(f"You have been unbanned from all Venox Network servers for `{reason}`")
                     log_channel = await client.fetch_channel(channel_id)
                     await log_channel.send(f"`{member}` has been superunbanned for `{reason}`")
                     await interaction.response.send_message("User was un-superbanned for `" + reason + "`")
