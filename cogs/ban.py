@@ -1,8 +1,6 @@
+import nextcord
 from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
 from nextcord.abc import GuildChannel
-import motor.motor_asyncio
-import nextcord
-from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
 
 from bot import client, Global_Report_Channel, Global_Log_Channel

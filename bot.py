@@ -1,20 +1,30 @@
-import asyncio
-import os
-import random
-import time
-import wavelink
-import nextcord
+import orjson, os, wavelink, nextcord, asyncio
 from nextcord import slash_command, Interaction
 from nextcord.ext import commands
 
-with open("soontobeconfig.txt") as f:
-    TOKEN = f.readlines()[1]
-with open("soontobeconfig.txt") as f:
-    CLUSTER = f.readlines()[3]
-with open("soontobeconfig.txt") as f:
-    Global_Report_Channel = f.readlines()[5]
-with open("soontobeconfig.txt") as f:
-    Global_Log_Channel = f.readlines()[7]
+try:
+    with open("config.json", "rb") as f:
+        config = orjson.loads(f.read())
+
+        TOKEN = config["bot-token"]
+        CLUSTER = config["mongodb-con"]
+        Global_Report_Channel = config["global-report-channel-id"]
+        Global_Log_Channel = config["global-log-channel-id"]
+except Exception as e:
+    print("Generating config.json...")
+    with open("config.json", "w") as f:
+        f.write("""
+{
+    "bot-token": "",
+    "mongodb-con": "",
+    "global-report-channel-id": "",
+    "global-log-channel-id": ""
+}
+        """)
+    
+    print("Please fill in the given details in config.json and restart the bot!")
+    exit(1)
+
 
 intents = nextcord.Intents.default()
 intents.members = True

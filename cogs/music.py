@@ -1,8 +1,7 @@
-import nextcord
+import nextcord, wavelink
 from nextcord import Interaction, SlashOption, ChannelType, slash_command
 from nextcord.abc import GuildChannel
 from nextcord.ext import commands
-import wavelink
 
 
 class music(commands.Cog):
