@@ -1,5 +1,8 @@
-import orjson, os, wavelink, nextcord, asyncio
-from nextcord import slash_command, Interaction
+import asyncio
+import nextcord
+import orjson
+import os
+import wavelink
 from nextcord.ext import commands
 
 try:
@@ -13,18 +16,15 @@ try:
 except Exception as e:
     print("Generating config.json...")
     with open("config.json", "w") as f:
-        f.write("""
-{
+        f.write("""{
     "bot-token": "",
     "mongodb-con": "",
     "global-report-channel-id": "",
     "global-log-channel-id": ""
-}
-        """)
+}""")
     
     print("Please fill in the given details in config.json and restart the bot!")
     exit(1)
-
 
 intents = nextcord.Intents.default()
 intents.members = True
@@ -49,11 +49,11 @@ async def on_ready():
 
 
 @commands.Cog.listener()
-async def on_wavelink_node_ready(self, node: wavelink.Node):
+async def on_wavelink_node_ready(node: wavelink.Node):
     print(f"node {node.identifier} is ready!!!")
 
 
-async def node_connect(self):
+async def node_connect():
     await client.wait_until_ready()
     await wavelink.NodePool.create_node(client=client,
                                         host='kerosine.darrennathanael.com',
@@ -67,11 +67,11 @@ class Confirm(nextcord.ui.View):
         self.value = None
 
 
-async def load(ctx, extension):
+async def load(extension):
     client.load_extension(f'cogs.{extension}')
 
 
-async def unload(ctx, extension):
+async def unload(extension):
     client.unload_extension(f'cogs.{extension}')
 
 

@@ -1,11 +1,8 @@
-
-import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
-import pymongo
-from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
-from nextcord.abc import GuildChannel
+import motor.motor_asyncio
+import nextcord
+from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-
-from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
+from bot import CLUSTER, Global_Report_Channel, Global_Log_Channel
 
 cluster_local = CLUSTER
 
@@ -14,12 +11,10 @@ db = cluster["VenoxDB"]
 collection = db["report_channels"]
 warn_collection = db["warns"]
 global_report_channel = Global_Report_Channel
-# global log channel
 channel_id = Global_Log_Channel
 
 
 class warnings(commands.Cog):
-
     def __init__(self, client):
         self.client = client
 
@@ -31,7 +26,6 @@ class warnings(commands.Cog):
         member_name = member.name
         ctx_guild_id = interaction.guild.id
         guildname = interaction.guild.name
-        count_done = 1
 
         date = datetime.now().strftime("%Y-%m-%d")
         await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "membername": member_name, "guildname": guildname, "reason": reason, "date": date, "moderator": interaction.user.name})

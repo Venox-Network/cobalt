@@ -1,26 +1,25 @@
-import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
-import pymongo
-from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
-from nextcord.abc import GuildChannel
+import motor.motor_asyncio
+import nextcord
+from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
+from bot import CLUSTER, client, Global_Report_Channel, Global_Log_Channel
 
-from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
+cluster_local = CLUSTER
 
+cluster = motor.motor_asyncio.AsyncIOMotorClient(cluster_local)
+db = cluster["VenoxDB"]
+collection = db["report_channels"]
 global_report_channel = Global_Report_Channel
-# global log channel
 channel_id = Global_Log_Channel
 
 
 class reports(commands.Cog):
-
     def __init__(self, client):
         self.client = client
 
     @application_checks.has_permissions(manage_guild=True)
     @slash_command(description="Setup the report command")
     async def reportsetup(self, interaction: Interaction, report_channel_id):
-        ctxchannel = interaction.channel.id
-        channelfletched = await client.fetch_channel(ctxchannel)
         try:
             ctxguild_id = str(interaction.guild.id)
             data = {"_id": ctxguild_id, "guildid": ctxguild_id, "reports_id": report_channel_id}

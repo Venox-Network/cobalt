@@ -1,6 +1,6 @@
 nextcord~=2.0.0a10
 wavelink~=1.2.4
-pymongo~=3.12.3
+pymongo==4.1.1
 humanfriendly~=10.0
-motor~=2.5.1
+motor==3.0.0
 orjson~=3.6.8
