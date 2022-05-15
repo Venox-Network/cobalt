@@ -1,11 +1,11 @@
-import nextcord, wavelink
+import nextcord
+import wavelink
 from nextcord import Interaction, SlashOption, ChannelType, slash_command
 from nextcord.abc import GuildChannel
 from nextcord.ext import commands
 
 
 class music(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
         bot.loop.create_task(self.node_connect())
@@ -104,7 +104,7 @@ class music(commands.Cog):
         else:
             vc: wavelink.Player() = interaction.guild.voice_client
 
-        await vc.disconnect()
+        await vc.disconnect(force=False)
         await interaction.send("Disconnected")
 
     @commands.Cog.listener()

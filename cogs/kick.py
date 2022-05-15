@@ -1,18 +1,13 @@
-import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
-import pymongo
-from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
-from nextcord.abc import GuildChannel
+import nextcord
+from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-
-from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
+from bot import client, Global_Report_Channel, Global_Log_Channel
 
 global_report_channel = Global_Report_Channel
-# global log channel
 channel_id = Global_Log_Channel
 
 
 class kick(commands.Cog):
-
     def __init__(self, client):
         self.client = client
 
