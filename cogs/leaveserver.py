@@ -16,12 +16,10 @@ class leaveserver(commands.Cog):
 
     @slash_command(description="Leaves a specific server")
     async def leaveserver(self, interaction: Interaction, guildid):
-        bot_owners = [242385234992037888, 273538684526264320]
+        bot_owners = [242385234992037888, 273538684526264320, 491266830674034699]
         guildint = int(guildid)
         if interaction.user.id in bot_owners:
             to_leave = client.get_guild(guildint)
-            print(f"{to_leave}")
-            print(type(to_leave))
             if to_leave is not None:
                 await to_leave.leave()
                 await interaction.send(f"Left `{to_leave.name}`")
