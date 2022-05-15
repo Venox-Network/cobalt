@@ -44,9 +44,6 @@ class reports(commands.Cog):
             server_report_channel = await client.fetch_channel(results["reports_id"])
             await server_report_channel.send(
                 f"`{interaction.user}` has reported `{member}`  in channel `{interaction.channel.name}` for reason `{reason}`")
-            log_channel = await client.fetch_channel(channel_id)
-            await log_channel.send(
-                f"`{interaction.user}` has reported `{member}`  in channel `{interaction.channel.name}` for reason `{reason}`")
         except:
             await interaction.send("Report failed please notify staff", ephemeral=True)
 
