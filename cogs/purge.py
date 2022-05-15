@@ -1,20 +1,11 @@
-import datetime, os, nextcord, asyncio, humanfriendly, motor.motor_asyncio
-import pymongo
-from nextcord import Interaction, SlashOption, ChannelType, slash_command, guild, Guild
-from nextcord.abc import GuildChannel
+import nextcord
+from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-
-from bot import client, CLUSTER, Global_Report_Channel, Global_Log_Channel
-
 
 
 class purge(commands.Cog):
-
     def __init__(self, client):
         self.client = client
-
-
-
 
     @application_checks.has_permissions(manage_messages=True)
     @slash_command(
