@@ -108,7 +108,7 @@ class music(commands.Cog):
         await interaction.send("Disconnected")
 
     @commands.Cog.listener()
-    async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.Track, reason="None"):
+    async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.Track):
         interaction = player.interaction
         vc: player = interaction.guild.voice_client
 

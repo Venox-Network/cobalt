@@ -64,8 +64,9 @@ class superban(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        results = superbandb.find({'banned_member_id': member.id})
-        if results is None:
+        count = await superbandb.count_documents({'banned_member_id': member.id})
+        print(count)
+        if count == 0:
             return
         else:
             await member.send("You are superbanned")

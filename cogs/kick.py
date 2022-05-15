@@ -22,6 +22,7 @@ class kick(commands.Cog):
 
         try:
             await member.kick(reason=reason)
+            await interaction.send(f"{member.mention} has been kicked from the server.")
         except nextcord.DiscordException as e:
             await interaction.send(f"Could not kick user: {member.mention}\n**Error:** `{str(e)}`", ephemeral=True)
 
