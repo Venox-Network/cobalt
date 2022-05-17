@@ -14,7 +14,6 @@ class info(commands.Cog):
     async def support(self, interaction: Interaction):
         await interaction.response.send_message('Join our support server https://discord.gg/kaddCVeRj6')
 
-
     @slash_command(description="Lists all the servers the bot is in")
     async def servers(self, interaction: Interaction, ephemeral: bool = False):
         bot_owners = [242385234992037888, 273538684526264320]
@@ -29,6 +28,7 @@ class info(commands.Cog):
                 await interaction.response.send_message("\n".join(guild_list), ephemeral=False)
         else:
             await interaction.response.send_message("You do not have permission to use this command")
+
 
 def setup(client):
     client.add_cog(info(client))

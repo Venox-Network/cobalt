@@ -1,8 +1,8 @@
-import motor
-import nextcord, motor.motor_asyncio
+import motor.motor_asyncio
 from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-from bot import Global_Report_Channel, Global_Log_Channel, CLUSTER, client
+
+from bot import Global_Report_Channel, Global_Log_Channel, CLUSTER
 
 global_report_channel = Global_Report_Channel
 channel_id = Global_Log_Channel
