@@ -1,7 +1,8 @@
+import motor
 import nextcord
 from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-from bot import client, Global_Report_Channel, Global_Log_Channel
+from bot import client, Global_Report_Channel, Global_Log_Channel, CLUSTER
 
 global_report_channel = Global_Report_Channel
 channel_id = Global_Log_Channel
@@ -64,7 +65,10 @@ class superban(commands.Cog):
         if count == 0:
             return
         else:
-            await member.send("You are superbanned")
+            try:
+                await member.send("You are superbanned")
+            except Exception as e:
+                print(e)
             await member.ban(reason="User is superbanned")
 
 
