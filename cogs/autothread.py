@@ -20,29 +20,27 @@ class autothread(commands.Cog):
 
     @application_checks.has_permissions(manage_messages=True)
     @slash_command(name="autothread", description="Makes a thread from a message")
-    async def autothread(self, interaction: Interaction, channel_db_id):
-        await interaction.response.defer()
-        data = {"_id": channel_id, "guild_id": interaction.guild.id, "guildname": interaction.guild.name,
-                "channel_db_id": int(channel_db_id)}
-        try:
-            await threadedchannels.insert_one(data)
-            await interaction.send("Successfully added the channel to the database")
-        except:
-            getting_replaced = await threadedchannels.find_one({"_id": channel_db_id})
-            await threadedchannels.replace_one(getting_replaced, data)
-            await interaction.send("Successfully updated the channel in the database")
-
-    @application_checks.has_permissions(manage_messages=True)
-    @slash_command(name="unautothread", description="Removes a thread from a message")
-    async def unautothread(self, interaction: Interaction, channel_db_id):
-        await interaction.response.defer()
-        data = {"_id": channel_id, "guild_id": interaction.guild.id, "guildname": interaction.guild.name,
-                "channel_db_id": int(channel_db_id)}
-        try:
-            await threadedchannels.delete_one(data)
-            await interaction.send("Successfully removed the channel from the database")
-        except:
-            await interaction.send("Channel not found in the database")
+    async def autothread(self, interaction: Interaction, channel_db_id, on_or_off: bool):
+        if on_or_off == True:
+            await interaction.response.defer()
+            data = {"_id": channel_id, "guild_id": interaction.guild.id, "guildname": interaction.guild.name,
+                    "channel_db_id": int(channel_db_id)}
+            try:
+                await threadedchannels.insert_one(data)
+                await interaction.send("Successfully added the channel to the database")
+            except:
+                getting_replaced = await threadedchannels.find_one({"_id": channel_db_id})
+                await threadedchannels.replace_one(getting_replaced, data)
+                await interaction.send("Successfully updated the channel in the database")
+        if on_or_off == False:
+            await interaction.response.defer()
+            data = {"_id": channel_id, "guild_id": interaction.guild.id, "guildname": interaction.guild.name,
+                    "channel_db_id": int(channel_db_id)}
+            try:
+                await threadedchannels.delete_one(data)
+                await interaction.send("Successfully removed the channel from the database")
+            except:
+                await interaction.send("Channel not found in the database")
 
     @commands.Cog.listener()
     async def on_message(self, message):
