@@ -22,14 +22,9 @@ class warnings(commands.Cog):
     @slash_command(description="Warns a member")
     async def warn(self, interaction: Interaction, member: nextcord.User, reason=None):
         from datetime import datetime
-        id = member.id
-        member_name = member.name
-        ctx_guild_id = interaction.guild.id
-        guildname = interaction.guild.name
-
         date = datetime.now().strftime("%Y-%m-%d")
-        await warn_collection.insert_one({"warn_guild": ctx_guild_id, "memberid": id, "membername": member_name, "guildname": guildname, "reason": reason, "date": date, "moderator": interaction.user.name})
-        count_done = await warn_collection.count_documents({"warn_guild": ctx_guild_id, "memberid": id})
+        await warn_collection.insert_one({"warn_guild": interaction.guild.id, "memberid": member.id, "membername": member.name, "guildname": interaction.guild.id, "reason": reason, "date": date, "moderator": interaction.user.name})
+        count_done = await warn_collection.count_documents({"warn_guild": interaction.guild.id, "memberid": id})
         await interaction.send(f"`{member}` has been warned for `{reason}` this is warning number `{count_done}`")
 
     @application_checks.has_permissions(moderate_members=True)

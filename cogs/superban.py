@@ -1,11 +1,16 @@
+import motor
 import nextcord
 from nextcord import Interaction, slash_command
 from nextcord.ext import commands, application_checks
-from bot import client, Global_Report_Channel, Global_Log_Channel
+from bot import client, Global_Report_Channel, Global_Log_Channel, CLUSTER
 
 global_report_channel = Global_Report_Channel
 channel_id = Global_Log_Channel
 
+cluster_local = CLUSTER
+cluster = motor.motor_asyncio.AsyncIOMotorClient(cluster_local)
+db = cluster["VenoxDB"]
+superbandb = db["superbanids"]
 
 class superban(commands.Cog):
     def __init__(self, client):
@@ -18,6 +23,7 @@ class superban(commands.Cog):
         # srnyx and chrizs id
         bot_owners = [242385234992037888, 273538684526264320]
         if interaction.user.id in bot_owners:
+            await superbandb.insert_one({'banned_member_id': member.id, 'banned_member_name': member.name, 'superban_user': interaction.user.name})
             member_id = member.id
             for g in client.guilds:
                 if m := await g.fetch_member(member_id):
@@ -30,21 +36,40 @@ class superban(commands.Cog):
             await interaction.response.send_message("You do not have permission to run this command")
 
     @application_checks.has_permissions(ban_members=True)
-    @slash_command(description="Bans a member from all guilds Venox is in")
-    async def superunban(self, interaction: Interaction, member: nextcord.User, *, reason="No reason given"):
+    @slash_command(description="Unbans a member from all guilds Venox is in")
+    async def superunban(self, interaction: Interaction, member, *, reason="No reason given"):
         # srnyx and chrizs id
         bot_owners = [242385234992037888, 273538684526264320]
         if interaction.user.id in bot_owners:
-            member_id = member.id
+            obj = nextcord.Object(int(member))
+            try:
+                await superbandb.delete_one({'banned_member_id': member})
+            except Exception as e:
+                await interaction.send(f"Could not remove user from db `{e}`")
             for g in client.guilds:
-                if m := await g.fetch_member(member_id):
-                    await m.unban()
-                    await member.send(f"You have been unbanned from all Venox Network servers for `{reason}`")
-                    log_channel = await client.fetch_channel(channel_id)
-                    await log_channel.send(f"`{member}` has been superunbanned for `{reason}`")
-                    await interaction.response.send_message("User was un-superbanned for `" + reason + "`")
+                try:
+                    await g.unban(obj)
+                except Exception as e:
+                    pass
+
+            log_channel = await client.fetch_channel(channel_id)
+            await log_channel.send(f"`{member}` has been superunbanned for `{reason}`")
+            await interaction.send("User was un-superbanned for `" + reason + "`")
         else:
             await interaction.response.send_message("You do not have permission to run this command")
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        count = await superbandb.count_documents({'banned_member_id': member.id})
+        print(count)
+        if count == 0:
+            return
+        else:
+            try:
+                await member.send("You are superbanned")
+            except Exception as e:
+                print(e)
+            await member.ban(reason="User is superbanned")
 
 
 def setup(client):

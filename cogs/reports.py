@@ -20,13 +20,12 @@ class reports(commands.Cog):
     @application_checks.has_permissions(manage_guild=True)
     @slash_command(description="Setup the report command")
     async def reportsetup(self, interaction: Interaction, report_channel_id):
+        data = {"_id": interaction.guild.id, "guildid": interaction.guild.id, "reports_id": report_channel_id}
         try:
-            ctxguild_id = str(interaction.guild.id)
-            data = {"_id": ctxguild_id, "guildid": ctxguild_id, "reports_id": report_channel_id}
             await collection.insert_one(data)
             await interaction.send("Report channel setup!")
         except:
-            getting_replaced = await collection.find_one({"_id": ctxguild_id})
+            getting_replaced = await collection.find_one({"_id": interaction.guild.id})
             await collection.replace_one(getting_replaced, data)
             await interaction.send("Replaced report channel")
 
@@ -43,9 +42,6 @@ class reports(commands.Cog):
             results = await collection.find_one({"_id": ctxguild_id})
             server_report_channel = await client.fetch_channel(results["reports_id"])
             await server_report_channel.send(
-                f"`{interaction.user}` has reported `{member}`  in channel `{interaction.channel.name}` for reason `{reason}`")
-            log_channel = await client.fetch_channel(channel_id)
-            await log_channel.send(
                 f"`{interaction.user}` has reported `{member}`  in channel `{interaction.channel.name}` for reason `{reason}`")
         except:
             await interaction.send("Report failed please notify staff", ephemeral=True)
