@@ -57,7 +57,7 @@ class stickymessage(commands.Cog):
             # check if the message was sent by the bot
             await message.channel.purge(limit=10, check=lambda message: message.author.id == self.client.user.id)
             resultsfind = await sticky_messages.find_one({"channel_db_id": message.channel.id})
-            em = nextcord.Embed(title=resultsfind["stickytitle"], color=0x0561EE, description=resultsfind["stickymessage"])
+            em = nextcord.Embed(title=resultsfind["stickytitle"], color=0x0070c0, description=resultsfind["stickymessage"])
             await message.channel.send(embed=em)
         else:
             return
