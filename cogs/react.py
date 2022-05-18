@@ -19,7 +19,7 @@ class react(commands.Cog):
         for emoji in emojilist:
             await msg.add_reaction(emoji)
             await asyncio.sleep(1)
-        await interaction.send("added emojis")
+        await interaction.send("added emojis", ephemeral=True)
 
 
 def setup(client):
