@@ -101,5 +101,7 @@ class nicknamemod(commands.Cog):
             for name in results["nicknames"]:
                 if name in member.display_name:
                     await member.edit(nick=nickresults["new_nickname"])
+
+
 def setup(client):
     client.add_cog(nicknamemod(client))
