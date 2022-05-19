@@ -84,21 +84,22 @@ class nicknamemod(commands.Cog):
     async def on_member_update(self, before, after):
         if before.display_name != after.display_name:
             results = await nicknames.find_one({"_id": after.guild.id})
+            nickresults = await new_nicknames.find_one({"_id": before.guild.id})
             if results is None:
                 return
-            if after.display_name in results["nicknames"]:
-                await after.edit(nick="Please don't use this nickname")
+            for name in results["nicknames"]:
+                if name in after.display_name:
+                    await after.edit(nick=nickresults["new_nickname"])
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        results = await nicknames.find_one({"_id": member.guild.id})
-        if results is None:
-            return
-        if member.display_name in results["nicknames"]:
-            results = await new_nicknames.find_one({"_id": member.guild.id})
-            if results is not None:
-                await member.edit(nick=results["new_nickname"])
-            
-
+        if member.display_name != member.display_name:
+            results = await nicknames.find_one({"_id": member.guild.id})
+            nickresults = await new_nicknames.find_one({"_id": member.guild.id})
+            if results is None:
+                return
+            for name in results["nicknames"]:
+                if name in member.display_name:
+                    await member.edit(nick=nickresults["new_nickname"])
 def setup(client):
     client.add_cog(nicknamemod(client))
