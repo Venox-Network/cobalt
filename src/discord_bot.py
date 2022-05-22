@@ -19,13 +19,11 @@ class Bot(commands.Bot):
         self.report_channel = None
         self.views = []
 
-        self.debug_servers = [
-            705709081620643852
-        ]
+        self.debug_servers = self.config.debug_servers
 
         super().__init__(command_prefix, help_command, **options)
 
-    async def log_msg(self, message: str, should_print: bool=False) -> None:
+    async def log_msg(self, message: str, should_print: bool=False):
         await self.log_channel.send(message)
         if should_print: print(f"LOGS: {message}\n----------")
 
@@ -49,3 +47,5 @@ class Bot(commands.Bot):
     def add_cogs(self, *list: List[Callable]):
         for cog_creator in list:
             self.add_cog( (cog_creator(self.debug_servers))(self))
+            # (cog_creator(self.debug_servers)) => Cog class
+            # ^^ (self)

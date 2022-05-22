@@ -20,7 +20,7 @@ def main():
     intents = discord.Intents.default()
     intents.members = True
     intents.message_content = True
-    
+
     main_bot: Bot = Bot(conf=main_config, intents=intents)
 
     main_bot.add_cogs(
