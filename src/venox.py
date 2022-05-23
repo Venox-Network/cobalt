@@ -1,7 +1,8 @@
 import discord
 from config import Config
 from discord_bot import Bot
-from cogs import (music_commands, 
+from cogs import (
+        music_commands, 
         time_jobs, 
         staff_commands, 
         info_commands, 
@@ -31,7 +32,7 @@ def main():
         super_commands.cog_creator,
         report_commands.cog_creator,
         auto_thread.cog_creator,
-        #music_commands.cog_creator,
+        music_commands.cog_creator,
         slowmode_commands.cog_creator,
         nick_name_commands.cog_creator,
         sticky_message.cog_creator
