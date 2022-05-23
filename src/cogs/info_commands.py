@@ -3,9 +3,10 @@ from discord import ApplicationContext
 from discord.commands.options import Option
 from . import BaseCog
 
+
 def cog_creator(_servers: List[int]):
     class InfoCog(BaseCog):
-        
+
         @BaseCog.cslash_command(
             description="Sends link to support server",
             guild_ids=_servers
@@ -18,9 +19,9 @@ def cog_creator(_servers: List[int]):
             guild_ids=_servers
         )
         async def servers(
-            self,
-            ctx: ApplicationContext,
-            hide: Option(bool)=False
+                self,
+                ctx: ApplicationContext,
+                hide: Option(bool) = False
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
