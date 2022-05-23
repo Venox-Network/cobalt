@@ -1,0 +1,35 @@
+name: 💡 Suggest your idea(s)
+description: Suggest an idea/enhancement for the bot.
+title: Add a descriptive title
+labels: enhancement
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before suggestion an enhancement here, please make sure you've searched to see if it already exists.
+  - type: textarea
+    attributes:
+      label: General description
+      description: Please provide a general description of what you want added.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to accomplish
+      description: If you have an idea of how this idea can be implemented, please provide it below.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Media
+      description: Please include any screenshots/videos/etc... to help understand your idea.
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: |
+        If you can think of anything else that might help us, there's plenty of room for it here. 😉
+    validations:
+      required: false

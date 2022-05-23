@@ -1,0 +1,12 @@
+{
+    "name": "venox-rewrite",
+    "short_description": "venox-rewrite",
+    "version": "0.0.1",
+    "authors": ["DWAA", "Terroid"],
+    "email": "skandabhairava@gmail.com",
+    "authors_github": ["https://github.com/skandabhairava", "https://github.com/DWAA1660"],
+    "entry_point": "venox.py",
+    "working_directory": "src",
+    "github": "",
+    "license": "MIT"
+}

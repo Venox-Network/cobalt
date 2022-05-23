@@ -1,6 +1,6 @@
-nextcord~=2.0.0a10
-wavelink~=1.2.4
 pymongo==4.1.1
-humanfriendly~=10.0
+#py-cord==2.0.0rc1
+py-cord[voice]==2.0.0rc1
+wavelink==1.2.5
+orjson==3.6.8
 motor==3.0.0
-orjson~=3.6.8
