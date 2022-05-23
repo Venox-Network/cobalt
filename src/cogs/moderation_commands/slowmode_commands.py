@@ -3,7 +3,7 @@ from typing import List
 from discord import ApplicationContext
 import discord
 from discord.commands.options import Option
-from . import BaseCog
+from src.cogs import BaseCog
 from discord.ext import tasks
 
 

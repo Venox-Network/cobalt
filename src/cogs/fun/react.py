@@ -2,11 +2,11 @@ import asyncio
 from typing import List
 from discord import ApplicationContext
 from discord.commands.options import Option
-from . import BaseCog
+from src.cogs import BaseCog
 
 
 def cog_creator(servers: List[int]):
-    class FunCog(BaseCog):
+    class React(BaseCog):
 
         @BaseCog.cslash_command(
             description="Mass react to messages",
@@ -43,4 +43,4 @@ def cog_creator(servers: List[int]):
 
             await ctx.respond("Added emojis", ephemeral=True)
 
-    return FunCog
+    return React

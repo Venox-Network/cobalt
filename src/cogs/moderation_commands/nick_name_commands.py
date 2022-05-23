@@ -3,7 +3,7 @@ from discord import ApplicationContext
 import discord
 from discord.ext.commands import Cog
 from discord.commands.options import Option
-from . import BaseCog
+from src.cogs import BaseCog
 
 
 def cog_creator(servers: List[int]):

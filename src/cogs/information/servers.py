@@ -1,11 +1,11 @@
 from typing import List
 from discord import ApplicationContext
 from discord.commands.options import Option
-from . import BaseCog
+from src.cogs import BaseCog
 
 
 def cog_creator(_servers: List[int]):
-    class InfoCog(BaseCog):
+    class Servers(BaseCog):
 
         @BaseCog.cslash_command(
             description="Sends link to support server",
@@ -34,4 +34,4 @@ def cog_creator(_servers: List[int]):
             """
             await ctx.respond(f"I'm in these servers: \n{guilds}", ephemeral=hide)
 
-    return InfoCog
+    return Servers
