@@ -2,7 +2,7 @@ from typing import List
 from discord import ApplicationContext
 import discord
 from discord.commands.options import Option
-from src.cogs import BaseCog
+from cogs import BaseCog
 
 
 def cog_creator(servers: List[int]):

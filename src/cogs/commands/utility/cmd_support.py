@@ -1,6 +1,6 @@
 from typing import List
 from discord import ApplicationContext
-from src.cogs import BaseCog
+from cogs import BaseCog
 
 
 def cog_creator(_servers: List[int]):

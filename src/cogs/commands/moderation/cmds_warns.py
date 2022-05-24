@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from discord import ApplicationContext
 import discord
-from src.cogs import BaseCog
+from cogs import BaseCog
 from discord.commands.options import Option
 
 

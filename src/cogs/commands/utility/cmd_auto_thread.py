@@ -2,7 +2,7 @@ from typing import List
 from discord import ApplicationContext
 import discord
 from discord.ext.commands import Cog
-from src.cogs import BaseCog
+from cogs import BaseCog
 from discord.ext import tasks
 
 
