@@ -1,13 +1,11 @@
 import discord
 from config import Config
 from discord_bot import Bot
-from src.cogs.all_super_commands import super_ban, super_unban, super_kick
-from src.cogs.fun import music_commands, react
-from src.cogs.information import servers, support
-from src.cogs.moderation_commands import nick_name_commands, sticky_message, slowmode_commands, \
-    report_commands, auto_thread, ban, all_warns, kick, leave_server, mute, purge, unmute
-from src.cogs.time_loops import time_jobs
-
+from src.cogs.commands.fun import music_commands
+from src.cogs import time_jobs
+from src.cogs.commands.fun import music_commands
+from src.cogs.commands.moderation import cmd_ban, cmd_kick, cmd_mute, cmd_purge, cmd_unmute, cmds_report, cmd_slowmode, cmds_warns, cmd_super_ban, cmd_super_kick, cmd_super_unban, cmd_sticky_message
+from src.cogs.commands.utility import cmd_leave_server, cmd_react, cmd_servers, cmd_support, cmds_nickname, cmd_auto_thread
 
 def main():
     main_config: Config = Config.get_conf_from_file()
@@ -19,29 +17,28 @@ def main():
     main_bot: Bot = Bot(conf=main_config, intents=intents)
 
     main_bot.add_cogs(
-        # superban commands
-        super_ban.cog_creator,
-        super_unban.cog_creator,
-        super_kick.cog_creator,
-        # fun commands
+        # misc commands
         music_commands.cog_creator,
-        react.cog_creator,
-        # information commands
-        servers.cog_creator,
-        support.cog_creator,
+        # utility commands
+        cmd_leave_server.cog_creator,
+        cmd_servers.cog_creator,
+        cmd_support.cog_creator,
+        cmd_auto_thread.cog_creator,
+        cmds_nickname.cog_creator,
+        cmd_react.cog_creator,
         # moderation commands
-        auto_thread.cog_creator,
-        nick_name_commands.cog_creator,
-        report_commands.cog_creator,
-        slowmode_commands.cog_creator,
-        sticky_message.cog_creator,
-        ban.cog_creator,
-        all_warns.cog_creator,
-        kick.cog_creator,
-        leave_server.cog_creator,
-        mute.cog_creator,
-        purge.cog_creator,
-        unmute.cog_creator,
+        cmd_super_ban.cog_creator,
+        cmd_super_unban.cog_creator,
+        cmd_super_kick.cog_creator,
+        cmds_report.cog_creator,
+        cmd_slowmode.cog_creator,
+        cmd_sticky_message.cog_creator,
+        cmd_ban.cog_creator,
+        cmds_warns.cog_creator,
+        cmd_kick.cog_creator,
+        cmd_mute.cog_creator,
+        cmd_purge.cog_creator,
+        cmd_unmute.cog_creator,
         # time jobs
         time_jobs.cog_creator,
     )
