@@ -8,13 +8,6 @@ def cog_creator(_servers: List[int]):
     class Servers(BaseCog):
 
         @BaseCog.cslash_command(
-            description="Sends link to support server",
-            guild_ids=_servers
-        )
-        async def support(self, ctx: ApplicationContext):
-            await ctx.respond("[Join our support server](https://discord.gg/kaddCVeRj6)\nhttps://discord.gg/kaddCVeRj6")
-
-        @BaseCog.cslash_command(
             description="Lists all the servers the bot is in",
             guild_ids=_servers
         )

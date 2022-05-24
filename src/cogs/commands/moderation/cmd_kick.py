@@ -36,7 +36,7 @@ def cog_creator(servers: List[int]):
             except Exception:
                 pass
 
-            await member.ban(reason=reason)
+            await member.kick(reason=reason)
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been kicked from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
             await ctx.respond(f"'{member.mention}' has been kicked for `{reason}`", ephemeral=True)
