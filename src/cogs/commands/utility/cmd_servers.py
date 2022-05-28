@@ -20,7 +20,7 @@ def cog_creator(_servers: List[int]):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
-            guilds = "\n".join(f"**{guild.name}**," for guild in self.bot.guilds)
+            guilds = "\n".join(f"**{guild.name},** id: **{guild.id}**," for guild in self.bot.guilds)
             """
             ***Testserver1***
             ***Testserver2***
