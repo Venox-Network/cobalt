@@ -45,7 +45,7 @@ def cog_creator(servers: List[int]):
                     await self.sticky_collections.delete_one(key)
 
             except Exception:
-                self.bot.log_msg("Could not connect to database `sticky_messages` to fetch sticky message details.",
+                await self.bot.log_msg("Could not connect to database `sticky_messages` to fetch sticky message details.",
                                  True)
 
         @sticky_loop.before_loop
