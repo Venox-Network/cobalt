@@ -3,7 +3,7 @@ from discord import ApplicationContext
 import discord
 from discord.ext.commands import Cog
 from discord.commands.options import Option
-from . import BaseCog
+from cogs import BaseCog
 
 
 def cog_creator(servers: List[int]):
@@ -18,7 +18,7 @@ def cog_creator(servers: List[int]):
         async def correct_nickname(self, after: discord.Member):
             try:
                 print("Trying to correct name...")
-                #result = await self.guild_nick_name.find_one({"guild_id": before.guild.id})
+                # result = await self.guild_nick_name.find_one({"guild_id": before.guild.id})
                 nicknames = await self.nick_names.find_one({"guild_id": after.guild.id})
                 if nicknames is None:
                     return
@@ -29,7 +29,7 @@ def cog_creator(servers: List[int]):
                     print("Blacklisted:", blacklisted_name)
                     if blacklisted_name in after.display_name.lower():
 
-                        print("Found, Replacing name:",blacklisted_name)
+                        print("Found, Replacing name:", blacklisted_name)
                         nick_replace = await self.guild_nick_name.find_one({"guild_id": after.guild.id})
 
                         if nick_replace is None:
@@ -62,12 +62,12 @@ def cog_creator(servers: List[int]):
             guild_ids=servers
         )
         async def setup_nickname(
-            self,
-            ctx: ApplicationContext,
-            new_nickname: Option(str)
+                self,
+                ctx: ApplicationContext,
+                new_nickname: Option(str)
         ):
 
-            required_perms = {"administrator":True}
+            required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
                 await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
@@ -75,7 +75,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await ctx.response.defer(ephemeral=True)
-                result = await self.guild_nick_name.find_one({"guild_id":ctx.guild.id})
+                result = await self.guild_nick_name.find_one({"guild_id": ctx.guild.id})
                 data = {"guild_id": ctx.guild.id, "new_nickname": new_nickname}
                 if result is None:
                     await self.guild_nick_name.insert_one(data)
@@ -85,19 +85,20 @@ def cog_creator(servers: List[int]):
                 await self.guild_nick_name.replace_one(result, data)
                 await ctx.respond(f"New Nickname set for this server as `{new_nickname}`", ephemeral=True)
             except Exception:
-                await ctx.respond("Could not interract with database `new_nicknames`. Please try again after sometime.", ephemeral=True)
+                await ctx.respond("Could not interract with database `new_nicknames`. Please try again after sometime.",
+                                  ephemeral=True)
 
         @BaseCog.cslash_command(
             description="Adds a nickname to the blacklist",
             guild_ids=servers
         )
         async def blacklist_name(
-            self,
-            ctx: ApplicationContext,
-            name: Option(str)
+                self,
+                ctx: ApplicationContext,
+                name: Option(str)
         ):
 
-            required_perms = {"administrator":True}
+            required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
                 await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
@@ -105,7 +106,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await ctx.response.defer(ephemeral=True)
-                #data = {"nicknames": [name], "guild_id": ctx.guild.id}
+                # data = {"nicknames": [name], "guild_id": ctx.guild.id}
                 result = await self.nick_names.find_one({"guild_id": ctx.guild.id})
                 if result is None:
                     data = {"nicknames": [name.lower()], "guild_id": ctx.guild.id}
@@ -121,7 +122,8 @@ def cog_creator(servers: List[int]):
                 await self.nick_names.replace_one({"guild_id": ctx.guild.id}, result)
 
             except Exception as e:
-                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.", ephemeral=True)
+                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.",
+                                  ephemeral=True)
                 print(e)
 
         @BaseCog.cslash_command(
@@ -129,12 +131,12 @@ def cog_creator(servers: List[int]):
             guild_ids=servers
         )
         async def remove_blacklist_name(
-            self,
-            ctx: ApplicationContext,
-            name: Option(str)
+                self,
+                ctx: ApplicationContext,
+                name: Option(str)
         ):
 
-            required_perms = {"administrator":True}
+            required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
                 await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
@@ -142,7 +144,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await ctx.response.defer(ephemeral=True)
-                #data = {"nicknames": [name], "guild_id": ctx.guild.id}
+                # data = {"nicknames": [name], "guild_id": ctx.guild.id}
                 result = await self.nick_names.find_one({"guild_id": ctx.guild.id})
                 if result is None:
                     await ctx.respond(f"Nickname `{name}` is not on the Blacklist", ephemeral=True)
@@ -156,18 +158,19 @@ def cog_creator(servers: List[int]):
                 await ctx.respond(f"Nickname `{name}` is now removed from Blacklist", ephemeral=True)
 
             except Exception:
-                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.", ephemeral=True)
+                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.",
+                                  ephemeral=True)
 
         @BaseCog.cslash_command(
             description="List all the blacklisted nicknames on this server",
             guild_ids=servers
         )
         async def blacklist_nick_list(
-            self,
-            ctx: ApplicationContext,
-            hide: Option(bool)=True
+                self,
+                ctx: ApplicationContext,
+                hide: Option(bool) = True
         ):
-            required_perms = {"administrator":True}
+            required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
                 await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
@@ -184,7 +187,7 @@ def cog_creator(servers: List[int]):
                 await ctx.respond("Blacklisted Nicknames:\n" + "\n".join(result["nicknames"]))
 
             except Exception:
-                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.", ephemeral=hide)
-
+                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.",
+                                  ephemeral=hide)
 
     return NickNameCog

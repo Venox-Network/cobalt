@@ -1,6 +1,6 @@
 from typing import List
 from discord.ext import tasks
-from . import BaseCog
+from cogs import BaseCog
 from discord import Game, Activity, ActivityType
 
 def cog_creator(servers: List[int]):

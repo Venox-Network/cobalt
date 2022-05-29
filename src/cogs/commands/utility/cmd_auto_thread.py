@@ -2,8 +2,9 @@ from typing import List
 from discord import ApplicationContext
 import discord
 from discord.ext.commands import Cog
-from . import BaseCog
+from cogs import BaseCog
 from discord.ext import tasks
+
 
 def cog_creator(servers: List[int]):
     class AutoThreadCog(BaseCog):
@@ -23,7 +24,7 @@ def cog_creator(servers: List[int]):
                 self.thread_guild_map = {}
                 delete = []
                 async for result in self.thread_channel_collections.find({}):
-                    #data = {"guild_id": ctx.guild.id, "guildname": ctx.guild.name, "channel_db_id": ctx.channel.id}
+                    # data = {"guild_id": ctx.guild.id, "guildname": ctx.guild.name, "channel_db_id": ctx.channel.id}
                     guild = self.bot.get_guild(result["guild_id"])
                     if guild is None:
                         delete.append(result)
@@ -72,18 +73,20 @@ def cog_creator(servers: List[int]):
                     await self.thread_channel_collections.delete_many({"channel_db_id": channel.id})
                     self.thread_guild_map.pop(channel.guild.id, None)
             except Exception as e:
-                await self.bot.log_msg(f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `threadedchannels`\n\n{str(e)}", True)
+                await self.bot.log_msg(
+                    f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `threadedchannels`\n\n{str(e)}",
+                    True)
 
         @BaseCog.cslash_command(
             descripton="Makes a thread from a message",
             guild_ids=servers
         )
         async def auto_thread(
-            self,
-            ctx: ApplicationContext
+                self,
+                ctx: ApplicationContext
         ):
 
-            required_perms = {"manage_messages":True}
+            required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
                 await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
@@ -108,9 +111,13 @@ def cog_creator(servers: List[int]):
 
                 await self.thread_channel_collections.replace_one(result, data)
                 self.thread_guild_map[ctx.guild.id] = ctx.channel.id
-                await ctx.respond(f"Auto Threading is now enabled for this channel" + (f", and is now disabled in {prev_channel.mention}." if prev_channel is not None else "."), ephemeral=True)
+                await ctx.respond(f"Auto Threading is now enabled for this channel" + (
+                    f", and is now disabled in {prev_channel.mention}." if prev_channel is not None else "."),
+                                  ephemeral=True)
 
             except Exception:
-                await ctx.respond("Could not interract with database `threadedchannels`. Please try again after sometime.", ephemeral=True)
+                await ctx.respond(
+                    "Could not interract with database `threadedchannels`. Please try again after sometime.",
+                    ephemeral=True)
 
     return AutoThreadCog

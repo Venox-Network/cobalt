@@ -3,14 +3,15 @@ import discord
 from discord.ext import commands
 from config import Config
 
+
 class Bot(commands.Bot):
     def __init__(
-        self, 
-        command_prefix=commands.bot.when_mentioned, 
-        help_command=commands.bot._default,
-        conf: Config=None,
-        **options
-        ):
+            self,
+            command_prefix=commands.bot.when_mentioned,
+            help_command=commands.bot._default,
+            conf: Config = None,
+            **options
+    ):
         if conf is None:
             raise ValueError("Config isnt passed to 'discord_bot.Bot'")
 
@@ -23,7 +24,7 @@ class Bot(commands.Bot):
 
         super().__init__(command_prefix, help_command, **options)
 
-    async def log_msg(self, message: str, should_print: bool=False):
+    async def log_msg(self, message: str, should_print: bool = False):
         await self.log_channel.send(message)
         if should_print: print(f"LOGS: {message}\n----------")
 
@@ -46,6 +47,6 @@ class Bot(commands.Bot):
 
     def add_cogs(self, *list: List[Callable]):
         for cog_creator in list:
-            self.add_cog( (cog_creator(self.debug_servers))(self))
+            self.add_cog((cog_creator(self.debug_servers))(self))
             # (cog_creator(self.debug_servers)) => Cog class
             # ^^ (self)
