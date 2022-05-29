@@ -1,4 +1,4 @@
-# Cobalt Bot
+# Cobalt
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/62b39bf5e5a4478caa52b090d6eefb14)](https://www.codacy.com/gh/Venox-Network/cobalt/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Venox-Network/cobalt&amp;utm_campaign=Badge_Grade)
 
