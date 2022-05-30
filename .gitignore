@@ -1,4 +1,3 @@
-
-src/config.json
-*.pyc
 .idea
+config.json
+*.pyc
