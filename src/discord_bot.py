@@ -7,7 +7,7 @@ from config import Config
 class Bot(commands.Bot):
     def __init__(
             self,
-            command_prefix=commands.Bot.when_mentioned,
+            command_prefix=commands.bot.when_mentioned,
             help_command=commands.bot._default,
             conf: Config = None,
             **options
