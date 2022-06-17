@@ -5,7 +5,7 @@ from cogs.commands.fun import music_commands
 from cogs import time_jobs
 from cogs.commands.fun import music_commands
 from cogs.commands.moderation import cmd_ban, cmd_kick, cmd_mute, cmd_purge, cmd_unmute, cmds_report, cmd_slowmode, cmds_warns, cmd_super_ban, cmd_super_kick, cmd_super_unban, cmd_sticky_message
-from cogs.commands.utility import cmd_leave_server, cmd_react, cmd_servers, cmd_support, cmds_nickname, cmd_auto_thread
+from cogs.commands.utility import cmd_leave_server, cmd_react, cmd_servers, cmd_support, cmds_nickname, cmd_auto_thread, cmds_global_chat
 
 def main():
     main_config: Config = Config.get_conf_from_file()
@@ -26,6 +26,7 @@ def main():
         cmd_auto_thread.cog_creator,
         cmds_nickname.cog_creator,
         cmd_react.cog_creator,
+        cmds_global_chat.cog_creator,
         # moderation commands
         cmd_super_ban.cog_creator,
         cmd_super_unban.cog_creator,
@@ -48,4 +49,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
