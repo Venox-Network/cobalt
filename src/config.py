@@ -25,8 +25,7 @@ class Config:
             print(f"Config file: '{path}' not found! Creating new config file in '{path}'")
             print("Generating config.json...")
             with open(path, "w") as f:
-                f.write("""
-{
+                f.write("""{
     "bot-token": "",
     "mongodb-con": "",
     "global-report-channel-id": "",
@@ -38,8 +37,7 @@ class Config:
     ],
     "debug_servers":[
     ]
-}
-                """)
+}""")
             exit()
         except orjson.JSONDecodeError:
             print("Config could not be decoded. Please check if the json syntax is valid.")
