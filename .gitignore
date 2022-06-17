@@ -1,3 +1,5 @@
 .idea
 config.json
 *.pyc
+Pipfile.lock
+Pipfile
