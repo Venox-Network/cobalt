@@ -103,7 +103,6 @@ def cog_creator(servers: List[int]):
                     delete.append(key)
                     continue
 
-                print(channel.name)
 
                 since_last_min = datetime.now() - timedelta(seconds=20)
                 try:
