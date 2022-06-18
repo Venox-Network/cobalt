@@ -41,7 +41,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_guild": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             data = {"guildid": ctx.guild.id, "reports_id": report_channel.id}

@@ -27,7 +27,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"ban_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:

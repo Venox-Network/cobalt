@@ -70,7 +70,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
@@ -101,7 +101,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
@@ -139,7 +139,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
@@ -173,7 +173,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:

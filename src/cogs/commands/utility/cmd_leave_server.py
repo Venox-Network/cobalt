@@ -22,7 +22,7 @@ def cog_creator(servers: List[int]):
         ):
 
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             guild = self.bot.get_guild(guild_id)

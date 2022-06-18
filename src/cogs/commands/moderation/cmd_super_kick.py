@@ -23,7 +23,7 @@ def cog_creator(servers: List[int]):
                 reason: Option(str) = None
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             # member: discord.Member = member

@@ -33,7 +33,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             data = {"channel_id": ctx.channel.id, "amount_of_messages_per_min": msgs_per_min, "minimum_of_messages_per_minute": min_msges_per_min,
@@ -66,7 +66,7 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
