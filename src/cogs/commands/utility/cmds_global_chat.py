@@ -32,7 +32,6 @@ def cog_creator(servers: List[int]):
 
             try:
                 await ctx.response.defer(ephemeral=False)
-                # data = {"nicknames": [name], "guild_id": ctx.guild.id}
                 result = await self.global_chat.find_one({"channel1": channel1, "channel2": channel2})
                 if result is None:
                     data = {"channel1": int(channel1), "channel2": int(channel2)}
@@ -45,9 +44,10 @@ def cog_creator(servers: List[int]):
                     return
 
             except Exception as e:
-                await ctx.respond("Could not interract with database `nicknames`. Please try again after sometime.",
+                await ctx.respond("Could not interract with database `global chat`. Please try again after sometime.",
                                   ephemeral=True)
                 print(e)
+                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
 
         @Cog.listener()
         async def on_message(self, message: discord.Message):
@@ -91,5 +91,6 @@ def cog_creator(servers: List[int]):
                     await discord_channel.send(embed=embed)
             except Exception as e:
                 print(e)
+                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
 
     return GlobalChatCog
