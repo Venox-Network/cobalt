@@ -43,8 +43,8 @@ def cog_creator(servers: List[int]):
                         return
 
             except Exception as e:
+                await self.bot.log_msg(f"Failed to correct nicnames with error: {e}")
                 print(e)
-                pass
 
         @Cog.listener()
         async def on_member_join(self, member: discord.Member):

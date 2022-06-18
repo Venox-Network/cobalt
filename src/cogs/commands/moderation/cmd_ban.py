@@ -8,9 +8,6 @@ from discord.commands.options import Option
 def cog_creator(servers: List[int]):
     class Ban(BaseCog):
 
-        def __init__(self, bot) -> None:
-            super().__init__(bot)
-            self.warn_collection = self.bot.config.DATABASE["warns"]
 
         @BaseCog.cslash_command(
             description="Bans a member from the guild",

@@ -1,8 +1,6 @@
-from datetime import datetime, timedelta
 from typing import List
 from discord import ApplicationContext
 import discord
-import humanfriendly
 from cogs import BaseCog
 from discord.commands.options import Option
 
@@ -41,11 +39,18 @@ def cog_creator(servers: List[int]):
             try:
                 await member.send(
                     f"You have been unmuted in `{ctx.guild.name}`, for `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
-            except Exception:
-                pass
+            except Exception as e:
+                await ctx.respond(
+                    f"Failed to dm member with error {e}",
+                    ephemeral=True
+                    )
 
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been unmuted in `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
-            await ctx.respond(f"'{member.mention}' has been unmuted, for `{reason}`", ephemeral=True)
+                f"`{member.name}#{member.discriminator}` has been unmuted in `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`"
+                )
+            await ctx.respond(
+                f"'{member.mention}' has been unmuted, for `{reason}`",
+                ephemeral=True
+                )
 
     return Unmute
