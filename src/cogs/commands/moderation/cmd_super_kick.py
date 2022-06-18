@@ -35,7 +35,8 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.send(
-                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`"
+                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`."\
+                        " Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`"
                     )
             except Exception as e:
                 await ctx.respond(
@@ -58,7 +59,8 @@ def cog_creator(servers: List[int]):
                 f"`{member.name}#{member.discriminator}` has been kicked from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
                     ("\n\nFailed to kick user in guilds: \n" + ", ".join(failed)) if failed else ""))
             await ctx.respond(
-                f"`{member.mention}` has been kicked from **all** Venox Network Servers, for `{reason}`"
+                f"`{member.mention}` has been kicked from"\
+                    " **all** Venox Network Servers, for `{reason}`"
                 )
 
 

@@ -46,8 +46,9 @@ def cog_creator(servers: List[int]):
 
             except Exception:
                 await self.bot.log_msg(
-                    "Could not connect to database `sticky_messages` to fetch sticky message details.",
-                                 True)
+                    "Could not connect to database `sticky_messages`"\
+                    "to fetch sticky message details.",
+                    )
 
         @sticky_loop.before_loop
         async def on_start(self):
@@ -114,7 +115,9 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True)
                 return
 
             message_id = int(message_id)

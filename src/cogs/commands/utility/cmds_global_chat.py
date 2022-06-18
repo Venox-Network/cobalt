@@ -32,7 +32,9 @@ def cog_creator(servers: List[int]):
 
             try:
                 await ctx.response.defer(ephemeral=False)
-                result = await self.global_chat.find_one({"channel1": channel1, "channel2": channel2})
+                result = await self.global_chat.find_one(
+                    {"channel1": channel1, "channel2": channel2}
+                    )
                 if result is None:
                     data = {"channel1": int(channel1), "channel2": int(channel2)}
                     await self.global_chat.insert_one(data)
@@ -45,8 +47,9 @@ def cog_creator(servers: List[int]):
 
             except Exception as e:
                 await ctx.respond(
-                        "Could not interract with database `global chat`. Please try again after sometime.",
-                                  ephemeral=True)
+                    "Could not interract with database `global chat`."\
+                    " Please try again after sometime.",
+                    ephemeral=True)
                 print(e)
                 await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
 
@@ -56,23 +59,33 @@ def cog_creator(servers: List[int]):
                 return
 
             try:
-                result = await self.global_chat.find_one({"channel1": message.channel.id})
-                result2 = await self.global_chat.find_one({"channel2": message.channel.id})
+                result = await self.global_chat.find_one(
+                    {"channel1": message.channel.id}
+                    )
+                result2 = await self.global_chat.find_one(
+                    {"channel2": message.channel.id}
+                    )
 
                 if result is not None:
                     channel = result["channel2"]
                     discord_channel = self.bot.get_channel(channel)
                     try:
                         replied_message_id = message.reference.message_id
-                    except AttributeError as e:
+                    except AttributeError:
                         embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
                         embed.add_field(name=f"{message.author}:", value=f"{message.content}")
                         await discord_channel.send(embed=embed)
                         return
                     replied_message = await message.channel.fetch_message(replied_message_id)
                     embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
-                    embed.set_footer(text=f"Replying to: {replied_message.author}: {replied_message.clean_content}", icon_url=message.author.avatar.url)
-                    embed.add_field(name=f"{message.author}:", value=f"{message.content}")
+                    embed.set_footer(
+                        text=f"Replying to: {replied_message.author}: {replied_message.clean_content}",
+                        icon_url=message.author.avatar.url
+                        )
+                    embed.add_field(
+                        name=f"{message.author}:",
+                        value=f"{message.content}"
+                        )
                     await discord_channel.send(embed=embed)
                 if result2 is not None:
                     
@@ -80,18 +93,23 @@ def cog_creator(servers: List[int]):
                     discord_channel = self.bot.get_channel(channel)
                     try:
                         replied_message_id = message.reference.message_id
-                    except AttributeError as e:
+                    except AttributeError:
                         embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
                         embed.add_field(name=f"{message.author}:", value=f"{message.content}")
                         await discord_channel.send(embed=embed)
                         return
                     replied_message = await message.channel.fetch_message(replied_message_id)
                     embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
-                    embed.set_footer(text=f"Replying to: {replied_message.author}: {replied_message.clean_content}", icon_url=replied_message.author.avatar.url)
+                    embed.set_footer(
+                        text=f"Replying to: {replied_message.author}: {replied_message.clean_content}",
+                        icon_url=replied_message.author.avatar.url
+                        )
                     embed.add_field(name=f"{message.author}:", value=f"{message.content}")
                     await discord_channel.send(embed=embed)
             except Exception as e:
                 print(e)
-                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
+                await self.bot.log_msg(
+                    f"Error with connecting global chat with error: `{e}`"
+                    )
 
     return GlobalChatCog
