@@ -60,7 +60,7 @@ def cog_creator(servers: List[int]):
                     ("\n\nFailed to kick user in guilds: \n" + ", ".join(failed)) if failed else ""))
             await ctx.respond(
                 f"`{member.mention}` has been kicked from"\
-                    " **all** Venox Network Servers, for `{reason}`"
+                " **all** Venox Network Servers, for `{reason}`"
                 )
 
 
