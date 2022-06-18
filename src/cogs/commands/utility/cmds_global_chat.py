@@ -88,7 +88,6 @@ def cog_creator(servers: List[int]):
                         )
                     await discord_channel.send(embed=embed)
                 if result2 is not None:
-                    
                     channel = result2["channel1"]
                     discord_channel = self.bot.get_channel(channel)
                     try:
@@ -101,7 +100,8 @@ def cog_creator(servers: List[int]):
                     replied_message = await message.channel.fetch_message(replied_message_id)
                     embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
                     embed.set_footer(
-                        text=f"Replying to: {replied_message.author}: {replied_message.clean_content}",
+                        text=f"Replying to: {replied_message.author}:"\
+                        " {replied_message.clean_content}",
                         icon_url=replied_message.author.avatar.url
                         )
                     embed.add_field(name=f"{message.author}:", value=f"{message.content}")
