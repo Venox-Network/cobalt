@@ -44,7 +44,8 @@ def cog_creator(servers: List[int]):
                     return
 
             except Exception as e:
-                await ctx.respond("Could not interract with database `global chat`. Please try again after sometime.",
+                await ctx.respond(
+                        "Could not interract with database `global chat`. Please try again after sometime.",
                                   ephemeral=True)
                 print(e)
                 await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
