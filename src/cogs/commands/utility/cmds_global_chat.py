@@ -1,4 +1,5 @@
 from typing import List
+from unittest import result
 from discord import ApplicationContext
 import discord
 from discord.ext.commands import Cog
@@ -53,6 +54,50 @@ def cog_creator(servers: List[int]):
                 print(e)
                 await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
 
+        @BaseCog.cslash_command(
+            description="Removes a channel to the database",
+            guild_ids=servers
+        )
+        async def channel_remove(
+                self,
+                ctx: ApplicationContext,
+                channel1: Option(str),
+                channel2: Option(str)
+        ):
+
+            required_perms = {"administrator": True}
+
+            if not self.check_perms(ctx, required_perms):
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                return
+
+            try:
+                data = {"channel1": int(channel1), "channel2": int(channel2)}
+                data2 = {"channel2": int(channel1), "channel1": int(channel2)}
+                await ctx.response.defer(ephemeral=False)
+                result = await self.global_chat.find_one(data)
+                if result is None:
+                    result2 = await self.global_chat.find_one(data2)
+                    if result2 is None:
+                        await ctx.respond("Those channels are not in db")
+                        return
+                    await self.global_chat.delete_one(data2)
+                    await ctx.respond("Removed channels from database")
+                    return
+                await self.global_chat.delete_one(data)
+                await ctx.respond("Removed channels from database")
+                return
+
+
+            except Exception as e:
+                await ctx.respond(
+                    "Could not interract with database `global chat`."\
+                    f" With error: {e}",
+                    ephemeral=True)
+                print(e)
+                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
+
+
         @Cog.listener()
         async def on_message(self, message: discord.Message):
             if message.author.bot:
@@ -79,7 +124,8 @@ def cog_creator(servers: List[int]):
                     replied_message = await message.channel.fetch_message(replied_message_id)
                     embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
                     embed.set_footer(
-                        text=f"Replying to: {replied_message.author}: {replied_message.clean_content}",
+                        text=f"Replying to: {replied_message.author}:"\
+                        f" {replied_message.clean_content}",
                         icon_url=message.author.avatar.url
                         )
                     embed.add_field(
@@ -101,7 +147,7 @@ def cog_creator(servers: List[int]):
                     embed = discord.Embed(title=f"Cross chat to: \#{message.channel.name}")
                     embed.set_footer(
                         text=f"Replying to: {replied_message.author}:"\
-                        " {replied_message.clean_content}",
+                        f" {replied_message.clean_content}",
                         icon_url=replied_message.author.avatar.url
                         )
                     embed.add_field(name=f"{message.author}:", value=f"{message.content}")
