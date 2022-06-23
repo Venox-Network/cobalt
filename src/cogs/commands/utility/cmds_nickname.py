@@ -191,3 +191,4 @@ def cog_creator(servers: List[int]):
                                   ephemeral=hide)
 
     return NickNameCog
+    

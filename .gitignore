@@ -4,3 +4,4 @@ config.json
 .VSCodeCounter
 Pipfile.lock
 Pipfile
+.vscode/settings.json

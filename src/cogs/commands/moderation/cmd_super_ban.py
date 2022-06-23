@@ -73,7 +73,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.send(
-                    f"You have been banned from `{member.guild.name}`, as this is a part of the Vnox Network, and you have previously been SUPER BANNED by one of the owners of Venox.")
+                    f"You have been banned from `{member.guild.name}`, as this is a part of the Vnox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
             except Exception:
                 pass
 

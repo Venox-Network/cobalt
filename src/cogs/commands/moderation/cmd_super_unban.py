@@ -4,7 +4,6 @@ import discord
 from discord.commands.options import Option
 from cogs import BaseCog
 
-
 def cog_creator(servers: List[int]):
     class SuperUnban(BaseCog):
 
@@ -13,7 +12,7 @@ def cog_creator(servers: List[int]):
             self.super_ban_db = self.bot.config.DATABASE["superbanids"]
 
         @BaseCog.cslash_command(
-            description="Unbans a member from all guilds Venox moderates in",
+            description="Unbans a member from all Venox Network servers",
             guild_ids=servers
         )
         async def super_unban(
