@@ -18,11 +18,17 @@ def cog_creator(servers: List[int]):
             user_voice_state = ctx.user.voice
 
             if user_voice_state is None:
-                await ctx.respond("Please connect to a VC first before using this command.", ephemeral=True)
+                await ctx.respond(
+                    "Please connect to a VC first before using this command.",
+                    ephemeral=True
+                    )
                 return False
 
             if user_voice_state.channel != ctx.guild.voice_client.channel:
-                await ctx.respond("You are not in the same voice channel as the bot.", ephemeral=True)
+                await ctx.respond(
+                    "You are not in the same voice channel as the bot.",
+                    ephemeral=True
+                    )
                 return False
 
             return True
@@ -79,7 +85,10 @@ def cog_creator(servers: List[int]):
                     user_voice_state = ctx.user.voice
 
                     if user_voice_state is None:
-                        await ctx.respond("Please connect to a VC first before using this command.", ephemeral=True)
+                        await ctx.respond(
+                            "Please connect to a VC first before using this command.",
+                            ephemeral=True
+                            )
                         return
 
                     channel = user_voice_state.channel
@@ -90,28 +99,43 @@ def cog_creator(servers: List[int]):
                     voice_chat: wavelink.Player = ctx.voice_client
 
             except Exception:
-                await self.bot.log_msg(f"Could not join vc in `{ctx.guild.name}`")
-                await ctx.respond(f"Could not join vc in `{ctx.guild.name}`", ephemeral=True)
+                await self.bot.log_msg(
+                    f"Could not join vc in `{ctx.guild.name}`"
+                    )
+                await ctx.respond(
+                    f"Could not join vc in `{ctx.guild.name}`",
+                    ephemeral=True
+                    )
                 return
 
             try:
 
-                await ctx.respond(f"Searching for `{search}`...", ephemeral=True)
+                await ctx.respond(
+                    f"Searching for `{search}`...",
+                    ephemeral=True
+                    )
                 query_result = await wavelink.YouTubeTrack.search(search, return_first=True)
                 #channel: discord.VoiceChannel = channel
                 
                 if voice_chat.queue.is_empty and (not voice_chat.is_playing()):
                     await voice_chat.play(query_result)
-                    await ctx.respond(f"Now playing: `{query_result.title}`")
+                    await ctx.respond(
+                        f"Now playing: `{query_result.title}`"
+                        )
                     await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
                 
                 else:
                     await voice_chat.queue.put_wait(query_result)
-                    await ctx.respond(f"Added `{query_result.title}` to the queue")
+                    await ctx.respond(
+                        f"Added `{query_result.title}` to the queue"
+                        )
 
             except Exception:
                 await self.bot.log_msg(f"Could not play music in vc: `{channel.name}` in `{ctx.guild.name}`")
-                await ctx.respond("There was an error while playing music. Please contact the staff.", ephemeral=True)
+                await ctx.respond(
+                    "There was an error while playing music. Please contact the staff.",
+                    ephemeral=True
+                    )
                 if voice_chat.is_connected():
                     voice_chat.loop = False
                     voice_chat.text_channel = None
@@ -129,7 +153,9 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             if not await self.check_voice(ctx):
@@ -139,10 +165,14 @@ def cog_creator(servers: List[int]):
 
             if voice_chat.is_paused():
                 await voice_chat.resume()
-                await ctx.respond("Resumed music.")
+                await ctx.respond(
+                    "Resumed music."
+                    )
             else:
                 await voice_chat.pause()
-                await ctx.respond("Paused music.")
+                await ctx.respond(
+                    "Paused music."
+                    )
 
         @BaseCog.cslash_command(
             description="Stops Music and clears queue",
@@ -153,7 +183,9 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             if not await self.check_voice(ctx):
@@ -162,7 +194,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages":True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, only mods can stop the music.", ephemeral=True)
+                await ctx.respond(
+                    f"Sorry, only mods can stop the music.",
+                    ephemeral=True
+                    )
                 return
 
             voice_chat: wavelink.Player = ctx.voice_client
@@ -182,7 +217,9 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             if not await self.check_voice(ctx):
@@ -191,11 +228,15 @@ def cog_creator(servers: List[int]):
             voice_chat: wavelink.Player = ctx.voice_client
 
             if not voice_chat.is_playing():
-                await ctx.respond("There is no music being played to skip.")
+                await ctx.respond(
+                    "There is no music being played to skip."
+                    )
                 return
 
             await voice_chat.stop()
-            await ctx.respond("Skipped current song.")
+            await ctx.respond(
+                "Skipped current song."
+                )
 
         @BaseCog.cslash_command(
             description="Disconnect from voice channel",
@@ -206,13 +247,18 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             required_perms = {"manage_messages":True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, only mods can disconnect the bot from VCs.", ephemeral=True)
+                await ctx.respond(
+                    f"Sorry, only mods can disconnect the bot from VCs.",
+                    ephemeral=True
+                    )
                 return
 
             voice_chat: wavelink.Player = ctx.voice_client
@@ -221,7 +267,9 @@ def cog_creator(servers: List[int]):
             await voice_chat.disconnect()
             voice_chat.loop = False
             voice_chat.text_channel = None
-            await ctx.respond("Disconnected from voice channel.")
+            await ctx.respond(
+                "Disconnected from voice channel."
+                )
 
         @BaseCog.cslash_command(
             description="Loops over the current music",
@@ -232,7 +280,9 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             if not await self.check_voice(ctx):
@@ -241,16 +291,22 @@ def cog_creator(servers: List[int]):
             voice_chat: wavelink.Player = ctx.voice_client
 
             if not voice_chat.is_playing():
-                await ctx.respond("There is no music being played to skip.")
+                await ctx.respond(
+                    "There is no music being played to skip."
+                    )
                 return
 
             if getattr(voice_chat, "loop", None) is not None:
                 voice_chat.loop = not voice_chat.loop
-                await ctx.respond("Loop has now been `" + ("enabled" if voice_chat.loop else "disabled") + "`.")
+                await ctx.respond(
+                    "Loop has now been `" + ("enabled" if voice_chat.loop else "disabled") + "`."
+                    )
                 return
             
             voice_chat.loop = True
-            await ctx.respond("Loop has now been `enabled`.")
+            await ctx.respond(
+                "Loop has now been `enabled`."
+                )
 
         @BaseCog.cslash_command(
             description="Show the music queue.",
@@ -261,13 +317,17 @@ def cog_creator(servers: List[int]):
             ctx: ApplicationContext
         ):
             if not ctx.voice_client:
-                await ctx.respond("There is no music being played on this server.")
+                await ctx.respond(
+                    "There is no music being played on this server."
+                    )
                 return
 
             voice_chat: wavelink.Player = ctx.voice_client
 
             if voice_chat.queue.is_empty:
-                await ctx.respond("The Queue is currently empty.", ephemeral=True)
+                await ctx.respond(
+                    "The Queue is currently empty.", ephemeral=True
+                    )
                 return
 
             embed = discord.Embed(title="Queue")
@@ -276,6 +336,8 @@ def cog_creator(servers: List[int]):
                 count += 1
                 embed.add_field(name=f"Song No: {count}", value=song.title)
             
-            await ctx.respond(embed=embed)
+            await ctx.respond(
+                embed=embed
+                )
 
     return MusicCog

@@ -24,7 +24,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"ban_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
@@ -35,7 +38,11 @@ def cog_creator(servers: List[int]):
 
             await member.ban(reason=reason)
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been banned from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
-            await ctx.respond(f"'{member.mention}' has been banned for `{reason}`", ephemeral=True)
+                f"`{member.name}#{member.discriminator}` has been banned from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`"
+                )
+            await ctx.respond(
+                f"'{member.mention}' has been banned for `{reason}`",
+                ephemeral=True
+                )
 
     return Ban

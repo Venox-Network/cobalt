@@ -21,19 +21,26 @@ def cog_creator(servers: List[int]):
                 user_id: Option(int),
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             user: discord.User = self.bot.get_user(user_id)
             if user is None:
-                await ctx.respond(f"User with the id `{user_id}` not found.", ephemeral=True)
+                await ctx.respond(
+                    f"User with the id `{user_id}` not found.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 await self.super_ban_db.delete_one({'banned_member_id': user_id})
-            except Exception:
-                await ctx.respond("Could not interract with database `superbanids`. Please try again after sometime.",
-                            ephemeral=True)
+            except Exception as e:
+                await ctx.respond(
+                    f"Could not interract with database `superbanids`. With error `{e}`.",
+                    ephemeral=True)
                 return
 
             failed = []
@@ -47,6 +54,8 @@ def cog_creator(servers: List[int]):
             await self.bot.log_msg(
                 f"`{user.name}#{user.discriminator}` has been ***SUPER UN BANNED***. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
                             "\n\nFailed to un-ban user in guilds: \n" + ", ".join(failed)) if failed else "")
-            await ctx.respond(f"`{user.mention}` has been ***SUPER UN BANNED***")
+            await ctx.respond(
+                f"`{user.mention}` has been **SUPER UN BANNED**"
+                )
 
     return SuperUnban

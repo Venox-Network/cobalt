@@ -24,7 +24,10 @@ def cog_creator(servers: List[int]):
                 reason: Option(str) = None
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             # member: discord.Member = member
@@ -34,14 +37,18 @@ def cog_creator(servers: List[int]):
             try:
                 await self.super_ban_db.insert_one(
                     {'banned_member_id': member.id, 'banned_member_name': member.name, 'superban_user': ctx.user.name})
-            except Exception:
-                await ctx.respond("Could not interract with database `superbanids`. Please try again after sometime.",
-                            ephemeral=True)
+            except Exception as e:
+                await ctx.respond(
+                    f"Could not interract with database `superbanids`. With error {e}.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 await member.send(
-                    f"You have been banned from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
+                    f"You have been banned from **all** Venox Network Servers,"\
+                    " for `{reason}`."\
+                    "Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
             except Exception:
                 pass
 
@@ -58,8 +65,10 @@ def cog_creator(servers: List[int]):
 
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been ***SUPER BANNED***, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
-                            "\n\nFailed to ban user in guilds: \n" + ", ".join(failed)) if failed else "")
-            await ctx.respond(f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`")
+                "\n\nFailed to ban user in guilds: \n" + ", ".join(failed)) if failed else "")
+            await ctx.respond(
+                f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`"
+                )
 
         @Cog.listener("on_member_join")
         async def ban_member_on_join(self, member: discord.Member):
@@ -73,9 +82,11 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.send(
-                    f"You have been banned from `{member.guild.name}`, as this is a part of the Vnox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
-            except Exception:
-                pass
+                    f"You have been banned from `{member.guild.name}`, as this is a part of the Venox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
+            except Exception as e:
+                self.bot.log_msg(
+                    f"Failed to dm {member.name} with error: {e}"
+                )
 
             try:
                 await member.ban(reason="User was SUPER BANNED")

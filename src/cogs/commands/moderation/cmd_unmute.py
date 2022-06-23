@@ -27,13 +27,19 @@ def cog_creator(servers: List[int]):
             required_perms = {"moderate_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             if member.timed_out:
                 await member.edit(communication_disabled_until=None, reason=reason)
             else:
-                await ctx.respond(f"'{member.mention}' has not been muted to be unmuted", ephemeral=True)
+                await ctx.respond(
+                    f"'{member.mention}' has not been muted to be unmuted",
+                    ephemeral=True
+                    )
                 return
 
             try:

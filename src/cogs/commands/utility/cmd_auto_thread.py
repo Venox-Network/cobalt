@@ -89,7 +89,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
@@ -98,27 +101,36 @@ def cog_creator(servers: List[int]):
                 if result is None:
                     await self.thread_channel_collections.insert_one(data)
                     self.thread_guild_map[ctx.guild.id] = ctx.channel.id
-                    await ctx.respond("Auto Threading is now enabled for this channel.", ephemeral=True)
+                    await ctx.respond(
+                        "Auto Threading is now enabled for this channel.",
+                        ephemeral=True
+                        )
                     return
 
                 if result["channel_db_id"] == ctx.channel.id:
                     await self.thread_channel_collections.delete_one(result)
                     self.thread_guild_map.pop(ctx.guild.id, None)
-                    await ctx.respond("Auto Threading is now disabled for this channel.", ephemeral=True)
+                    await ctx.respond(
+                        "Auto Threading is now disabled for this channel.",
+                        ephemeral=True
+                        )
                     return
 
                 prev_channel = self.bot.get_channel(result["channel_db_id"])
 
                 await self.thread_channel_collections.replace_one(result, data)
                 self.thread_guild_map[ctx.guild.id] = ctx.channel.id
-                await ctx.respond(f"Auto Threading is now enabled for this channel" + (
+                await ctx.respond(
+                    f"Auto Threading is now enabled for this channel" + (
                     f", and is now disabled in {prev_channel.mention}." if prev_channel is not None else "."),
-                                  ephemeral=True)
+                    ephemeral=True
+                    )
 
             except Exception:
                 await ctx.respond(
                     "Could not interract with database `threadedchannels`. Please try again after sometime.",
-                    ephemeral=True)
+                    ephemeral=True
+                    )
 
     return AutoThreadCog
     

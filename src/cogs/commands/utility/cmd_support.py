@@ -11,5 +11,7 @@ def cog_creator(servers: List[int]):
             guild_ids=servers
         )
         async def support(self, ctx: ApplicationContext):
-            await ctx.respond("[Join our support server](https://discord.gg/kaddCVeRj6)\nhttps://discord.gg/kaddCVeRj6")
+            await ctx.respond(
+                "[Join our support server](https://discord.gg/kaddCVeRj6)\nhttps://discord.gg/kaddCVeRj6"
+                )
     return Support

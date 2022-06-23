@@ -22,18 +22,27 @@ def cog_creator(servers: List[int]):
         ):
 
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             guild = self.bot.get_guild(guild_id)
             if guild is None:
-                await ctx.respond(f"Couldn't find the guild with id of `{guild_id}`", ephemeral=True)
+                await ctx.respond(
+                    f"Couldn't find the guild with id of `{guild_id}`",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 await guild.leave()
             except Exception:
-                await ctx.respond(f"Failed to leave guild `{guild.name}`", ephemeral=True)
+                await ctx.respond(
+                    f"Failed to leave guild `{guild.name}`",
+                    ephemeral=True
+                    )
                 return
 
             await self.bot.config.DATABASE["new_nicknames"].delete_many({"guild_id": guild.id})
@@ -45,6 +54,9 @@ def cog_creator(servers: List[int]):
 
             await self.bot.log_msg(
                 f"Left guild `{guild.name}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
-            await ctx.respond(f"Left guild `{guild.name}`", ephemeral=True)
+            await ctx.respond(
+                f"Left guild `{guild.name}`",
+                ephemeral=True
+                )
 
     return Leave_Server

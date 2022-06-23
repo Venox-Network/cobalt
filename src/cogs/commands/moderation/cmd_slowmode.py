@@ -33,7 +33,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             data = {"channel_id": ctx.channel.id, "amount_of_messages_per_min": msgs_per_min, "minimum_of_messages_per_minute": min_msges_per_min,
@@ -43,16 +46,23 @@ def cog_creator(servers: List[int]):
                 if find is None:
                     await self.slowmode_db.insert_one(data)
                     self.slowmode_map[ctx.channel.id] = data
-                    await ctx.respond("Slowmode is now enabled for this channel.", ephemeral=True)
+                    await ctx.respond(
+                        "Slowmode is now enabled for this channel.",
+                        ephemeral=True
+                        )
                     return
 
                 await self.slowmode_db.replace_one(find, data)
                 self.slowmode_map[ctx.channel.id] = data
-                await ctx.respond("Slowmode is now updated for this channel.", ephemeral=True)
+                await ctx.respond(
+                    "Slowmode is now updated for this channel.",
+                    ephemeral=True
+                    )
             except Exception:
                 await ctx.respond(
                     "Could not interract with database `dynamic_slowmode`. Please try again after sometime.",
-                    ephemeral=True)
+                    ephemeral=True
+                    )
 
         @BaseCog.cslash_command(
             description="Disables slowmode for a channel",
@@ -66,22 +76,32 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 find = self.slowmode_db.find_one({"channel_id": ctx.channel.id})
                 if find is None:
-                    await ctx.respond("Slowmode is not enabled for this channel.", ephemeral=True)
+                    await ctx.respond(
+                        "Slowmode is not enabled for this channel.",
+                        ephemeral=True
+                        )
                     return
 
                 await self.slowmode_db.delete_one(find)
                 self.slowmode_map.pop(ctx.channel, None)
-                await ctx.respond("Slowmode is now disabled for this channel.", ephemeral=True)
+                await ctx.respond(
+                    "Slowmode is now disabled for this channel.",
+                    ephemeral=True
+                    )
             except Exception:
                 await ctx.respond(
                     "Could not interract with database `dynamic_slowmode`. Please try again after sometime.",
-                    ephemeral=True)
+                    ephemeral=True
+                    )
 
         def cog_unload(self) -> None:
             self.slowmode_job.cancel()

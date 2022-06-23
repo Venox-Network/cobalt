@@ -28,7 +28,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
@@ -39,11 +42,17 @@ def cog_creator(servers: List[int]):
                 if result is None:
                     data = {"channel1": int(channel1), "channel2": int(channel2)}
                     await self.global_chat.insert_one(data)
-                    await ctx.respond("Channel added to database", ephemeral=False)
+                    await ctx.respond(
+                        "Channel added to database",
+                        ephemeral=False
+                        )
                     return
 
                 if channel1 in result["channel1"] or channel2 in result["channel2"]:
-                    await ctx.respond("That channel is already in the blacklist.", ephemeral=False)
+                    await ctx.respond(
+                        "That channel is already in the blacklist.",
+                        ephemeral=False
+                        )
                     return
 
             except Exception as e:
@@ -68,7 +77,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"administrator": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
@@ -79,13 +91,19 @@ def cog_creator(servers: List[int]):
                 if result is None:
                     result2 = await self.global_chat.find_one(data2)
                     if result2 is None:
-                        await ctx.respond("Those channels are not in db")
+                        await ctx.respond(
+                            "Those channels are not in db"
+                            )
                         return
                     await self.global_chat.delete_one(data2)
-                    await ctx.respond("Removed channels from database")
+                    await ctx.respond(
+                        "Removed channels from database"
+                        )
                     return
                 await self.global_chat.delete_one(data)
-                await ctx.respond("Removed channels from database")
+                await ctx.respond(
+                    "Removed channels from database"
+                    )
                 return
 
 
@@ -93,7 +111,8 @@ def cog_creator(servers: List[int]):
                 await ctx.respond(
                     "Could not interract with database `global chat`."\
                     f" With error: {e}",
-                    ephemeral=True)
+                    ephemeral=True
+                    )
                 print(e)
                 await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
 

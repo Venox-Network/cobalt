@@ -17,7 +17,10 @@ def cog_creator(_servers: List[int]):
                 hide: Option(bool) = False
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             guilds = "\n".join(f"**{guild.name},** id: **{guild.id}**," for guild in self.bot.guilds)
@@ -25,6 +28,9 @@ def cog_creator(_servers: List[int]):
             ***Testserver1***
             ***Testserver2***
             """
-            await ctx.respond(f"I'm in these servers: \n{guilds}", ephemeral=hide)
+            await ctx.respond(
+                f"I'm in these servers: \n{guilds}",
+                ephemeral=True
+                )
 
     return Servers
