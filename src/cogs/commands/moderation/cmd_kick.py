@@ -27,18 +27,25 @@ def cog_creator(servers: List[int]):
             required_perms = {"kick_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 await member.send(
-                    f"You have been kicked from `{ctx.guild.name}` for `{reason}`. Responsible moderator: Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
+                    f"You have been kicked from `{ctx.guild.name}` for `{reason}`. Responsible moderator: Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`"
+                    )
             except Exception:
                 pass
 
             await member.kick(reason=reason)
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been kicked from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
-            await ctx.respond(f"'{member.mention}' has been kicked for `{reason}`", ephemeral=True)
+            await ctx.respond(
+                f"'{member.mention}' has been kicked for `{reason}`",
+                ephemeral=True
+                )
 
     return Kick

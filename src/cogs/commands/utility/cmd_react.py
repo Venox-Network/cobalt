@@ -22,17 +22,26 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 message_id = int(message_id)
             except Exception:
-                await ctx.respond("Please enter a valid number", ephemeral=True)
+                await ctx.respond(
+                    "Please enter a valid number",
+                    ephemeral=True
+                    )
 
             message = await ctx.fetch_message(message_id)
             if message == None:
-                await ctx.respond(f"Message with id `{message_id}` not found.", ephemeral=True)
+                await ctx.respond(
+                    f"Message with id `{message_id}` not found.",
+                    ephemeral=True
+                    )
                 return
 
             await ctx.defer(ephemeral=True)
@@ -41,6 +50,9 @@ def cog_creator(servers: List[int]):
                 await message.add_reaction(emoji)
                 await asyncio.sleep(1)  # To not trigger auto spam filter by discord.
 
-            await ctx.respond("Added emojis", ephemeral=True)
+            await ctx.respond(
+                "Added emojis",
+                ephemeral=True
+                )
 
     return React

@@ -27,19 +27,30 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_messages": True}
 
             if not self.check_perms(ctx, required_perms, member, True):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             try:
                 if member is not None:
                     await ctx.channel.purge(limit=amount, check=(lambda message: message.author == member))
-                    await ctx.respond(f"Purged `{amount}` message(s) sent by '{member.mention}' in this channel.",
-                                      ephemeral=True)
+                    await ctx.respond(
+                        f"Purged `{amount}` message(s) sent by '{member.mention}' in this channel.",
+                        ephemeral=True
+                        )
                     return
 
                 await ctx.channel.purge(limit=amount)
-                await ctx.respond(f"Purged `{amount}` message(s) from this channel", ephemeral=True)
+                await ctx.respond(
+                    f"Purged `{amount}` message(s) from this channel",
+                    ephemeral=True
+                    )
             except Exception:
-                await ctx.respond("Could not purge all the messages from this channel", ephemeral=True)
+                await ctx.respond(
+                    "Could not purge all the messages from this channel",
+                    ephemeral=True
+                    )
 
     return Purge

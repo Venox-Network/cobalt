@@ -41,14 +41,20 @@ def cog_creator(servers: List[int]):
             required_perms = {"manage_guild": True}
 
             if not self.check_perms(ctx, required_perms):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             data = {"guildid": ctx.guild.id, "reports_id": report_channel.id}
             try:
                 try:
                     await self.report_collection.insert_one(data)
-                    await ctx.respond(f"Report channel setup and linked to '{report_channel.mention}'", ephemeral=True)
+                    await ctx.respond(
+                        f"Report channel setup and linked to '{report_channel.mention}'",
+                        ephemeral=True
+                        )
 
                 except Exception:
                     replace = await self.report_collection.find_one({"guildid": ctx.guild.id})
@@ -88,14 +94,22 @@ def cog_creator(servers: List[int]):
             local_report_channel = ctx.guild.get_channel(local_report_channel_id)
             if local_report_channel is None:
                 await self.bot.log_msg(
-                    f"`{ctx.user.name}#{ctx.user.discriminator}` tried to report on `{ctx.guild.name}`, local report channel for `{ctx.guild.name}` not found.")
-                await ctx.respond("Could not send report. Please mention ask any staff member for further help.")
+                    f"`{ctx.user}` tried to report on `{ctx.guild.name}`,"\
+                    f" local report channel for `{ctx.guild.name}` not found."
+                    )
+                await ctx.respond(
+                    "Could not send report. Please mention ask any staff member for further help.",
+                    ephemeral=True
+                    )
                 return
 
             await local_report_channel.send(
                 f"`{ctx.user.name}#{ctx.user.discriminator}` has reported `{member.name}`, in channel `{ctx.channel.name}`, for reason {reason}")
             await self.bot.report_channel.send(
                 f"`{ctx.user.name}#{ctx.user.discriminator}` has reported `{member.name}` in `{ctx.guild.name}`, in channel `{ctx.channel.name}`, for reason {reason}")
-            await ctx.respond(f"Reported user {member.mention} for: `{reason}`", ephemeral=True)
+            await ctx.respond(
+                f"Reported user {member.mention} for: `{reason}`",
+                ephemeral=True
+                )
 
     return ReportCog

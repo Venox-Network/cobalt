@@ -1,3 +1,7 @@
 .idea
 config.json
 *.pyc
+.VSCodeCounter
+Pipfile.lock
+Pipfile
+.vscode/settings.json

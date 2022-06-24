@@ -13,7 +13,7 @@ def cog_creator(servers: List[int]):
             self.super_ban_db = self.bot.config.DATABASE["superbanids"]
 
         @BaseCog.cslash_command(
-            description="Kicks a member from all guilds Venox moderates in",
+            description="Kicks a member from all Venox Network servers",
             guild_ids=servers
         )
         async def super_kick(
@@ -23,7 +23,10 @@ def cog_creator(servers: List[int]):
                 reason: Option(str) = None
         ):
             if not (ctx.user.id in (self.bot.config.OWNERS)):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             # member: discord.Member = member
@@ -32,9 +35,14 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.send(
-                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
-            except Exception:
-                pass
+                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`."\
+                    " Responsible user: `{ctx.user}`"
+                    )
+            except Exception as e:
+                await ctx.respond(
+                    f"Failed to dm member with error: {e}",
+                    ephemeral=True
+                    )
 
             for guild in self.bot.guilds:
 
@@ -50,7 +58,10 @@ def cog_creator(servers: List[int]):
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been kicked from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
                     ("\n\nFailed to kick user in guilds: \n" + ", ".join(failed)) if failed else ""))
-            await ctx.respond(f"`{member.mention}` has been kicked from **all** Venox Network Servers, for `{reason}`")
+            await ctx.respond(
+                f"`{member.mention}` has been kicked from"\
+                " **all** Venox Network Servers, for `{reason}`"
+                )
 
 
     return SuperKick

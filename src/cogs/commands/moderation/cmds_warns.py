@@ -29,7 +29,10 @@ def cog_creator(servers: List[int]):
             required_perms = {"moderate_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True
+                    )
                 return
 
             today_date = datetime.now().strftime("%Y-%m-%d")
@@ -41,8 +44,10 @@ def cog_creator(servers: List[int]):
                 count = int(
                     await self.warn_collection.count_documents({"warn_guild": ctx.guild.id, "memberid": member.id}))
             except Exception:
-                await ctx.respond("Could not interract with database `warns`. Please try again after sometime.",
-                                  ephemeral=True)
+                await ctx.respond(
+                    "Could not interract with database `warns`. Please try again after sometime.",
+                    ephemeral=True
+                    )
                 return
 
             last_digit = count % 10
@@ -56,7 +61,10 @@ def cog_creator(servers: List[int]):
             else:
                 count = str(count) + "th"
 
-            await ctx.respond(f"{member.mention} has been warned for `{reason}`. This is their `{count}` warning.")
+            await ctx.respond(
+                f"{member.mention} has been warned for `{reason}`."\
+                f" This is their `{count}` warning."
+                )
 
         @BaseCog.cslash_command(
             description="Gets all the warn info of a member",
@@ -75,16 +83,19 @@ def cog_creator(servers: List[int]):
             required_perms = {"moderate_members": True}
 
             if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond(f"Sorry, you cannot use this command.", ephemeral=True)
+                await ctx.respond(
+                    "Sorry, you cannot use this command.",
+                    ephemeral=True)
                 return
 
             try:
                 documents = self.warn_collection.find({"warn_guild": ctx.guild_id, "memberid": member.id})
                 count = int(
                     await self.warn_collection.count_documents({"warn_guild": ctx.guild.id, "memberid": member.id}))
-            except Exception:
-                await ctx.respond("Could not interract with database `warns`. Please try again after sometime.",
-                                  ephemeral=True)
+            except Exception as e:
+                await ctx.respond(
+                    f"Could not interract with database `warns`. With error {e}.",
+                    ephemeral=True)
                 return
 
             embed = discord.Embed(title=f"Warns for {member.name}:",
@@ -94,6 +105,8 @@ def cog_creator(servers: List[int]):
                 embed.add_field(name="Warn: ",
                                 value=f"**Date:** `{document['date']}`\n**Reason:** `{document['reason']}`\n**Moderator:** `{document['moderator']}`")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(
+                embed=embed
+                )
 
     return All_Warns
