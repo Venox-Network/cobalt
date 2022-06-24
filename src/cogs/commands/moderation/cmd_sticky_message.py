@@ -48,7 +48,7 @@ def cog_creator(servers: List[int]):
                 await self.bot.log_msg(
                     "Could not connect to database `sticky_messages`"\
                     "to fetch sticky message details.",
-                    )
+                    should_print=True)
 
         @sticky_loop.before_loop
         async def on_start(self):
@@ -80,7 +80,9 @@ def cog_creator(servers: List[int]):
 
             except Exception as e:
                 print(e)
-                self.bot.log_msg(f"Error with sticky message {e}")
+                await self.bot.log_msg(
+                    f"Error with sticky message {e}",
+                    should_print=True)
 
         @Cog.listener()
         async def on_guild_channel_delete(self, channel: discord.TextChannel):
@@ -96,7 +98,8 @@ def cog_creator(servers: List[int]):
             except Exception as e:
                 await self.bot.log_msg(
                     f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `sticky_messages`\n\n{str(e)}",
-                    True)
+                    should_print=True
+                    )
 
         @staticmethod
         def generate_message_link(message: discord.Message):

@@ -61,7 +61,10 @@ def cog_creator(servers: List[int]):
                     " Please try again after sometime.",
                     ephemeral=True)
                 print(e)
-                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
+                await self.bot.log_msg(
+                    f"Error with connecting global chat with error: `{e}`",
+                    should_print=True
+                    )
 
         @BaseCog.cslash_command(
             description="Removes a channel to the database",
@@ -114,7 +117,9 @@ def cog_creator(servers: List[int]):
                     ephemeral=True
                     )
                 print(e)
-                await self.bot.log_msg(f"Error with connecting global chat with error: `{e}`")
+                await self.bot.log_msg(
+                f"Error with connecting global chat with error: `{e}`", should_print=True
+                )
 
 
         @Cog.listener()
@@ -175,6 +180,7 @@ def cog_creator(servers: List[int]):
                 print(e)
                 await self.bot.log_msg(
                     f"Error with connecting global chat with error: `{e}`"
+                    should_print=True
                     )
 
     return GlobalChatCog

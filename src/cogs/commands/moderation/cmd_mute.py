@@ -56,7 +56,8 @@ def cog_creator(servers: List[int]):
                 pass
 
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
+                f"`{member.name}#{member.discriminator}` has been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`",
+                True)
             await ctx.respond(
                 f"'{member.mention}' has been muted, till: <t:{time_unix}>, for `{reason}`",
                 ephemeral=True

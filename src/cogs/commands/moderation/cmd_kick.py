@@ -42,7 +42,9 @@ def cog_creator(servers: List[int]):
 
             await member.kick(reason=reason)
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been kicked from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
+                f"`{member.name}#{member.discriminator}` has been kicked from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`",
+                True
+                )
             await ctx.respond(
                 f"'{member.mention}' has been kicked for `{reason}`",
                 ephemeral=True

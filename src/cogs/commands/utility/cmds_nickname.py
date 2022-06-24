@@ -43,7 +43,9 @@ def cog_creator(servers: List[int]):
                         return
 
             except Exception as e:
-                await self.bot.log_msg(f"Failed to correct nicnames with error: {e}")
+                await self.bot.log_msg(
+                    f"Failed to correct nicnames with error: {e}"
+                    should_print=True)
                 print(e)
 
         @Cog.listener()
