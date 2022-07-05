@@ -65,7 +65,8 @@ def cog_creator(servers: List[int]):
 
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been ***SUPER BANNED***, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
-                "\n\nFailed to ban user in guilds: \n" + ", ".join(failed)) if failed else "")
+                "\n\nFailed to ban user in guilds: \n" + ", ".join(failed)) if failed else ""
+                should_print=True)
             await ctx.respond(
                 f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`"
                 )
@@ -84,14 +85,14 @@ def cog_creator(servers: List[int]):
                 await member.send(
                     f"You have been banned from `{member.guild.name}`, as this is a part of the Venox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
             except Exception as e:
-                self.bot.log_msg(
-                    f"Failed to dm {member.name} with error: {e}"
-                )
+                print(e)
 
             try:
                 await member.ban(reason="User was SUPER BANNED")
             except Exception:
-                self.bot.log_msg(
-                    f"Could not ***SUPER BAN*** `{member.name}#{member.discriminator}` on join, on server: {member.guild.name}")
+                await self.bot.log_msg(
+                    f"Could not ***SUPER BAN*** `{member.name}#{member.discriminator}` on join, on server: {member.guild.name}",
+                    should_print=True
+                    )
 
     return SuperBan

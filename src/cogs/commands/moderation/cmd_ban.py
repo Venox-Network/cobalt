@@ -38,7 +38,8 @@ def cog_creator(servers: List[int]):
 
             await member.ban(reason=reason)
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been banned from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`"
+                f"`{member.name}#{member.discriminator}` has been banned from `{ctx.guild.name}`, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`",
+                True
                 )
             await ctx.respond(
                 f"'{member.mention}' has been banned for `{reason}`",

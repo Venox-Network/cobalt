@@ -22,9 +22,7 @@ def cog_creator(servers: List[int]):
             try:
                 await self.report_collection.delete_many({"reports_id": channel.id})
             except Exception as e:
-                await self.bot.log_msg(
-                    f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `report_channels`\n\n{str(e)}",
-                    True)
+                print(e)
 
         @BaseCog.cslash_command(
             description="Setup the report command",
