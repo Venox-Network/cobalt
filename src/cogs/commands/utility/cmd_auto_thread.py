@@ -42,10 +42,7 @@ def cog_creator(servers: List[int]):
                     await self.thread_channel_collections.delete_one(key)
 
             except Exception as e:
-                await self.bot.log_msg(
-                    f"Could not connect to database `threadedchannels` to fetch slowmode details.",
-                    should_print=True
-                    )
+                print(e)
 
         @thread_loop.before_loop
         async def on_start(self):

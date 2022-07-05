@@ -101,10 +101,8 @@ def cog_creator(servers: List[int]):
                 else:
                     voice_chat: wavelink.Player = ctx.voice_client
 
-            except Exception:
-                await self.bot.log_msg(
-                    f"Could not join vc in `{ctx.guild.name}`"
-                    )
+            except Exception as e:
+                print(e)
                 await ctx.respond(
                     f"Could not join vc in `{ctx.guild.name}`",
                     ephemeral=True

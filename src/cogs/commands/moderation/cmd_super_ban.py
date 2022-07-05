@@ -85,10 +85,7 @@ def cog_creator(servers: List[int]):
                 await member.send(
                     f"You have been banned from `{member.guild.name}`, as this is a part of the Venox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
             except Exception as e:
-                await self.bot.log_msg(
-                    f"Failed to dm {member.name} with error: {e}",
-                    should_print=True
-                )
+                print(e)
 
             try:
                 await member.ban(reason="User was SUPER BANNED")
