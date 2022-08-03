@@ -148,8 +148,8 @@ def cog_creator(servers: List[int]):
                 await self.sticky_collections.replace_one(result, data)
                 self.message_channel_map[ctx.channel.id] = message.id
                 await ctx.respond(
-                    f"'Sticky msg' is now transfered to {self.generate_message_link(message)} " + (
-                    f", from {self.generate_message_link(prev_msg)}." if prev_msg is not None else "."),
+                    f"**New sticky message:** {self.generate_message_link(message)}" + (
+                    f"\n**Previous sticky message:** {self.generate_message_link(prev_msg)}" if prev_msg is not None else "."),
                     ephemeral=True
                     )
 
