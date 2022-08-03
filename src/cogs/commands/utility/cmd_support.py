@@ -12,6 +12,6 @@ def cog_creator(servers: List[int]):
         )
         async def support(self, ctx: ApplicationContext):
             await ctx.respond(
-                "[Join our support server](https://discord.gg/kaddCVeRj6)\nhttps://discord.gg/kaddCVeRj6"
+                "**Join the Venox Network server for support:** https://discord.gg/kaddCVeRj6"
                 )
     return Support
