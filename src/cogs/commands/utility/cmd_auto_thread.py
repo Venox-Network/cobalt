@@ -1,3 +1,4 @@
+from this import s
 from typing import List
 from discord import ApplicationContext
 import discord
@@ -40,8 +41,8 @@ def cog_creator(servers: List[int]):
                 for key in delete:
                     await self.thread_channel_collections.delete_one(key)
 
-            except Exception:
-                self.bot.log_msg("Could not connect to database `threadedchannels` to fetch slowmode details.", True)
+            except Exception as e:
+                print(e)
 
         @thread_loop.before_loop
         async def on_start(self):
