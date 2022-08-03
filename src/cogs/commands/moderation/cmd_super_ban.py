@@ -65,8 +65,9 @@ def cog_creator(servers: List[int]):
 
             await self.bot.log_msg(
                 f"`{member.name}#{member.discriminator}` has been ***SUPER BANNED***, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
-                "\n\nFailed to ban user in guilds: \n" + ", ".join(failed)) if failed else ""
-                should_print=True)
+                "\n\nFailed to ban user in guilds: " + ", ".join(failed)) if failed else "",
+                should_print=True
+                )
             await ctx.respond(
                 f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`"
                 )
