@@ -79,7 +79,7 @@ def cog_creator(servers: List[int]):
                     True)
 
         @BaseCog.cslash_command(
-            descripton="Makes a thread from a message",
+            description="Makes a thread from a message",
             guild_ids=servers
         )
         async def auto_thread(

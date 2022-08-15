@@ -97,7 +97,7 @@ def cog_creator(servers: List[int]):
             return f"https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}"
 
         @BaseCog.cslash_command(
-            descripton="Mark a message as sticky.",
+            description="Mark a message as sticky.",
             guild_ids=servers
         )
         async def stick_msg(

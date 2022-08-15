@@ -6,16 +6,16 @@ from cogs import time_jobs
 from cogs.commands.fun import music_commands
 from cogs.commands.moderation import cmd_ban, cmd_kick, cmd_mute, cmd_purge, cmd_unmute, cmds_report, cmd_slowmode, cmds_warns, cmd_super_ban, cmd_super_kick, cmd_super_unban, cmd_sticky_message, cmd_eval
 from cogs.commands.utility import cmd_leave_server, cmd_react, cmd_servers, cmd_support,\
-    cmds_nickname, cmd_auto_thread, cmds_global_chat
+    cmds_nickname, cmd_auto_thread, cmds_global_chat, cmd_help
 
 def main():
-    main_config: Config = Config.get_conf_from_file()
+    main_config = Config.get_conf_from_file()
 
     intents = discord.Intents.default()
     intents.members = True
     intents.message_content = True
-
-    main_bot: Bot = Bot(conf=main_config, intents=intents)
+    global main_bot
+    main_bot = Bot(conf=main_config, intents=intents)
 
     main_bot.add_cogs(
         # misc commands
@@ -28,6 +28,7 @@ def main():
         cmds_nickname.cog_creator,
         cmd_react.cog_creator,
         cmds_global_chat.cog_creator,
+        cmd_help.cog_creator,
         # moderation commands
         cmd_eval.cog_creator,
         cmd_super_ban.cog_creator,
@@ -45,7 +46,6 @@ def main():
         # time jobs
         time_jobs.cog_creator,
     )
-
     main_bot.run(main_config.BOT_TOKEN)
 
 
