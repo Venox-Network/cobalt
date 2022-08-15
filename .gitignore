@@ -5,3 +5,5 @@ config.json
 Pipfile.lock
 Pipfile
 .vscode/settings.json
+*.fish
+*venv
