@@ -3,6 +3,7 @@ from typing import List
 from discord import ApplicationContext
 import discord
 import datetime
+from datetime import timedelta
 from discord.ext.commands import Cog
 from cogs import BaseCog
 
@@ -21,7 +22,7 @@ def cog_creator(servers: List[int]):
                 title='Commands',
                 description='Shows all commands',
                 colour=0x2c6dbf,
-                timestamp=datetime.datetime.utcnow()
+                timestamp=datetime.datetime.utcnow() - timedelta(hours=4, minutes=0)
                 )
             commands = ctx.bot.walk_application_commands()
             for command in commands:
