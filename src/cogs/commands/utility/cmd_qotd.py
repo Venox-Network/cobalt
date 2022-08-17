@@ -1,5 +1,5 @@
 import datetime
-from time import strptime
+from time import strptime, time
 from typing import List
 from discord import ApplicationContext
 import discord
@@ -64,6 +64,7 @@ def cog_creator(servers: List[int]):
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
+                                    time.sleep(1)
                                     message = await channel.send(res['question'])
                                     message = self.bot.get_message(message.id)
                                     await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
@@ -75,5 +76,5 @@ def cog_creator(servers: List[int]):
                             message = await channel.send(res['question'])
                             message = self.bot.get_message(message.id)
                             await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
-            
+                            time.sleep(1)
     return Qotd
