@@ -1,4 +1,6 @@
+import random
 from typing import List
+import discord
 from discord.ext import tasks
 from cogs import BaseCog
 from discord import Game, Activity, ActivityType
@@ -8,23 +10,37 @@ def cog_creator(servers: List[int]):
         
         def __init__(self, bot) -> None:
             super().__init__(bot)
-            task_description = (("Vanadium SMP", "game"), (f"{len(self.bot.guilds)} servers", "watch"))
-            self.task = [Game(i[0]) if i[1] == "game" else Activity(type=ActivityType.watching, name=i[0]) for i in task_description]
-            self.index = False
+            # 1 = playing
+            # 2 = listening
+            # 3 = watching
+        
+            self.statuses = [
+                ["over chrizftw.cf", 3],
+                ["srnyx.xyz/pl", 2],
+                [f"{len(self.bot.guilds)} servers)", 3],
+                ["with pack.srnyx.xyz", 1],
+                ["on play.srnyx.xyz", 1],
+                ["on play.venox.network", 1],
+                ["on play.bapplause.xyz", 1],
+                ["bapplause.xyz/playlist", 2],
+                ["chrizftw.cf/playlist", 2],
+                ["over discord.gg/bapplause", 3],
+                ["over srnyx.xyz/discord", 3],
+                ["over venox.network", 3],
+                ["over simpearth.xyz/discord", 3],
+                ["over events.red", 3]
+
+            ]
 
             self.activity_job.start()
 
         def cog_unload(self) -> None:
             self.activity_job.stop()
 
-        @tasks.loop(seconds=5.0)
+        @tasks.loop(seconds=20.0)
         async def activity_job(self):
-            if self.index:
-                await self.bot.change_presence(activity=self.task[0])
-                self.index = False
-            else:
-                await self.bot.change_presence(activity=self.task[1])
-                self.index = True
+            current_status = random.choice(self.statuses)
+            await self.bot.change_presence(activity=discord.Activity(name=current_status[0] ,type=current_status[1]))
 
         @activity_job.before_loop
         async def before_activity_job(self):
