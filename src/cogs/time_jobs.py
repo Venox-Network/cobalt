@@ -30,7 +30,6 @@ def cog_creator(servers: List[int]):
                 ["over events.red", 3],
                 ["over clt.venox.network", 3],
                 ["on lasertag.venox.network", 1]
-
             ]
 
             self.activity_job.start()
