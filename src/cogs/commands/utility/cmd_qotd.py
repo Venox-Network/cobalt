@@ -49,8 +49,7 @@ def cog_creator(servers: List[int]):
         @tasks.loop(minutes=1)
         async def activity_job(self):
             now = datetime.datetime.utcnow()
-            #if now.hour == 17 and now.minute == 1:
-            if 1 == 1:
+            if now.hour == 17 and now.minute == 1:
                 used_res = await self.qotd_db.count_documents({'used': True})
                 res = await self.qotd_db.find_one({'used': False})
                 if res is None:
