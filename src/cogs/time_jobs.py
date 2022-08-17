@@ -27,7 +27,9 @@ def cog_creator(servers: List[int]):
                 ["over srnyx.xyz/discord", 3],
                 ["over venox.network", 3],
                 ["over simpearth.xyz/discord", 3],
-                ["over events.red", 3]
+                ["over events.red", 3],
+                ["over clt.venox.network", 3],
+                ["on lasertag.venox.network", 1]
 
             ]
 
