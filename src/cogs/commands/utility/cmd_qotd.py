@@ -27,8 +27,12 @@ def cog_creator(servers: List[int]):
             if role not in ctx.user.roles:
                 await ctx.respond('You do not have permission to use this command.')
                 return
-            documents = await self.qotd_db.count_documents({})
-            await self.qotd_db.insert_one({'id': int(documents) + 1, 'question': question, 'used': False})
+            documents = self.qotd_db.find({})
+            id=0
+            async for doc in documents:
+                if doc['id'] >= id:
+                    id = doc['id']
+            await self.qotd_db.insert_one({'id': int(id) + 1, 'question': question, 'used': False})
             await ctx.respond(f"Added question: `{question}`")
     
         @BaseCog.cslash_command(
@@ -45,28 +49,32 @@ def cog_creator(servers: List[int]):
         @tasks.loop(minutes=1)
         async def activity_job(self):
             now = datetime.datetime.utcnow()
-            if now.hour == 17 and now.minute == 1:
+            #if now.hour == 17 and now.minute == 1:
+            if 1 == 1:
                 used_res = await self.qotd_db.count_documents({'used': True})
                 res = await self.qotd_db.find_one({'used': False})
                 if res is None:
                     # qotd manager chat id is 891404641277984788
                     qotd_manager_channel = await self.bot.fetch_channel(891404641277984788)
                     # qotd manage role id is 891405322105811004 if it is not this when i make pr let me know
-                    await qotd_manager_channel.send(f'⚠️ **We are out of questions!** <@&891405322105811004> `{int(used_res)}` backups left')
+                    await qotd_manager_channel.send(f'⚠️ **We are out of questions!** <@&891405322105811004> `{int(used_res) -1}` backups left')
                     res = await self.qotd_db.find_one({'used': True})
                     if res is not None:
+                        now = datetime.datetime.now()
                         self.qotd_db.delete_one({'id': res['id'], 'used': True})
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
-                                    await channel.send(res['question'])
-                        return
+                                    message = await channel.send(res['question'])
+                                    message = self.bot.get_message(message.id)
+                                    await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
                     return
                 self.qotd_db.update_one({ 'id' : res['id'] },{ '$set': { 'used' : True } })
                 for guild in self.bot.guilds:
                     for channel in guild.channels:
                         if channel.name == 'qotd':
-                            await channel.send(res['question'])
-                            print('sent in channel')
+                            message = await channel.send(res['question'])
+                            message = self.bot.get_message(message.id)
+                            await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
             
     return Qotd
