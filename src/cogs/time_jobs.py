@@ -15,15 +15,14 @@ def cog_creator(servers: List[int]):
             # 3 = watching
         
             self.statuses = [
-                ["over chrizftw.cf", 3],
+                ["over chriz.cf", 3],
                 ["srnyx.xyz/pl", 2],
                 [f"{len(self.bot.guilds)} servers)", 3],
                 ["with pack.srnyx.xyz", 1],
-                ["on play.srnyx.xyz", 1],
                 ["on play.venox.network", 1],
                 ["on play.bapplause.xyz", 1],
                 ["bapplause.xyz/playlist", 2],
-                ["chrizftw.cf/playlist", 2],
+                ["chriz.cf/playlist", 2],
                 ["over discord.gg/bapplause", 3],
                 ["over srnyx.xyz/discord", 3],
                 ["over venox.network", 3],
