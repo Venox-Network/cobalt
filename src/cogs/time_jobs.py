@@ -43,7 +43,6 @@ def cog_creator(servers: List[int]):
 
         @activity_job.before_loop
         async def before_activity_job(self):
-            print('waiting')
             await self.bot.wait_until_ready()
 
     return TimeJob
