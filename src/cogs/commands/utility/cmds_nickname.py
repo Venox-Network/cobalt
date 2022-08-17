@@ -17,7 +17,6 @@ def cog_creator(servers: List[int]):
 
         async def correct_nickname(self, after: discord.Member):
             try:
-                print("Trying to correct name...")
                 # result = await self.guild_nick_name.find_one({"guild_id": before.guild.id})
                 nicknames = await self.nick_names.find_one({"guild_id": after.guild.id})
                 if nicknames is None:
