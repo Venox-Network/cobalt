@@ -40,7 +40,7 @@ def cog_creator(servers: List[int]):
         @tasks.loop(seconds=20.0)
         async def activity_job(self):
             current_status = random.choice(self.statuses)
-            await self.bot.change_presence(activity=discord.Activity(name=current_status[0] ,type=current_status[1]))
+            await self.bot.change_presence(activity=discord.Activity(name=current_status[0], type=current_status[1]))
 
         @activity_job.before_loop
         async def before_activity_job(self):
