@@ -1,6 +1,6 @@
 ---
 name: "\U0001F41B Report a bug"
-about: Report a bug, crash, mistake or unintended behaviour. Please file a seperate
+about: Report a bug, crash, mistake or unintended behaviour. Please file a separate
   report for each problem.
 title: Add a descriptive title
 labels: Bug
@@ -9,7 +9,7 @@ assignees: Chrizxz
 ---
 
 <!-- Before reporting a bug, please make sure you've searched if it already exists. -->
-## General discription
+## General description
 <!-- Please provide a general description of what happened. -->
 
 ## Expected behavior
