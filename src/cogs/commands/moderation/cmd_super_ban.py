@@ -14,7 +14,7 @@ def cog_creator(servers: List[int]):
             self.super_ban_db = self.bot.config.DATABASE["superbanids"]
 
         @BaseCog.cslash_command(
-            description="Bans a member from all guilds Venox moderates in",
+            description="Bans a member from all Venox Network servers",
             guild_ids=servers
         )
         async def super_ban(

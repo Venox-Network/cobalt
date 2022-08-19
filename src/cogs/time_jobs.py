@@ -1,3 +1,4 @@
+import asyncio
 import random
 from typing import List
 import discord
@@ -13,11 +14,17 @@ def cog_creator(servers: List[int]):
             # 1 = playing
             # 2 = listening
             # 3 = watching
-        
-            self.statuses = [
+            self.activity_job.start()
+
+        def cog_unload(self) -> None:
+            self.activity_job.stop()
+
+        @tasks.loop(seconds=25.0)
+        async def activity_job(self):
+            statuses = [
                 ["over chriz.cf", 3],
                 ["srnyx.xyz/pl", 2],
-                [f"{len(self.bot.guilds)} servers)", 3],
+                [f"{len(self.bot.guilds)} servers", 3],
                 ["with pack.srnyx.xyz", 1],
                 ["on play.venox.network", 1],
                 ["on play.bapplause.xyz", 1],
@@ -31,15 +38,7 @@ def cog_creator(servers: List[int]):
                 ["over clt.venox.network", 3],
                 ["on lasertag.venox.network", 1]
             ]
-
-            self.activity_job.start()
-
-        def cog_unload(self) -> None:
-            self.activity_job.stop()
-
-        @tasks.loop(seconds=20.0)
-        async def activity_job(self):
-            current_status = random.choice(self.statuses)
+            current_status = random.choice(statuses)
             await self.bot.change_presence(activity=discord.Activity(name=current_status[0], type=current_status[1]))
 
         @activity_job.before_loop

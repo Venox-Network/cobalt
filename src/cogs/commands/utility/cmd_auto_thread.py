@@ -58,7 +58,7 @@ def cog_creator(servers: List[int]):
                 if message.channel.id not in self.thread_guild_map.values():
                     return
 
-                await message.create_thread(name=message.content[:50])
+                await message.create_thread(name=message.clean_content[:50])
             except Exception:
                 pass
 

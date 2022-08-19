@@ -15,7 +15,7 @@ def cog_creator(servers: List[int]):
             self.global_chat = self.bot.config.DATABASE["global_chat"]
 
         @BaseCog.cslash_command(
-            description="Adds a channel to the database",
+            description="Sets up cross-channel chat",
             guild_ids=servers
         )
         async def channel_add(
