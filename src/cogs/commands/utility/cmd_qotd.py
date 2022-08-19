@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 from time import strptime, time
 from typing import List
@@ -72,7 +73,7 @@ def cog_creator(servers: List[int]):
                                     message = await channel.send(res['question'])
                                     message = self.bot.get_message(message.id)
                                     await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
-                                    time.sleep(1)
+                                    asyncio.sleep(1)
                     return
                 self.qotd_db.update_one({ 'id' : res['id'] },{ '$set': { 'used' : True } })
                 for guild in self.bot.guilds:
@@ -81,5 +82,5 @@ def cog_creator(servers: List[int]):
                             message = await channel.send(res['question'])
                             message = self.bot.get_message(message.id)
                             await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
-                            time.sleep(1)
+                            asyncio.sleep(1)
     return Qotd

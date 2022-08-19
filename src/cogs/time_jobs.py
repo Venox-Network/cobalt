@@ -19,7 +19,7 @@ def cog_creator(servers: List[int]):
         def cog_unload(self) -> None:
             self.activity_job.stop()
 
-        @tasks.loop(seconds=20.0)
+        @tasks.loop(seconds=25.0)
         async def activity_job(self):
             statuses = [
                 ["over chriz.cf", 3],
