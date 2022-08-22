@@ -10,21 +10,21 @@ from discord.commands.options import Option
 from cogs import BaseCog
 from discord.ext import tasks
 
-
 def cog_creator(servers: List[int]):
     class Qotd(BaseCog):
 
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.qotd_db = self.bot.config.DATABASE["qotds"]
-
             self.activity_job.start()
 
-        @BaseCog.cslash_command(
+        qotd = discord.SlashCommandGroup("qotd", "Commands related to qotd.")
+
+        @qotd.command(
             description='Adds a qotd to queue',
             guild_ids=servers
             )
-        async def qotd(self, ctx: ApplicationContext, question: str):
+        async def add(self, ctx: ApplicationContext, question: str):
             # qotd manager role is 891405322105811004
             role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
             if role not in ctx.user.roles:
@@ -41,11 +41,11 @@ def cog_creator(servers: List[int]):
             await self.qotd_db.insert_one({'id': int(id) + 1, 'question': question, 'used': False, 'user': str(ctx.user)})
             await ctx.respond(f"Added question: `{question}`")
     
-        @BaseCog.cslash_command(
+        @qotd.command(
             description="List qotds",
             guild_ids=servers,
         )
-        async def qotd_list(self, ctx):
+        async def list(self, ctx):
             em=discord.Embed(title='QOTDs', description='List of all QOTDs', colour=0x0070c0)
             qotds = self.qotd_db.find({})
             async for qotd in qotds:
@@ -70,10 +70,10 @@ def cog_creator(servers: List[int]):
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
-                                    message = await channel.send(res['question'])
+                                    message = await channel.send(f"{res['question']} \n(You can also answer in your server's general channel by appending `qotd` to your message!)")
                                     message = self.bot.get_message(message.id)
                                     await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
-                                    asyncio.sleep(1)
+                                    await asyncio.sleep(1)
                     return
                 self.qotd_db.update_one({ 'id' : res['id'] },{ '$set': { 'used' : True } })
                 for guild in self.bot.guilds:
@@ -82,5 +82,5 @@ def cog_creator(servers: List[int]):
                             message = await channel.send(res['question'])
                             message = self.bot.get_message(message.id)
                             await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
-                            asyncio.sleep(1)
+                            await asyncio.sleep(1)
     return Qotd

@@ -13,7 +13,7 @@ def cog_creator(servers: List[int]):
             super().__init__(bot)
             self.react_channel_static = self.bot.config.DATABASE["react_channel_static"]
             self.react_channel_dynamic = self.bot.config.DATABASE["react_channel_dynamic"]
-        
+
         @BaseCog.cslash_command(
             description="Mass react to messages",
             guild_ids=servers
@@ -104,17 +104,6 @@ def cog_creator(servers: List[int]):
                 return
             await ctx.respond('That channel is not in database')
 
-        @Cog.listener()
-        async def on_message(self, message):
-            try:
-                results = await self.react_channel_static.find_one({'channel': message.channel.id})
-            except Exception as e:
-                print(e)
-            if results is None:
-                return
-            for emoji in list(results['emojis']):
-                await message.add_reaction(emoji)
-                await asyncio.sleep(1)
             
         @BaseCog.cslash_command(
             description='Sets up or removes channel to react to every emoji in messages',
@@ -137,8 +126,8 @@ def cog_creator(servers: List[int]):
             await self.react_channel_dynamic.delete_one({'channel': channel.id})
             await ctx.respond('Removed channel')
 
-        @Cog.listener()
-        async def on_message(self, message):
+        @staticmethod
+        async def dynamic_listener(self, message):
             results = await self.react_channel_dynamic.find_one({'channel': message.channel.id})
             if results is not None:
                 line_list = message.content.split('\n')
@@ -151,5 +140,23 @@ def cog_creator(servers: List[int]):
                         except:
                             pass
                         await asyncio.sleep(1)
+        @staticmethod
+        async def static_listener(self, message):
+            try:
+                results = await self.react_channel_static.find_one({'channel': message.channel.id})
+            except Exception as e:
+                print(e)
+            if results is None:
+                return
+            for emoji in list(results['emojis']):
+                await message.add_reaction(emoji)
+                await asyncio.sleep(1)
 
+    
+
+        @Cog.listener()
+        async def on_message(self, message):
+            await self.dynamic_listener(self, message=message)
+            await self.static_listener(self, message=message)
+            
     return React
