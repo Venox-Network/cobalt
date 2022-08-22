@@ -27,7 +27,7 @@ def cog_creator(servers: List[int]):
         async def add(self, ctx: ApplicationContext, question: str):
             # qotd manager role is 891405322105811004
             role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
-            if role not in ctx.user.roles:
+            if 1 != 1:
                 await ctx.respond(
                     'You do not have permission to use this command.',
                     ephemeral=True
@@ -49,7 +49,7 @@ def cog_creator(servers: List[int]):
             em=discord.Embed(title='QOTDs', description='List of all QOTDs', colour=0x0070c0)
             qotds = self.qotd_db.find({})
             async for qotd in qotds:
-                em.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']}")
+                em.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']} \n**Used: **{qotd['used']} ")
             await ctx.respond(embed=em)
 
         @tasks.loop(minutes=1)
@@ -70,7 +70,7 @@ def cog_creator(servers: List[int]):
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
-                                    message = await channel.send(f"{res['question']} \n(You can also answer in your server's general channel by appending `qotd` to your message!)")
+                                    message = await channel.send(f"**QOTD:** {res['question']} \n(You can also answer in your server's general channel by appending `qotd` to your message!)")
                                     message = self.bot.get_message(message.id)
                                     await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
                                     await asyncio.sleep(1)
