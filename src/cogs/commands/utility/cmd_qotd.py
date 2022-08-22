@@ -27,7 +27,7 @@ def cog_creator(servers: List[int]):
         async def add(self, ctx: ApplicationContext, question: str):
             # qotd manager role is 891405322105811004
             role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
-            if 1 != 1:
+            if role not in ctx.user.roles:
                 await ctx.respond(
                     'You do not have permission to use this command.',
                     ephemeral=True
@@ -52,6 +52,24 @@ def cog_creator(servers: List[int]):
                 em.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']} \n**Used: **{qotd['used']} ")
             await ctx.respond(embed=em)
 
+        @qotd.command(
+            description="Remove QOTD",
+            guild_ids=servers
+        )
+        async def remove(self, ctx, qotd_id: int):
+            role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
+            if role not in ctx.user.roles:
+                await ctx.respond(
+                    'You do not have permission to use this command.',
+                    ephemeral=True
+                    )
+                return
+            try:
+                await self.qotd_db.delete_one({'id': int(qotd_id)})
+                await ctx.respond('Deleted')
+            except Exception as e:
+                print(e)
+                await ctx.respond('Failed')
         @tasks.loop(minutes=1)
         async def activity_job(self):
             now = datetime.datetime.utcnow()
