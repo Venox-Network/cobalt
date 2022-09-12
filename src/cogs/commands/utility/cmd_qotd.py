@@ -113,7 +113,7 @@ def cog_creator(servers: List[int]):
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
-                                    message = await channel.send(f"**QOTD:** {res['question']} \n(You can also answer in your server's general channel by appending `qotd` to your message!)")
+                                    message = await channel.send(f"**QOTD:** {res['question']} \n*(You can also answer in your server's general channel by appending `qotd` to your message!)*")
                                     message = self.bot.get_message(message.id)
                                     await message.create_thread(name=f"QOTD {now.month}-{now.day}-{now.year}")
                                     await asyncio.sleep(1)
