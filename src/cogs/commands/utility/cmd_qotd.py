@@ -35,13 +35,15 @@ def cog_creator(servers: List[int]):
                 return
             documents = self.qotd_db.find({})
             id=0
-            async for doc in documents:
-                if doc['id'] >= id:
-                    id = doc['id']
+            
             qotd_list = qotds.split(seperator)
             for qotd in qotd_list:
+            	async for doc in documents:
+                if doc['id'] >= id:
+                    id = doc['id']
                 await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
 
+	    
         @qotd.command(
             description='Adds a qotd to queue',
             guild_ids=servers
