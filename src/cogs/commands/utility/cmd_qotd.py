@@ -19,6 +19,28 @@ def cog_creator(servers: List[int]):
             self.activity_job.start()
 
         qotd = discord.SlashCommandGroup("qotd", "Commands related to qotd.")
+        
+        @qotd.command(
+            description="Bulk add Qotds",
+            guild_ids=servers
+        )
+        async def bulk_add(self, ctx, seperator: str, QOTDs: str) -> None:
+            # qotd manager role is 891405322105811004
+            role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
+            if role not in ctx.user.roles:
+                await ctx.respond(
+                    'You do not have permission to use this command.',
+                    ephemeral=True
+                    )
+                return
+            documents = self.qotd_db.find({})
+            id=0
+            async for doc in documents:
+                if doc['id'] >= id:
+                    id = doc['id']
+            qotds = QOTDs.split(seperator)
+            for qotd in qotds:
+                await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
 
         @qotd.command(
             description='Adds a qotd to queue',
@@ -76,11 +98,14 @@ def cog_creator(servers: List[int]):
             if now.hour == 21 and now.minute == 1:
                 used_res = await self.qotd_db.count_documents({'used': True})
                 res = await self.qotd_db.find_one({'used': False})
-                if res is None:
+                res_count = await self.qotd_db.count_documents({'used': False})
+                if res_count < 1:
                     # qotd manager chat id is 891404641277984788
                     qotd_manager_channel = await self.bot.fetch_channel(891404641277984788)
                     # qotd manage role id is 891405322105811004 if it is not this when i make pr let me know
                     await qotd_manager_channel.send(f'⚠️ **We are out of questions!** <@&891405322105811004> `{int(used_res) -1}` backups left')
+                    return
+                if res is None:
                     res = await self.qotd_db.find_one({'used': True})
                     if res is not None:
                         now = datetime.datetime.now()
