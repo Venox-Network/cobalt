@@ -41,7 +41,7 @@ def cog_creator(servers: List[int]):
                 async for doc in documents:
                     if doc['id'] >= id:
                         id = doc['id']
-                await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
+                    await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
             await ctx.respond("Added QOTDs")
 	    
         @qotd.command(
