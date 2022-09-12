@@ -106,8 +106,8 @@ def cog_creator(servers: List[int]):
                     await qotd_manager_channel.send(f'⚠️ **We are out of questions!** <@&891405322105811004> `{int(used_res) -1}` backups left')
                     return
                 if res is None:
-                    res = await self.qotd_db.find_one({'used': True})
-                    if res is not None:
+                    one_used_res = await self.qotd_db.find_one({'used': True})
+                    if one_used_res is not None:
                         now = datetime.datetime.now()
                         self.qotd_db.delete_one({'id': res['id'], 'used': True})
                         for guild in self.bot.guilds:
