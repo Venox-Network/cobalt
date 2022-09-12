@@ -24,7 +24,7 @@ def cog_creator(servers: List[int]):
             description="Bulk add Qotds",
             guild_ids=servers
         )
-        async def bulk_add(self, ctx, seperator: str, QOTDs: str) -> None:
+        async def bulk_add(self, ctx, seperator: str, qotds: str) -> None:
             # qotd manager role is 891405322105811004
             role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
             if role not in ctx.user.roles:
