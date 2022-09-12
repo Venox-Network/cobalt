@@ -39,9 +39,9 @@ def cog_creator(servers: List[int]):
             qotd_list = qotds.split(seperator)
             for qotd in qotd_list:
             	async for doc in documents:
-                if doc['id'] >= id:
-                    id = doc['id']
-                await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
+                    if doc['id'] >= id:
+                        id = doc['id']
+            await self.qotd_db.insert_one({'id': int(id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
 
 	    
         @qotd.command(
