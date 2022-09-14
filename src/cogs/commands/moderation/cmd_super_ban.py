@@ -63,11 +63,6 @@ def cog_creator(servers: List[int]):
                 except Exception:
                     failed.append(guild.name)
 
-            await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been ***SUPER BANNED***, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
-                "\n\nFailed to ban user in guilds: " + ", ".join(failed)) if failed else "",
-                should_print=True
-                )
             await ctx.respond(
                 f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`"
                 )
@@ -76,9 +71,9 @@ def cog_creator(servers: List[int]):
         async def ban_member_on_join(self, member: discord.Member):
             try:
                 ban_count = await self.super_ban_db.count_documents({'banned_member_id': member.id})
-            except Exception:
+            except Exception as e:
                 ban_count = 0
-
+		print(e)
             if ban_count == 0:
                 return
 
@@ -90,10 +85,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.ban(reason="User was SUPER BANNED")
-            except Exception:
-                await self.bot.log_msg(
-                    f"Could not ***SUPER BAN*** `{member.name}#{member.discriminator}` on join, on server: {member.guild.name}",
-                    should_print=True
-                    )
+            except Exception as e:
+		print(e)
 
     return SuperBan
