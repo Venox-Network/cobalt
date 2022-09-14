@@ -73,7 +73,7 @@ def cog_creator(servers: List[int]):
                 ban_count = await self.super_ban_db.count_documents({'banned_member_id': member.id})
             except Exception as e:
                 ban_count = 0
-		print(e)
+                print(e)
             if ban_count == 0:
                 return
 
@@ -86,6 +86,6 @@ def cog_creator(servers: List[int]):
             try:
                 await member.ban(reason="User was SUPER BANNED")
             except Exception as e:
-		print(e)
+                print(e)
 
     return SuperBan
