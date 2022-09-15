@@ -64,7 +64,7 @@ def cog_creator(servers: List[int]):
                     failed.append(guild.name)
 
             await ctx.respond(
-                f"`{member.mention}` has been ***SUPER BANNED***, for `{reason}`"
+                f"`{member}` ({member.id}) has been ***SUPER BANNED***, for `{reason}`"
                 )
 
         @Cog.listener("on_member_join")
