@@ -105,7 +105,6 @@ def cog_creator(servers: List[int]):
                     qotd_manager_channel = await self.bot.fetch_channel(891404641277984788)
                     # qotd manage role id is 891405322105811004 if it is not this when i make pr let me know
                     await qotd_manager_channel.send(f'⚠️ **We are out of questions!** <@&891405322105811004> `{int(used_res) -1}` backups left')
-                    return
                 if res is None:
                     one_used_res = await self.qotd_db.find_one({'used': True})
                     if one_used_res is not None:

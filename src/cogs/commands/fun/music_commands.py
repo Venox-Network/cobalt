@@ -131,9 +131,9 @@ def cog_creator(servers: List[int]):
                         f"Added `{query_result.title}` to the queue"
                         )
 
-            except Exception:
+            except Exception as e:
                 await self.bot.log_msg(
-                    f"Could not play music in vc: `{channel.name}` in `{ctx.guild.name}`", 
+                    f"Could not play music in vc: `{channel.name}` in `{ctx.guild.name}` {e}", 
                     True
                     )
                 await ctx.respond(
