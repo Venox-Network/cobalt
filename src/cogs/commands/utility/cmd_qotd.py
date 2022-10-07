@@ -100,7 +100,7 @@ def cog_creator(servers: List[int]):
                 used_res = await self.qotd_db.count_documents({'used': True})
                 res = await self.qotd_db.find_one({'used': False})
                 res_count = await self.qotd_db.count_documents({'used': False})
-                if res_count < 1:
+                if res_count < 2:
                     # qotd manager chat id is 891404641277984788
                     qotd_manager_channel = await self.bot.fetch_channel(891404641277984788)
                     # qotd manage role id is 891405322105811004 if it is not this when i make pr let me know
