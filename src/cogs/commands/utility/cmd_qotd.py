@@ -109,7 +109,7 @@ def cog_creator(servers: List[int]):
                     one_used_res = await self.qotd_db.find_one({'used': True})
                     if one_used_res is not None:
                         now = datetime.datetime.now()
-                        self.qotd_db.delete_one({'id': res['id'], 'used': True})
+                        self.qotd_db.delete_one({'id': one_used_res['id']})
                         for guild in self.bot.guilds:
                             for channel in guild.channels:
                                 if channel.name == 'qotd':
