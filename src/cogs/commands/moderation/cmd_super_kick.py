@@ -22,7 +22,7 @@ def cog_creator(servers: List[int]):
                 member: Option(discord.Member),
                 reason: Option(str) = None
         ):
-            if not (ctx.user.id in (self.bot.config.OWNERS)):
+            if ctx.user.id not in self.bot.config.OWNERS:
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True
@@ -35,7 +35,7 @@ def cog_creator(servers: List[int]):
 
             try:
                 await member.send(
-                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`."\
+                    f"You have been kicked from **all** Venox Network Servers, for `{reason}`."
                     " Responsible user: `{ctx.user}`"
                     )
             except Exception as e:
@@ -59,7 +59,7 @@ def cog_creator(servers: List[int]):
                 f"`{member.name}#{member.discriminator}` has been kicked from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`" + (
                     ("\n\nFailed to kick user in guilds: \n" + ", ".join(failed)) if failed else ""))
             await ctx.respond(
-                f"`{member.mention}` has been kicked from"\
+                f"`{member.mention}` has been kicked from"
                 " **all** Venox Network Servers, for `{reason}`"
                 )
 

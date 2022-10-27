@@ -1,11 +1,9 @@
-from this import s
-from typing import List
-from discord import ApplicationContext
 import discord
 import datetime
-from datetime import timedelta
-from discord.ext.commands import Cog
+
+from typing import List
 from cogs import BaseCog
+
 
 def cog_creator(servers: List[int]):
     class HelpCog(BaseCog):

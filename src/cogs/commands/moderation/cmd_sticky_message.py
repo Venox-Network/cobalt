@@ -156,7 +156,7 @@ def cog_creator(servers: List[int]):
             except Exception as e:
                 print(e)
                 await ctx.respond(
-                    f"Could not interract with database `sticky_messages` with error: `{e}`.",
+                    f"Could not interact with database `sticky_messages` with error: `{e}`.",
                     ephemeral=True)
 
         @BaseCog.cslash_command(
@@ -202,7 +202,7 @@ def cog_creator(servers: List[int]):
 
             except Exception as e:
                 await ctx.respond(
-                    f"Could not interract with database `sticky_messages`. With error `{e}`.",
+                    f"Could not interact with database `sticky_messages`. With error `{e}`.",
                     ephemeral=True
                     )
 

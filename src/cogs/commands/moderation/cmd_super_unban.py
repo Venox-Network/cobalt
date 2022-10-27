@@ -20,7 +20,7 @@ def cog_creator(servers: List[int]):
                 ctx: ApplicationContext,
                 user_id: Option(int),
         ):
-            if not (ctx.user.id in (self.bot.config.OWNERS)):
+            if ctx.user.id not in self.bot.config.OWNERS:
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True
@@ -39,7 +39,7 @@ def cog_creator(servers: List[int]):
                 await self.super_ban_db.delete_one({'banned_member_id': user_id})
             except Exception as e:
                 await ctx.respond(
-                    f"Could not interract with database `superbanids`. With error `{e}`.",
+                    f"Could not interact with database `superbanids`. With error `{e}`.",
                     ephemeral=True)
                 return
 

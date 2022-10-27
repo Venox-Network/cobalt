@@ -43,7 +43,7 @@ def cog_creator(servers: List[int]):
                     )
 
             message = await ctx.fetch_message(message_id)
-            if message == None:
+            if message is None:
                 await ctx.respond(
                     f"Message with id `{message_id}` not found.",
                     ephemeral=True
@@ -76,8 +76,8 @@ def cog_creator(servers: List[int]):
                 return
 
             emojis_list = emojis.split(' ')
-            resullts = await self.react_channel_static.find_one({'channel': channel.id})
-            if resullts is None:
+            results = await self.react_channel_static.find_one({'channel': channel.id})
+            if results is None:
                 self.react_channel_static.insert_one({'channel': channel.id, 'emojis': list(emojis_list)})
                 await ctx.respond('Added channel')
                 return

@@ -21,7 +21,7 @@ def cog_creator(servers: List[int]):
                 guild_id: Option(str)
         ):
 
-            if not (ctx.user.id in (self.bot.config.OWNERS)):
+            if ctx.user.id not in self.bot.config.OWNERS:
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True

@@ -1,8 +1,9 @@
+import discord
+
 from datetime import datetime
 from typing import List
-from discord import ApplicationContext
-import discord
 from cogs import BaseCog
+from discord import ApplicationContext
 from discord.commands.options import Option
 
 
@@ -51,18 +52,17 @@ def cog_creator(servers: List[int]):
                 return
 
             last_digit = count % 10
-
             if last_digit == 1:
                 count = str(count) + "st"
             elif last_digit == 2:
                 count = str(count) + "nd"
-            elif last_digit == 2:
+            elif last_digit == 3:
                 count = str(count) + "rd"
             else:
                 count = str(count) + "th"
 
             await ctx.respond(
-                f"{member.mention} has been warned for `{reason}`."\
+                f"{member.mention} has been warned for `{reason}`."
                 f" This is their `{count}` warning."
                 )
 

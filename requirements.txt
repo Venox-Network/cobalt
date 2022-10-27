@@ -1,8 +1,8 @@
-pymongo==4.1.1
+pymongo==4.3.2
 #py-cord==2.0.0rc1
-py-cord[voice]==2.0.0rc1
-wavelink==1.2.5
+py-cord[voice]==2.2.2
+wavelink==1.3.3
 orjson==3.6.8
-motor==3.0.0
+motor==3.1.1
 humanfriendly==10.0
 dnspython==2.2.1

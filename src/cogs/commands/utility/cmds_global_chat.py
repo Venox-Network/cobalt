@@ -57,7 +57,7 @@ def cog_creator(servers: List[int]):
 
             except Exception as e:
                 await ctx.respond(
-                    "Could not interract with database `global chat`."\
+                    "Could not interract with database `global chat`."
                     " Please try again after sometime.",
                     ephemeral=True)
                 print(e)
@@ -109,7 +109,7 @@ def cog_creator(servers: List[int]):
 
             except Exception as e:
                 await ctx.respond(
-                    "Could not interract with database `global chat`."\
+                    "Could not interract with database `global chat`."
                     f" With error: {e}",
                     ephemeral=True
                     )

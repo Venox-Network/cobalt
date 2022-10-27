@@ -56,7 +56,7 @@ def cog_creator(servers: List[int]):
             await self.correct_nickname(after)
 
         @BaseCog.cslash_command(
-            description="Marks name as the nickname to be set for violaters",
+            description="Marks name as the nickname to be set for violators",
             guild_ids=servers
         )
         async def setup_nickname(

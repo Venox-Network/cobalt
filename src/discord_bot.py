@@ -13,7 +13,7 @@ class Bot(commands.Bot):
             **options
     ):
         if conf is None:
-            raise ValueError("Config isnt passed to 'discord_bot.Bot'")
+            raise ValueError("Config isn't passed to 'discord_bot.Bot'")
 
         self.config = conf
         self.log_channel = None

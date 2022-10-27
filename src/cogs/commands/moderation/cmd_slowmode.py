@@ -25,7 +25,7 @@ def cog_creator(servers: List[int]):
                 self,
                 ctx: ApplicationContext,
                 msgs_per_min: Option(int),
-                min_msges_per_min: Option(int),
+                min_msgs_per_min: Option(int),
                 max_slowmode_time: Option(int),
                 default_slowmode: Option(int)
         ):
@@ -39,7 +39,7 @@ def cog_creator(servers: List[int]):
                     )
                 return
 
-            data = {"channel_id": ctx.channel.id, "amount_of_messages_per_min": msgs_per_min, "minimum_of_messages_per_minute": min_msges_per_min,
+            data = {"channel_id": ctx.channel.id, "amount_of_messages_per_min": msgs_per_min, "minimum_of_messages_per_minute": min_msgs_per_min,
                     "slowmode_time": max_slowmode_time, "defaultslowmode": default_slowmode}
             try:
                 find = await self.slowmode_db.find_one({"channel_id": ctx.channel.id})
@@ -60,7 +60,7 @@ def cog_creator(servers: List[int]):
                     )
             except Exception:
                 await ctx.respond(
-                    "Could not interract with database `dynamic_slowmode`. Please try again after sometime.",
+                    "Could not interact with database `dynamic_slowmode`. Please try again after sometime.",
                     ephemeral=True
                     )
 
@@ -99,7 +99,7 @@ def cog_creator(servers: List[int]):
                     )
             except Exception:
                 await ctx.respond(
-                    "Could not interract with database `dynamic_slowmode`. Please try again after sometime.",
+                    "Could not interact with database `dynamic_slowmode`. Please try again after sometime.",
                     ephemeral=True
                     )
 
@@ -136,7 +136,7 @@ def cog_creator(servers: List[int]):
 
                 slow_mode_time = val["slowmode_time"]
                 msgs_per_min = val["amount_of_messages_per_min"]
-                min_msges_per_min = val["minimum_of_messages_per_minute"]
+                min_msgs_per_min = val["minimum_of_messages_per_minute"]
                 default_slowmode = val["defaultslowmode"]
 
                 if channel.slowmode_delay != slow_mode_time:  # if channel is NOT in slowmode
@@ -147,9 +147,9 @@ def cog_creator(servers: List[int]):
 
                     continue
 
-                criteria = min_msges_per_min
+                criteria = min_msgs_per_min
 
-                if num_messages < criteria:  # if the no. messages sent is < than required - 10, seeting the lower threshold for slowmode to end
+                if num_messages < criteria:  # if the no. messages sent is < than required - 10, setting the lower threshold for slowmode to end
                     await channel.edit(slowmode_delay=default_slowmode)
 
             for key in delete:

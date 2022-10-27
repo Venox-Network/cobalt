@@ -1,9 +1,9 @@
-from this import s
-from typing import List
-from discord import ApplicationContext
 import discord
-from discord.ext.commands import Cog
+
+from typing import List
 from cogs import BaseCog
+from discord import ApplicationContext
+from discord.ext.commands import Cog
 from discord.ext import tasks
 
 

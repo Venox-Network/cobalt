@@ -52,8 +52,8 @@ def cog_creator(servers: List[int]):
                     )
 
             await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been unmuted in `{ctx.guild.name}`,"\
-                " for reason: `{reason}`. Responsible moderator:"\
+                f"`{member.name}#{member.discriminator}` has been unmuted in `{ctx.guild.name}`,"
+                " for reason: `{reason}`. Responsible moderator:"
                 "`{ctx.user.name}#{ctx.user.discriminator}`"
                 )
             await ctx.respond(

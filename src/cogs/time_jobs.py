@@ -1,12 +1,11 @@
-import asyncio
 import random
-from typing import List
 import discord
+
 from discord.ext import tasks
 from cogs import BaseCog
-from discord import Game, Activity, ActivityType
 
-def cog_creator(servers: List[int]):
+
+def cog_creator():
     class TimeJob(BaseCog):
         
         def __init__(self, bot) -> None:

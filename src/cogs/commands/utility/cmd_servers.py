@@ -1,8 +1,7 @@
-from pickle import TRUE
 from typing import List
+from cogs import BaseCog
 from discord import ApplicationContext
 from discord.commands.options import Option
-from cogs import BaseCog
 
 
 def cog_creator(_servers: List[int]):
@@ -17,7 +16,7 @@ def cog_creator(_servers: List[int]):
                 ctx: ApplicationContext,
                 hide: Option(bool) = True
         ):
-            if not (ctx.user.id in (self.bot.config.OWNERS)):
+            if ctx.user.id not in self.bot.config.OWNERS:
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True

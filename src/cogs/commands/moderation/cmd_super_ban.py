@@ -23,7 +23,7 @@ def cog_creator(servers: List[int]):
                 member: Option(discord.Member),
                 reason: Option(str) = None
         ):
-            if not (ctx.user.id in (self.bot.config.OWNERS)):
+            if ctx.user.id not in self.bot.config.OWNERS:
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True
@@ -39,15 +39,15 @@ def cog_creator(servers: List[int]):
                     {'banned_member_id': member.id, 'banned_member_name': member.name, 'superban_user': ctx.user.name})
             except Exception as e:
                 await ctx.respond(
-                    f"Could not interract with database `superbanids`. With error {e}.",
+                    f"Could not interact with database `superbanids`. With error {e}.",
                     ephemeral=True
                     )
                 return
 
             try:
                 await member.send(
-                    f"You have been banned from **all** Venox Network Servers,"\
-                    " for `{reason}`."\
+                    f"You have been banned from **all** Venox Network Servers,"
+                    " for `{reason}`."
                     "Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
             except Exception:
                 pass

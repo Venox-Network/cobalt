@@ -13,7 +13,7 @@ def cog_creator(servers: List[int]):
             self.warn_collection = self.bot.config.DATABASE["warns"]
 
         @BaseCog.cslash_command(
-            description="Purges messages by deafult. If 'member' is provided, it will purge messages by that member only",
+            description="Purges messages by default. If 'member' is provided, it will purge messages by that member only",
             guild_ids=servers
         )
         async def purge(

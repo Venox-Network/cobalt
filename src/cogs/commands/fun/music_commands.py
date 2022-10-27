@@ -1,10 +1,11 @@
-from typing import List
-from discord import ApplicationContext
 import discord
+import wavelink
+
+from typing import List
+from cogs import BaseCog
+from discord import ApplicationContext
 from discord.ext.commands import Cog
 from discord.commands.options import Option
-from cogs import BaseCog
-import wavelink
 
 
 def cog_creator(servers: List[int]):
@@ -52,12 +53,11 @@ def cog_creator(servers: List[int]):
                 )
 
         @Cog.listener()
-        async def on_wavelink_track_end(self, voice_chat: wavelink.Player, track: wavelink.Track, reason):
+        async def on_wavelink_track_end(self, voice_chat: wavelink.Player, track: wavelink.Track):
 
-            if getattr(voice_chat, "loop", None) is not None:
-                if voice_chat.loop:
-                    await voice_chat.play(track)
-                    return
+            if getattr(voice_chat, "loop", None) is not None and voice_chat.loop:
+                await voice_chat.play(track)
+                return
 
             try:
                 next_music = voice_chat.queue.get()
