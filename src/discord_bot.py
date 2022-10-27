@@ -1,7 +1,8 @@
-from typing import Callable, List
 import discord
-from discord.ext import commands
+
+from typing import Callable, List
 from config import Config
+from discord.ext import commands
 
 
 class Bot(commands.Bot):
@@ -19,7 +20,6 @@ class Bot(commands.Bot):
         self.log_channel = None
         self.report_channel = None
         self.views = []
-
         self.debug_servers = self.config.debug_servers
 
         super().__init__(command_prefix, help_command, **options)
