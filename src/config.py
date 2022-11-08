@@ -10,7 +10,7 @@ class Config:
         self.GLOBAL_LOG_CHANNEL: int = int(global_log_channel)
         self.OWNERS: List[int] = owners
 
-        self.DATABASE = MOTOR_CLUSTER["CobaltDB"]
+        self.DATABASE = MOTOR_CLUSTER["cobalt"]
         self.wavelink_host = wavelink_host
         self.wavelink_pass = wavelink_pass
         self.wavelink_port = int(wavelink_port)
