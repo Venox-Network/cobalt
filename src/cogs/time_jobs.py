@@ -5,7 +5,7 @@ from discord.ext import tasks
 from cogs import BaseCog
 
 
-def cog_creator():
+def cog_creator(servers: List[int]):
     class TimeJob(BaseCog):
         
         def __init__(self, bot) -> None:
