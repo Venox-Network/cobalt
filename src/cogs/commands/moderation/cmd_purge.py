@@ -1,6 +1,7 @@
+import discord
+
 from typing import List
 from discord import ApplicationContext
-import discord
 from cogs import BaseCog
 from discord.commands.options import Option
 

@@ -1,9 +1,12 @@
-.idea
-config.json
-*.pyc
+/.idea
+/venv
+
+src/config.json
+.vscode/settings.json
+
 .VSCodeCounter
 Pipfile.lock
 Pipfile
-.vscode/settings.json
+
+*.pyc
 *.fish
-*venv

@@ -1,6 +1,8 @@
 from typing import List
+
 import orjson
 import motor.motor_asyncio
+
 
 class Config:
     def __init__(self, token: str, cluster: str, global_report_channel: int, global_log_channel: int, owners: List[int], wavelink_host: str, wavelink_pass: str, wavelink_port: str, debug_servers: List[int]) -> None:

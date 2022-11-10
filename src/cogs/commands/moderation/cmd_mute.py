@@ -1,8 +1,9 @@
+import discord
+import humanfriendly
+
 from datetime import datetime, timedelta
 from typing import List
 from discord import ApplicationContext
-import discord
-import humanfriendly
 from cogs import BaseCog
 from discord.commands.options import Option
 
