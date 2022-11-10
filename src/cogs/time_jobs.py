@@ -1,6 +1,7 @@
 import random
 import discord
 
+from typing import List
 from discord.ext import tasks
 from cogs import BaseCog
 
