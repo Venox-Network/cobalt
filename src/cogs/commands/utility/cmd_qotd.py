@@ -68,7 +68,7 @@ def cog_creator(servers: List[int]):
         )
         async def list(self, ctx):
             em=discord.Embed(title='QOTDs', description='List of all QOTDs', colour=0x0070c0)
-            qotds = self.qotd_db.find({})
+            qotds = self.qotd_db.find({'used': False})
             async for qotd in qotds:
                 em.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']} \n**Used: **{qotd['used']} ")
             await ctx.respond(embed=em)
