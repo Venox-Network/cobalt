@@ -97,14 +97,12 @@ def cog_creator(servers: List[int]):
         async def static_listener(self, message):
             try:
                 results = await self.react_channel_static.find_one({'channel': message.channel.id})
+                if results is not None:
+                    for emoji in list(results['emojis']):
+                        await message.add_reaction(emoji)
+                        await asyncio.sleep(1)
             except Exception as e:
                 print(e)
-            if results is None:
-                return
-
-            for emoji in list(results['emojis']):
-                await message.add_reaction(emoji)
-                await asyncio.sleep(1)
 
         @Cog.listener()
         async def on_message(self, message):

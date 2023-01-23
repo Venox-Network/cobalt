@@ -8,7 +8,6 @@ from cogs import BaseCog
 
 def cog_creator(servers: List[int]):
     class TimeJob(BaseCog):
-        
         def __init__(self, bot) -> None:
             super().__init__(bot)
             # 1 = playing

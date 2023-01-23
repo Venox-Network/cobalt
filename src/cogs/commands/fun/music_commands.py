@@ -67,7 +67,6 @@ def cog_creator(servers: List[int]):
                     voice_chat: wavelink.Player = await channel.connect(cls=wavelink.Player)
                 else:
                     voice_chat: wavelink.Player = ctx.voice_client
-
             except Exception as e:
                 print(e)
                 await ctx.respond(f"Could not join vc in `{ctx.guild.name}`", ephemeral=True)
@@ -76,18 +75,13 @@ def cog_creator(servers: List[int]):
             try:
                 await ctx.respond(f"Searching for `{search}`...", ephemeral=True)
                 query_result = await wavelink.YouTubeTrack.search(search, return_first=True)
-                
                 if voice_chat.queue.is_empty and (not voice_chat.is_playing()):
                     await voice_chat.play(query_result)
-                    await ctx.respond(
-                        f"Now playing: `{query_result.title}`"
-                        )
+                    await ctx.respond(f"Now playing: `{query_result.title}`")
                     await ctx.guild.change_voice_state(channel=channel, self_mute=False, self_deaf=True)
-                
                 else:
                     await voice_chat.queue.put_wait(query_result)
                     await ctx.respond(f"Added `{query_result.title}` to the queue")
-
             except Exception as e:
                 await self.bot.log_msg(f"Could not play music in vc: `{channel.name}` in `{ctx.guild.name}` {e}", True)
                 await ctx.respond("There was an error while playing music. Please contact the staff.", ephemeral=True)
