@@ -1,6 +1,6 @@
-from typing import List
-from discord import ApplicationContext
 import discord
+from typing import List
+from discord import ApplicationContext, Forbidden, HTTPException
 from discord.ext.commands import Cog
 from discord.commands.options import Option
 from cogs import BaseCog
@@ -8,64 +8,36 @@ from cogs import BaseCog
 
 def cog_creator(servers: List[int]):
     class SuperBan(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.super_ban_db = self.bot.config.DATABASE["superbanids"]
 
-        @BaseCog.cslash_command(
-            description="Bans a member from all Venox Network servers",
-            guild_ids=servers
-        )
-        async def super_ban(
-                self,
-                ctx: ApplicationContext,
-                member: Option(discord.Member),
-                reason: Option(str) = None
-        ):
+        @BaseCog.cslash_command(description="Bans a member from all Venox Network servers", guild_ids=servers)
+        async def super_ban(self, ctx: ApplicationContext, member: Option(discord.Member), reason: Option(str) = None):
             if ctx.user.id not in self.bot.config.OWNERS:
-                await ctx.respond(
-                    "Sorry, you cannot use this command.",
-                    ephemeral=True
-                    )
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
-            # member: discord.Member = member
-
-            failed = []
-
             try:
-                await self.super_ban_db.insert_one(
-                    {'banned_member_id': member.id, 'banned_member_name': member.name, 'superban_user': ctx.user.name})
+                await self.super_ban_db.insert_one({'banned_member_id': member.id, 'banned_member_name': member.name, 'superban_user': ctx.user.name})
             except Exception as e:
-                await ctx.respond(
-                    f"Could not interact with database `superbanids`. With error {e}.",
-                    ephemeral=True
-                    )
+                await ctx.respond(f"Could not interact with database `superbanids`. With error {e}.", ephemeral=True)
                 return
 
             try:
-                await member.send(
-                    f"You have been banned from **all** Venox Network Servers,"
-                    " for `{reason}`."
-                    "Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
+                await member.send(f"You have been banned from **all** Venox Network Servers, for `{reason}`. Responsible owner: `{ctx.user.name}#{ctx.user.discriminator}`")
             except Exception:
                 pass
 
             for guild in self.bot.guilds:
-
                 guild_member = guild.get_member(member.id)
-                if guild_member is None:
-                    continue
+                if guild_member is not None:
+                    try:
+                        await guild_member.ban(reason=reason)
+                    except (Forbidden, HTTPException):
+                        pass
 
-                try:
-                    await guild_member.ban(reason=reason)
-                except Exception:
-                    failed.append(guild.name)
-
-            await ctx.respond(
-                f"`{member}` ({member.id}) has been ***SUPER BANNED***, for `{reason}`"
-                )
+            await ctx.respond(f"`{member}` ({member.id}) has been ***SUPER BANNED***, for `{reason}`")
 
         @Cog.listener("on_member_join")
         async def ban_member_on_join(self, member: discord.Member):
@@ -78,8 +50,7 @@ def cog_creator(servers: List[int]):
                 return
 
             try:
-                await member.send(
-                    f"You have been banned from `{member.guild.name}`, as this is a part of the Venox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
+                await member.send(f"You have been banned from `{member.guild.name}`, as this is a part of the Venox Network, and you have previously been SUPER BANNED by one of the owners of Venox Network.")
             except Exception as e:
                 print(e)
 

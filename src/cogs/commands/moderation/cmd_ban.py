@@ -1,5 +1,4 @@
 import discord
-
 from typing import List
 from discord import ApplicationContext
 from cogs import BaseCog
@@ -9,7 +8,7 @@ from discord.commands.options import Option
 def cog_creator(servers: List[int]):
     class Ban(BaseCog):
         @BaseCog.cslash_command(description="Bans a member from the guild", guild_ids=servers)
-        async def ban(self,ctx: ApplicationContext, member: Option(discord.Member), reason: Option(str) = None):
+        async def ban(self, ctx: ApplicationContext, member: Option(discord.Member), reason: Option(str) = None):
             # member: discord.Member = member
             if not self.check_perms(ctx, {"ban_members": True}, member):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)

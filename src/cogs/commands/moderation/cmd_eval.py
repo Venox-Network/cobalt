@@ -5,7 +5,6 @@ from cogs import BaseCog
 
 def cog_creator(servers: List[int]):
     class Eval(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
 
@@ -15,7 +14,6 @@ def cog_creator(servers: List[int]):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
-            # member: discord.Member = member
             try:
                 results = exec(code)
                 await ctx.respond(f"The code executed and returned: `{results}`")
@@ -29,7 +27,6 @@ def cog_creator(servers: List[int]):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
-            # member: discord.Member = member
             try:
                 results = eval(code)
                 await ctx.respond(f"the code executed and returned: `{results}`")

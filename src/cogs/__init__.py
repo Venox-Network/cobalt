@@ -1,6 +1,6 @@
+import discord
 from typing import Callable
 from discord import ApplicationContext, Member
-import discord
 from discord.ext.commands import Cog, slash_command, guild_only
 from discord_bot import Bot
 
@@ -16,19 +16,12 @@ class BaseCog(Cog):
 
     @staticmethod
     def check_perms(ctx: ApplicationContext, perms:dict, user2: Member=None, bot_force:bool=False):
-
         if user2 and user2.bot and (not bot_force):
             return False
 
-        permissions = ctx.channel.permissions_for(ctx.author)  # type: ignore
         guild = ctx.guild
         bot = guild.me if guild is not None else ctx.bot.user
-        permissions_bot = ctx.channel.permissions_for(bot)
-
-        missing = BaseCog.perm_loop(perms, permissions)
-        missing_bot = BaseCog.perm_loop(perms, permissions_bot)
-
-        if missing or missing_bot:
+        if BaseCog.perm_loop(perms, ctx.channel.permissions_for(ctx.author)) or BaseCog.perm_loop(perms, ctx.channel.permissions_for(bot)):
             return False
 
         if user2 is not None:

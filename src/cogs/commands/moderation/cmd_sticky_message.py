@@ -1,17 +1,14 @@
+import discord
 from typing import List
 from discord import ApplicationContext
-import discord
 from discord.ext.commands import Cog
 from discord.commands.options import Option
 from cogs import BaseCog
 from discord.ext import tasks
 
 
-# https://discord.com/channels/<guild_id>/<channel_id>/<message_id>
-
 def cog_creator(servers: List[int]):
     class StickyCog(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.sticky_collections = self.bot.config.DATABASE["sticky_messages"]
@@ -26,8 +23,6 @@ def cog_creator(servers: List[int]):
             try:
                 delete = []
                 async for result in self.sticky_collections.find({}):
-
-                    # data = {"channel_id": ctx.channel.id, "message_id": message.id, "guild_id": ctx.guild.i}
                     channel = self.bot.get_channel(result["channel_id"])
                     if channel is None:
                         delete.append(result)
@@ -53,12 +48,10 @@ def cog_creator(servers: List[int]):
 
         @Cog.listener()
         async def on_message(self, message: discord.Message):
-
             if message.author.bot:
                 return
 
             try:
-
                 if message.channel.id not in self.message_channel_map.keys():
                     return
 
@@ -72,7 +65,6 @@ def cog_creator(servers: List[int]):
                     if prev_msg.author.id == self.bot.user.id:
                         await prev_msg.delete()
                         break
-
                 await message.channel.send(msg.content)
 
             except Exception as e:
@@ -80,12 +72,10 @@ def cog_creator(servers: List[int]):
 
         @Cog.listener()
         async def on_guild_channel_delete(self, channel: discord.TextChannel):
-
             if not isinstance(channel, discord.TextChannel):
                 return
 
             try:
-
                 if channel.id in self.message_channel_map.keys():
                     await self.sticky_collections.delete_many({"channel_id": channel.id})
                     self.message_channel_map.pop(channel.id, None)
@@ -96,19 +86,9 @@ def cog_creator(servers: List[int]):
         def generate_message_link(message: discord.Message):
             return f"https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}"
 
-        @BaseCog.cslash_command(
-            description="Mark a message as sticky.",
-            guild_ids=servers
-        )
-        async def stick_msg(
-                self,
-                ctx: ApplicationContext,
-                message_id: Option(str)
-        ):
-
-            required_perms = {"manage_messages": True}
-
-            if not self.check_perms(ctx, required_perms):
+        @BaseCog.cslash_command(description="Mark a message as sticky.", guild_ids=servers)
+        async def stick_msg(self, ctx: ApplicationContext, message_id: Option(str)):
+            if not self.check_perms(ctx, {"manage_messages": True}):
                 await ctx.respond(
                     "Sorry, you cannot use this command.",
                     ephemeral=True)
@@ -144,44 +124,24 @@ def cog_creator(servers: List[int]):
                     return
 
                 prev_msg = await ctx.channel.fetch_message(result["message_id"])
-
                 await self.sticky_collections.replace_one(result, data)
                 self.message_channel_map[ctx.channel.id] = message.id
-                await ctx.respond(
-                    f"**New sticky message:** {self.generate_message_link(message)}" + (
-                    f"\n**Previous sticky message:** {self.generate_message_link(prev_msg)}" if prev_msg is not None else "."),
-                    ephemeral=True
-                    )
+                await ctx.respond(f"**New sticky message:** {self.generate_message_link(message)}" + (f"\n**Previous sticky message:** {self.generate_message_link(prev_msg)}" if prev_msg is not None else "."), ephemeral=True)
 
             except Exception as e:
                 print(e)
-                await ctx.respond(
-                    f"Could not interact with database `sticky_messages` with error: `{e}`.",
-                    ephemeral=True)
+                await ctx.respond(f"Could not interact with database `sticky_messages` with error: `{e}`.", ephemeral=True)
 
-        @BaseCog.cslash_command(
-            description="Get the sticky message of the channel.",
-            guild_ids=servers
-        )
-        async def get_sticky_msg(
-                self,
-                ctx: ApplicationContext
-        ):
-
-            required_perms = {"manage_messages": True}
-
-            if not self.check_perms(ctx, required_perms):
-                await ctx.respond(
-                    "Sorry, you cannot use this command.",
-                    ephemeral=True)
+        @BaseCog.cslash_command(description="Get the sticky message of the channel.", guild_ids=servers)
+        async def get_sticky_msg(self, ctx: ApplicationContext):
+            if not self.check_perms(ctx, {"manage_messages": True}):
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
                 result = await self.sticky_collections.find_one({"channel_id": ctx.channel.id})
                 if result is None:
-                    await ctx.respond(
-                        "No sticky message is set for this channel.",
-                        ephemeral=True)
+                    await ctx.respond("No sticky message is set for this channel.", ephemeral=True)
                     return
 
                 message = await ctx.channel.fetch_message(result["message_id"])
@@ -189,21 +149,12 @@ def cog_creator(servers: List[int]):
                     await self.sticky_collections.delete_many({"channel_id": ctx.channel.id})
                     self.message_channel_map.pop(ctx.channel.id, None)
                     await self.sticky_collections.delete_many({"channel_id": ctx.channel.id})
-                    await ctx.respond(
-                        "The sticky message is deleted. Please try again.",
-                        ephemeral=True
-                        )
+                    await ctx.respond("The sticky message is deleted. Please try again.", ephemeral=True)
                     return
 
-                await ctx.respond(
-                    f"The sticky message is set to {self.generate_message_link(message)}.",
-                    ephemeral=True
-                    )
+                await ctx.respond(f"The sticky message is set to {self.generate_message_link(message)}.", ephemeral=True)
 
             except Exception as e:
-                await ctx.respond(
-                    f"Could not interact with database `sticky_messages`. With error `{e}`.",
-                    ephemeral=True
-                    )
+                await ctx.respond(f"Could not interact with database `sticky_messages`. With error `{e}`.", ephemeral=True)
 
     return StickyCog

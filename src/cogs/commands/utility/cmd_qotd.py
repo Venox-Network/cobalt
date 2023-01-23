@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import discord
-
 from typing import List
 from discord import ApplicationContext
 from cogs import BaseCog
@@ -10,80 +9,55 @@ from discord.ext import tasks
 
 def cog_creator(servers: List[int]):
     class Qotd(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.qotd_db = self.bot.config.DATABASE["qotds"]
             self.activity_job.start()
-
         qotd = discord.SlashCommandGroup("qotd", "Commands related to qotd.")
         
-        @qotd.command(
-            description="Bulk add Qotds",
-            guild_ids=servers
-        )
+        @qotd.command(description="Bulk add Qotds", guild_ids=servers)
         async def bulk_add(self, ctx, seperator: str, qotds: str) -> None:
-            # qotd manager role is 891405322105811004
-            role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
-            if role not in ctx.user.roles:
-                await ctx.respond(
-                    'You do not have permission to use this command.',
-                    ephemeral=True
-                    )
+            # QOTD Manager role is 891405322105811004
+            if discord.utils.get(ctx.guild.roles, id=891405322105811004) not in ctx.user.roles:
+                await ctx.respond('You do not have permission to use this command.', ephemeral=True)
                 return
-            question_id=0
-            qotd_list = qotds.split(seperator)
-            for qotd in qotd_list:
+
+            question_id = 0
+            for qotd in qotds.split(seperator):
                 documents = self.qotd_db.find({})
                 async for doc in documents:
                     if doc['id'] >= question_id:
                         question_id = doc['id']
                 await self.qotd_db.insert_one({'id': int(question_id) + 1, 'question': qotd, 'used': False, 'user': str(ctx.user)})
+
             await ctx.respond("Added QOTDs")
 	    
-        @qotd.command(
-            description='Adds a qotd to queue',
-            guild_ids=servers
-            )
+        @qotd.command(description='Adds a qotd to queue', guild_ids=servers)
         async def add(self, ctx: ApplicationContext, question: str):
-            # qotd manager role is 891405322105811004
-            role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
-            if role not in ctx.user.roles:
-                await ctx.respond(
-                    'You do not have permission to use this command.',
-                    ephemeral=True
-                    )
+            # QOTD Manager role is 891405322105811004
+            if discord.utils.get(ctx.guild.roles, id=891405322105811004) not in ctx.user.roles:
+                await ctx.respond('You do not have permission to use this command.', ephemeral=True)
                 return
-            documents = self.qotd_db.find({})
-            question_id=0
-            async for doc in documents:
+
+            question_id = 0
+            async for doc in self.qotd_db.find({}):
                 if doc['id'] >= question_id:
                     question_id = doc['id']
+
             await self.qotd_db.insert_one({'id': int(question_id) + 1, 'question': question, 'used': False, 'user': str(ctx.user)})
             await ctx.respond(f"Added question: `{question}`")
     
-        @qotd.command(
-            description="List qotds",
-            guild_ids=servers,
-        )
+        @qotd.command(description="List qotds", guild_ids=servers,)
         async def list(self, ctx):
-            em=discord.Embed(title='QOTDs', description='List of all QOTDs', colour=0x0070c0)
-            qotds = self.qotd_db.find({'used': False})
-            async for qotd in qotds:
-                em.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']} \n**Used: **{qotd['used']} ")
-            await ctx.respond(embed=em)
+            embed = discord.Embed(title='QOTDs', description='List of all QOTDs', colour=0x0070c0)
+            async for qotd in self.qotd_db.find({'used': False}):
+                embed.add_field(name=qotd['id'], value=f"\"{qotd['question']}\" - {qotd['user']} \n**Used: **{qotd['used']} ")
+            await ctx.respond(embed=embed)
 
-        @qotd.command(
-            description="Remove QOTD",
-            guild_ids=servers
-        )
+        @qotd.command(description="Remove QOTD", guild_ids=servers)
         async def remove(self, ctx, qotd_id: int):
-            role = discord.utils.get(ctx.guild.roles, id=891405322105811004)
-            if role not in ctx.user.roles:
-                await ctx.respond(
-                    'You do not have permission to use this command.',
-                    ephemeral=True
-                    )
+            if discord.utils.get(ctx.guild.roles, id=891405322105811004) not in ctx.user.roles:
+                await ctx.respond('You do not have permission to use this command.', ephemeral=True)
                 return
             try:
                 await self.qotd_db.delete_one({'id': int(qotd_id)})
@@ -91,6 +65,7 @@ def cog_creator(servers: List[int]):
             except Exception as e:
                 print(e)
                 await ctx.respond('Failed')
+
         @tasks.loop(minutes=1)
         async def activity_job(self):
             now = datetime.datetime.utcnow()

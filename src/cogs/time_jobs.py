@@ -33,8 +33,7 @@ def cog_creator(servers: List[int]):
                 ["over simpearth.xyz/discord", 3],
                 ["over events.red", 3],
                 ["over lasertag.venox.network", 3],
-                ["on lasertag.venox.network", 1]
-            ]
+                ["on lasertag.venox.network", 1]]
             current_status = random.choice(statuses)
             await self.bot.change_presence(activity=discord.Activity(name=current_status[0], type=current_status[1]))
 

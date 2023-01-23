@@ -1,5 +1,4 @@
 import discord
-
 from typing import List
 from cogs import BaseCog
 from discord import ApplicationContext
@@ -9,7 +8,6 @@ from discord.ext import tasks
 
 def cog_creator(servers: List[int]):
     class AutoThreadCog(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
             self.thread_channel_collections = self.bot.config.DATABASE["threadedchannels"]
@@ -25,7 +23,6 @@ def cog_creator(servers: List[int]):
                 self.thread_guild_map = {}
                 delete = []
                 async for result in self.thread_channel_collections.find({}):
-                    # data = {"guild_id": ctx.guild.id, "guildname": ctx.guild.name, "channel_db_id": ctx.channel.id}
                     guild = self.bot.get_guild(result["guild_id"])
                     if guild is None:
                         delete.append(result)
@@ -50,50 +47,30 @@ def cog_creator(servers: List[int]):
 
         @Cog.listener()
         async def on_message(self, message: discord.Message):
-
             if message.author.bot:
                 return
 
             try:
                 if message.channel.id not in self.thread_guild_map.values():
                     return
-
                 await message.create_thread(name=message.clean_content[:50])
             except Exception:
                 pass
 
         @Cog.listener()
         async def on_guild_channel_delete(self, channel: discord.TextChannel):
+            if isinstance(channel, discord.TextChannel):
+                try:
+                    if channel.guild.id in self.thread_guild_map.keys():
+                        await self.thread_channel_collections.delete_many({"channel_db_id": channel.id})
+                        self.thread_guild_map.pop(channel.guild.id, None)
+                except Exception as e:
+                    await self.bot.log_msg(f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `threadedchannels`\n\n{str(e)}", True)
 
-            if not isinstance(channel, discord.TextChannel):
-                return
-
-            try:
-
-                if channel.guild.id in self.thread_guild_map.keys():
-                    await self.thread_channel_collections.delete_many({"channel_db_id": channel.id})
-                    self.thread_guild_map.pop(channel.guild.id, None)
-            except Exception as e:
-                await self.bot.log_msg(
-                    f"Error while deleting channel: `{channel.name}`[{channel.id}] from DB `threadedchannels`\n\n{str(e)}",
-                    True)
-
-        @BaseCog.cslash_command(
-            description="Makes a thread from a message",
-            guild_ids=servers
-        )
-        async def auto_thread(
-                self,
-                ctx: ApplicationContext
-        ):
-
-            required_perms = {"manage_messages": True}
-
-            if not self.check_perms(ctx, required_perms):
-                await ctx.respond(
-                    "Sorry, you cannot use this command.",
-                    ephemeral=True
-                    )
+        @BaseCog.cslash_command(description="Makes a thread from a message", guild_ids=servers)
+        async def auto_thread(self, ctx: ApplicationContext):
+            if not self.check_perms(ctx, {"manage_messages": True}):
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
@@ -102,36 +79,21 @@ def cog_creator(servers: List[int]):
                 if result is None:
                     await self.thread_channel_collections.insert_one(data)
                     self.thread_guild_map[ctx.guild.id] = ctx.channel.id
-                    await ctx.respond(
-                        "Auto Threading is now enabled for this channel.",
-                        ephemeral=True
-                        )
+                    await ctx.respond("Auto Threading is now enabled for this channel.", ephemeral=True)
                     return
 
                 if result["channel_db_id"] == ctx.channel.id:
                     await self.thread_channel_collections.delete_one(result)
                     self.thread_guild_map.pop(ctx.guild.id, None)
-                    await ctx.respond(
-                        "Auto Threading is now disabled for this channel.",
-                        ephemeral=True
-                        )
+                    await ctx.respond("Auto Threading is now disabled for this channel.", ephemeral=True)
                     return
 
                 prev_channel = self.bot.get_channel(result["channel_db_id"])
-
                 await self.thread_channel_collections.replace_one(result, data)
                 self.thread_guild_map[ctx.guild.id] = ctx.channel.id
-                await ctx.respond(
-                    f"Auto Threading is now enabled for this channel" + (
-                    f", and is now disabled in {prev_channel.mention}." if prev_channel is not None else "."),
-                    ephemeral=True
-                    )
-
+                await ctx.respond(f"Auto Threading is now enabled for this channel, and is now disabled in {prev_channel.mention}." if prev_channel is not None else ".", ephemeral=True)
             except Exception:
-                await ctx.respond(
-                    "Could not interract with database `threadedchannels`. Please try again after sometime.",
-                    ephemeral=True
-                    )
+                await ctx.respond("Could not interract with database `threadedchannels`. Please try again after sometime.", ephemeral=True)
 
     return AutoThreadCog
     

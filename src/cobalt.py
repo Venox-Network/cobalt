@@ -1,5 +1,4 @@
 import discord
-
 from config import Config
 from discord_bot import Bot
 from cogs import time_jobs

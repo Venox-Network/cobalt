@@ -1,6 +1,5 @@
 import discord
 import humanfriendly
-
 from datetime import datetime, timedelta
 from typing import List
 from discord import ApplicationContext
@@ -19,22 +18,9 @@ def cog_creator(servers: List[int]):
             description="Mutes a member using the timeout function",
             guild_ids=servers
         )
-        async def mute(
-                self,
-                ctx: ApplicationContext,
-                member: Option(discord.Member),
-                time: Option(str),
-                reason: Option(str) = None
-        ):
-            # member: discord.Member = member
-
-            required_perms = {"moderate_members": True}
-
-            if not self.check_perms(ctx, required_perms, member):
-                await ctx.respond(
-                    "Sorry, you cannot use this command.",
-                    ephemeral=True
-                    )
+        async def mute(self, ctx: ApplicationContext, member: Option(discord.Member), time: Option(str), reason: Option(str) = None):
+            if not self.check_perms(ctx, {"moderate_members": True}, member):
+                await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return
 
             try:
@@ -51,17 +37,11 @@ def cog_creator(servers: List[int]):
             await member.timeout_for(timedelta(seconds=time_readable), reason=reason)
 
             try:
-                await member.send(
-                    f"You have been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for `{reason}`. Responsible moderator: Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
+                await member.send(f"You have been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for `{reason}`. Responsible moderator: Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`")
             except Exception:
                 pass
 
-            await self.bot.log_msg(
-                f"`{member.name}#{member.discriminator}` has been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`",
-                True)
-            await ctx.respond(
-                f"'{member.mention}' has been muted, till: <t:{time_unix}>, for `{reason}`",
-                ephemeral=True
-                )
+            await self.bot.log_msg(f"`{member.name}#{member.discriminator}` has been muted in `{ctx.guild.name}`, till: <t:{time_unix}>, for reason: `{reason}`. Responsible moderator: `{ctx.user.name}#{ctx.user.discriminator}`", True)
+            await ctx.respond(f"'{member.mention}' has been muted, till: <t:{time_unix}>, for `{reason}`", ephemeral=True)
 
     return Mute

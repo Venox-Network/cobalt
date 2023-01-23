@@ -1,5 +1,4 @@
 import discord
-
 from typing import List
 from discord import ApplicationContext
 from cogs import BaseCog
@@ -8,14 +7,11 @@ from discord.commands.options import Option
 
 def cog_creator(servers: List[int]):
     class Kick(BaseCog):
-
         def __init__(self, bot) -> None:
             super().__init__(bot)
 
         @BaseCog.cslash_command(description="Kick a member", guild_ids=servers)
         async def kick(self, ctx: ApplicationContext, member: Option(discord.Member), reason: Option(str) = None,):
-            # member: discord.Member = member
-
             if not self.check_perms(ctx, {"kick_members": True}, member):
                 await ctx.respond("Sorry, you cannot use this command.", ephemeral=True)
                 return

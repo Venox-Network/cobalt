@@ -1,18 +1,11 @@
 import discord
-
 from typing import Callable, List
 from config import Config
 from discord.ext import commands
 
 
 class Bot(commands.Bot):
-    def __init__(
-            self,
-            command_prefix=commands.bot.when_mentioned,
-            help_command=commands.bot._default,
-            conf: Config = None,
-            **options
-    ):
+    def __init__(self, command_prefix = commands.bot.when_mentioned, help_command = commands.bot._default, conf: Config = None, **options):
         if conf is None:
             raise ValueError("Config isn't passed to 'discord_bot.Bot'")
 
@@ -37,10 +30,7 @@ class Bot(commands.Bot):
         if self.report_channel is None:
             raise ValueError("Report channel Not Found")
 
-        view = discord.ui.View(
-            *self.views,
-            timeout=None
-        )
+        view = discord.ui.View(*self.views, timeout=None)
         self.add_view(view)
 
         await self.log_msg(f"Bot logged in as {self.user}", True)
@@ -48,5 +38,3 @@ class Bot(commands.Bot):
     def add_cogs(self, *list: List[Callable]):
         for cog_creator in list:
             self.add_cog((cog_creator(self.debug_servers))(self))
-            # (cog_creator(self.debug_servers)) => Cog class
-            # ^^ (self)
