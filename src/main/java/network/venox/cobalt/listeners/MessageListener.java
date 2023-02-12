@@ -12,6 +12,7 @@ import network.venox.cobalt.data.CoUser;
 import network.venox.cobalt.data.objects.CoReactChannel;
 import network.venox.cobalt.data.objects.CoSlowmode;
 import network.venox.cobalt.data.objects.CoStickyMessage;
+import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,10 +27,10 @@ public class MessageListener extends CoListener {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
+        final TextChannel channel = CoMapper.handleException(() -> event.getChannel().asTextChannel());
+        if (channel == null || event.getAuthor().isBot()) return;
         final Guild guild = event.getGuild();
         final CoGuild coGuild = cobalt.data.getGuild(guild);
-        final TextChannel channel = event.getChannel().asTextChannel();
         final long channelId = channel.getIdLong();
         final Message message = event.getMessage();
 
