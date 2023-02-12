@@ -1,12 +1,14 @@
-/.idea
-/venv
+# Intellij
+.idea/
 
-src/config.json
-.vscode/settings.json
+# Gradle
+.gradle/
+build/
 
-.VSCodeCounter
-Pipfile.lock
-Pipfile
+# Python
+python/*
 
-*.pyc
-*.fish
+# Bot
+config.yml
+messages.yml
+data/*
