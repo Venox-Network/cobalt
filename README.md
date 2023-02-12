@@ -1,7 +1,12 @@
 # Cobalt
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/62b39bf5e5a4478caa52b090d6eefb14)](https://www.codacy.com/gh/Venox-Network/cobalt/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Venox-Network/cobalt&amp;utm_campaign=Badge_Grade)
+A bot used by [@srnyx](https://github.com/srnyx) and [@ChrizxzFTW](https://github.com/Chrizxz) in their Discord administration.
 
-A bot used by [@srnyx](https://github.com/srnyx) (https://srnyx.xyz/) and [@ChrizxzFTW](https://github.com/Chrizxz) (https://chriz.cf/) in their administration.
+Go see the future: https://venox.network
 
-[![Website](https://img.srnyx.xyz/r/banner_round.png)](https://v.srnyx.xyz)
+## Contributors
+
+- [@srnyx](https://github.com/srnyx) `java` `python`
+- [@DWAA1660](https://github.com/DWAA1660) `python`
+- [@skandabhairava](https://github.com/skandabhairava) `python`
+- [@ChrizxzFTW](https://github.com/Chrizxz) `javascript`
