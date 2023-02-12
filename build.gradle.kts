@@ -2,7 +2,7 @@ version = "1.0.0"
 group = "network.venox"
 
 plugins {
-    java
+    application
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -19,7 +19,7 @@ dependencies {
     implementation("info.debatty", "java-string-similarity", "2.0.0")
 }
 
-//application.mainClass.set("network.venox.cobalt.Cobalt")
+application.mainClass.set("network.venox.cobalt.Cobalt")
 
 tasks {
     // Remove '-all' from the JAR file name and clean up the build folder
