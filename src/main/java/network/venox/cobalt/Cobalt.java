@@ -55,6 +55,7 @@ public class Cobalt {
                             GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGES,
                             GatewayIntent.GUILD_MESSAGE_TYPING)
+                    .setEnableShutdownHook(false)
                     .build().awaitReady();
         } catch (final InterruptedException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -111,8 +112,7 @@ public class Cobalt {
                 new GuildMemberListener(this),
                 new GuildMemberUpdateListener(this),
                 new InteractionListener(this),
-                new MessageListener(this),
-                new SessionListener(this));
+                new MessageListener(this));
 
         // Status(es)
         if (data.global.activity != null) {
@@ -122,10 +122,16 @@ public class Cobalt {
         }
 
         // Auto-save
-        scheduledExecutorService.scheduleAtFixedRate(() -> data.save(), 10, 30, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(() -> data.save(), 10, 10, TimeUnit.MINUTES);
 
         // QOTD
         new QotdManager(this).start();
+
+        // Shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.severe("Shutting down...");
+            data.save();
+        }));
     }
 
     public void startStatuses() {
