@@ -5,10 +5,7 @@
 .gradle/
 build/
 
-# Python
-python/*
-
 # Bot
-config.yml
-messages.yml
-data/*
+/config.yml
+/messages.yml
+/data/*
