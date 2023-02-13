@@ -25,6 +25,7 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -127,11 +128,15 @@ public class Cobalt {
         // QOTD
         new QotdManager(this).start();
 
-        // Shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.severe("Shutting down...");
-            data.save();
-        }));
+        // stop command
+        new Thread(() -> {
+            final Scanner scanner = new Scanner(System.in);
+            while (scanner.hasNextLine()) {
+                if (!scanner.nextLine().equals("stop")) continue;
+                data.save();
+                System.exit(0);
+            }
+        }).start();
     }
 
     public void startStatuses() {
