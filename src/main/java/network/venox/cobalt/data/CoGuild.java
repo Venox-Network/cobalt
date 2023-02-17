@@ -2,6 +2,7 @@ package network.venox.cobalt.data;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -16,6 +17,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.NodeStyle;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -230,5 +232,26 @@ public class CoGuild {
             threadChannels.add(channel);
             return true;
         }
+    }
+
+    public void addNicknames(@NotNull Collection<String> nicknames) {
+        final Guild guild = getGuild();
+        if (guild == null) return;
+
+        // Add to blacklist
+        nicknameBlacklist.addAll(nicknames);
+
+        // Check members
+        for (final Member member : guild.loadMembers().get()) checkMemberNickname(member, nicknames);
+    }
+
+    public void checkMemberNickname(@NotNull Member member, @Nullable Collection<String> nicknames) {
+        final String name = member.getEffectiveName().toLowerCase().trim();
+        final String moderatedName = getModeratedNickname();
+        if (nicknames != null) {
+            if (nicknames.contains(name)) member.modifyNickname(moderatedName).queue();
+            return;
+        }
+        if (nicknameBlacklist.contains(name)) member.modifyNickname(moderatedName).queue();
     }
 }

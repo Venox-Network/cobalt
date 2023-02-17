@@ -1,54 +1,47 @@
 package network.venox.cobalt.commands;
 
-import net.dv8tion.jda.api.entities.channel.ChannelType;
+import com.freya02.botcommands.api.annotations.CommandMarker;
+import com.freya02.botcommands.api.annotations.Dependency;
+import com.freya02.botcommands.api.application.ApplicationCommand;
+import com.freya02.botcommands.api.application.CommandScope;
+import com.freya02.botcommands.api.application.annotations.AppOption;
+import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
+import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.command.CoExecutableCommand;
-import network.venox.cobalt.events.CoSlashCommandInteractionEvent;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 
+@CommandMarker
+public class SayCmd extends ApplicationCommand {
+    @Dependency private Cobalt cobalt;
 
-public class SayCmd extends CoExecutableCommand {
-    public SayCmd(@NotNull Cobalt cobalt) {
-        super(cobalt);
-    }
-
-    @Override @NotNull
-    public String description() {
-        return "Make the bot say something";
-    }
-
-    @Override @NotNull
-    public List<OptionData> options() {
-        return List.of(
-                new OptionData(OptionType.STRING, "message", "The message to say", true),
-                new OptionData(OptionType.CHANNEL, "channel", "The channel to say the message in", false)
-                        .setChannelTypes(ChannelType.TEXT));
-    }
-
-    @Override
-    public void onCommand(@NotNull CoSlashCommandInteractionEvent event) {
-        final OptionMapping messageOption = event.getOption("message");
-        if (messageOption == null) return;
-        final OptionMapping channelOption = event.getOption("channel");
-        final MessageChannelUnion currentChannel = event.getChannel();
-
+    @JDASlashCommand(
+            scope = CommandScope.GLOBAL,
+            name = "say",
+            description = "Make the bot say something")
+    public void onCommand(@NotNull GlobalSlashEvent event,
+                          @AppOption(description = "The message to say") @NotNull String message,
+                          @AppOption(description = "The channel to say the message in") @Nullable TextChannel channel) {
+        if (!cobalt.config.checkIsOwner(event)) return;
         // Get channel
-        TextChannel channel = currentChannel.asTextChannel();
-        if (channelOption != null) channel = channelOption.getAsChannel().asTextChannel();
+        final TextChannel currentChannel = event.getChannel().asTextChannel();
+        if (channel == null) channel = currentChannel;
 
         // Send message
-        final String jumpUrl = channel.sendMessage(messageOption.getAsString()).complete().getJumpUrl();
-
-        // Reply
-        if (channel != currentChannel) event.reply(jumpUrl).setEphemeral(true).queue();
+        final MessageCreateAction action = channel.sendMessage(message);
+        if (channel.getIdLong() != currentChannel.getIdLong()) {
+            action.queue(sentMessage -> event.reply(sentMessage.getJumpUrl()).setEphemeral(true).queue());
+            return;
+        }
+        action.flatMap(sentMessage -> event.deferReply(true))
+                .flatMap(InteractionHook::deleteOriginal)
+                .queue();
     }
 }

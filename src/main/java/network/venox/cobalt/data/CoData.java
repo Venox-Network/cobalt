@@ -98,7 +98,14 @@ public class CoData {
     }
 
     @NotNull
+    public Set<CoGuild> getAllGuilds() {
+        jda.getGuilds().forEach(this::getGuild);
+        return guilds;
+    }
+
+    @NotNull
     public CoGuild getGuild(@NotNull Guild guild) {
+        // Get existing guild
         final long id = guild.getIdLong();
         final CoGuild coGuild = guilds.stream()
                 .filter(g -> g.guildId == id)

@@ -34,27 +34,21 @@ public class GuildMemberListener extends CoListener {
             // Check if ban is expired
             final Long time = ban.time();
             if (time != null && time - System.currentTimeMillis() <= 0) {
-                cobalt.data.global.superBans.remove(ban);
+                ban.unban();
                 return;
             }
 
-            // Send embed
-            final User moderator = ban.getModerator(event.getJDA());
-            if (moderator != null) {
-                member.getUser().openPrivateChannel()
-                        .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super", "ban")
-                                .replace("%guild%", guild.getName())
-                                .replace("%reason%", ban.reason())
-                                .replace("%timeleft%", ban.getTimeLeft())
-                                .replace("%moderator%", moderator.getAsMention())
-                                .build()))
-                        .complete();
-            }
-
-            // Ban
-            guild.ban(member, 1, TimeUnit.DAYS)
-                    .reason(ban.reason())
-                    .queue();
+            // Send embed and ban user
+            final User moderator = ban.getModerator();
+            member.getUser().openPrivateChannel()
+                    .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super", "ban")
+                            .replace("%guild%", guild.getName())
+                            .replace("%reason%", ban.reason())
+                            .replace("%timeleft%", ban.getTimeLeft())
+                            .replace("%moderator%", moderator != null ? moderator.getAsMention() : "N/A")
+                            .build()))
+                    .flatMap(message -> guild.ban(member, 1, TimeUnit.DAYS).reason(ban.reason()))
+                    .queue(s -> {}, f -> {});
             return;
         }
 

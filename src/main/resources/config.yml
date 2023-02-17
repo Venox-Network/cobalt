@@ -1,0 +1,49 @@
+# Token to run the bot with
+token: "PUT_BOT_TOKEN_HERE"
+
+# Database to use for BotCommands dependency (THIS IS NOT FOR THE BOTS DATA)
+# Supports: MariaDB, SQLite, PostgreSQL, H2
+database: "PUT_CONNECTION_STRING_HERE"
+
+# Owner IDs of the bot
+owners:
+  - 242385234992037888 # srnyx
+  - 273538684526264320 # ChrizxzFTW
+
+# Settings regarding the main guild for the bot (support server)
+guild:
+  # The ID of the guild
+  id: 879734848946847774
+  # The invite URL for the guild
+  invite: "https://discord.gg/gAeMxAv9kp"
+  # QOTD Manager role ID
+  qotd-manager: 891405322105811004
+  # QOTD Manager chat where QOTD alerts will be sent
+  qotd-chat: 891404641277984788
+  # Log channel for global actions (super punishments, etc...)
+  log: 1008889846850408489
+
+# Rotating status messages for the bot. Types: PLAYING, LISTENING, WATCHING
+statuses:
+  - status: "%servers% servers"
+    type: WATCHING
+  - status: "%users% users"
+    type: WATCHING
+  - status: "over chriz.cf"
+    type: WATCHING
+  - status: "over srnyx.xyz/discord"
+    type: WATCHING
+  - status: "over venox.network"
+    type: WATCHING
+  - status: "over simpearth.xyz/discord"
+    type: WATCHING
+  - status: "over events.red"
+    type: WATCHING
+  - status: "over lasertag.venox.network"
+    type: WATCHING
+  - status: "srnyx.xyz/pl"
+    type: LISTENING
+  - status: "chriz.cf/playlist"
+    type: LISTENING
+  - status: "on lasertag.venox.network"
+    type: PLAYING

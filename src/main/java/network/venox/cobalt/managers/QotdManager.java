@@ -43,7 +43,7 @@ public class QotdManager {
         question.used++;
         cobalt.data.global.qotdCount++;
 
-        final Role qotdManager = cobalt.config.getGuildQotdManager();
+        final Role qotdManager = cobalt.config.getGuildQotdManager(null);
         final TextChannel qotdChat = cobalt.config.getGuildQotdChat();
         if (qotdManager != null && qotdChat != null && cobalt.data.global.qotds.size() == question.id) qotdChat.sendMessage(":warning: We're out of questions, resorting to backups! " + qotdManager.getAsMention()).queue();
     }

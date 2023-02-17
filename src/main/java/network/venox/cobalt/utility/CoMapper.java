@@ -14,6 +14,12 @@ public class CoMapper {
     }
 
     @Nullable
+    public static Double toDouble(@Nullable Object object) {
+        if (object == null) return null;
+        return handleException(() -> Double.parseDouble(object.toString()));
+    }
+
+    @Nullable
     public static Long toLong(@Nullable Object object) {
         if (object == null) return null;
         return handleException(() -> Long.parseLong(object.toString()));

@@ -1,31 +1,29 @@
 package network.venox.cobalt.commands;
 
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import com.freya02.botcommands.api.annotations.CommandMarker;
+import com.freya02.botcommands.api.annotations.Dependency;
+import com.freya02.botcommands.api.application.ApplicationCommand;
+import com.freya02.botcommands.api.application.CommandScope;
+import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
+import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.command.CoExecutableCommand;
-import network.venox.cobalt.events.CoSlashCommandInteractionEvent;
 
 import org.jetbrains.annotations.NotNull;
 
 
-public class ReloadCmd extends CoExecutableCommand {
-    public ReloadCmd(@NotNull Cobalt cobalt) {
-        super(cobalt);
-    }
+@CommandMarker
+public class ReloadCmd extends ApplicationCommand {
+    @Dependency private Cobalt cobalt;
 
-    @Override @NotNull
-    public String description() {
-        return "Saves the bots data and reloads it";
-    }
-
-    @Override
-    public void onCommand(@NotNull CoSlashCommandInteractionEvent event) {
-        event.deferReply(true).queue();
-        final InteractionHook hook = event.getHook();
-
+    @JDASlashCommand(
+            scope = CommandScope.GLOBAL,
+            name = "reload",
+            description = "Saves the bots data and reloads it")
+    public void onCommand(@NotNull GlobalSlashEvent event) {
+        if (!cobalt.config.checkIsOwner(event)) return;
         cobalt.data.save();
-        hook.editOriginal("Data saved!").queue();
         cobalt.data.load();
-        hook.editOriginal("Data loaded!").queue();
+        event.reply("Data reloaded!").setEphemeral(true).queue();
     }
 }

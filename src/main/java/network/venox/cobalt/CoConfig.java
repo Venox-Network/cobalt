@@ -1,21 +1,22 @@
 package network.venox.cobalt;
 
+import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
+
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import network.venox.cobalt.data.objects.CoEmbed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.yaml.NodeStyle;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -24,9 +25,8 @@ public class CoConfig {
     @NotNull public final CoFile file = new CoFile("config", NodeStyle.BLOCK, true);
 
     @Nullable public final String token = file.yaml.node("token").getString();
-    @NotNull public final Set<Long> owners = file.yaml.node("owners").childrenList().stream()
-                .map(ConfigurationNode::getLong)
-                .collect(Collectors.toSet());
+    @Nullable public final String database = file.yaml.node("database").getString();
+    @NotNull public final List<Long> owners;
 
     // GUILD
     @NotNull private final ConfigurationNode guildNode = file.yaml.node("guild");
@@ -39,15 +39,24 @@ public class CoConfig {
     // STATUSES
     @NotNull public Set<Activity> statuses = new HashSet<>();
 
-    public void loadJda(@NotNull JDA jda) {
-        this.jda = jda;
+    public CoConfig() {
+        // owners
+        List<Long> newOwners = null;
+        try {
+            newOwners = file.yaml.node("owners").getList(Long.class);
+        } catch (final SerializationException e) {
+            e.printStackTrace();
+        }
+        owners = newOwners == null ? Collections.emptyList() : newOwners;
+    }
+
+    public void loadJda(@NotNull Cobalt cobalt) {
+        this.jda = cobalt.jda;
 
         // statuses
         final List<Guild> guilds = jda.getGuilds();
         final String servers = String.valueOf(guilds.size());
-        final String users = String.valueOf(guilds.stream()
-                .mapToInt(guild -> guild.loadMembers().get().size())
-                .sum());
+        final String users = String.valueOf(cobalt.userCount);
         this.statuses = file.yaml.node("statuses").childrenList().stream()
                 .map(node -> {
                     final String statusString = node.node("status").getString();
@@ -67,9 +76,11 @@ public class CoConfig {
     }
 
     @Nullable
-    public Role getGuildQotdManager() {
-        final Guild guild = getGuild();
-        if (guild == null) return null;
+    public Role getGuildQotdManager(@Nullable Guild guild) {
+        if (guild == null) {
+            guild = getGuild();
+            if (guild == null) return null;
+        }
         return guild.getRoleById(guildQotdManager);
     }
 
@@ -90,5 +101,31 @@ public class CoConfig {
     public void sendLog(@NotNull String title, @NotNull String message) {
         final TextChannel log = getGuildLog();
         if (log != null) log.sendMessage("**`     " + title.toUpperCase() + "     `**\n" + message + "\n**`     " + title.toUpperCase() + "     `**").setAllowedMentions(List.of()).queue();
+    }
+
+    public boolean isOwner(@NotNull User user) {
+        return owners.contains(user.getIdLong());
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean checkIsOwner(@NotNull GenericCommandInteractionEvent event) {
+        final boolean isOwner = isOwner(event.getUser());
+        if (!isOwner) event.replyEmbeds(CoEmbed.NO_PERMISSION.build()).setEphemeral(true).queue();
+        return isOwner;
+    }
+
+    public boolean isQotdManager(@NotNull User user) {
+        final Guild guild = getGuild();
+        if (guild == null) return false;
+        final Member member = guild.getMember(user);
+        final Role qotdManager = getGuildQotdManager(guild);
+        return member != null && qotdManager != null && member.getRoles().contains(qotdManager);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean checkIsQotdManager(@NotNull GlobalSlashEvent event) {
+        final boolean isQotdManager = isQotdManager(event.getUser());
+        if (!isQotdManager) event.replyEmbeds(CoEmbed.NO_PERMISSION.build()).setEphemeral(true).queue();
+        return isQotdManager;
     }
 }

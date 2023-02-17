@@ -16,8 +16,10 @@ import java.awt.*;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @SuppressWarnings("UnusedReturnValue")
@@ -326,7 +328,7 @@ public class CoEmbed implements CoObject {
         @Nullable @Contract("null -> null")
         public static Type getType(@Nullable String name) {
             if (name == null) return null;
-            return CoMapper.handleException(() -> Type.getType(name.toUpperCase()));
+            return CoMapper.handleException(() -> Type.valueOf(name.toUpperCase()));
         }
     }
 }

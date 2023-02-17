@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -16,9 +15,6 @@ public class GuildMemberUpdateListener extends CoListener {
 
     @Override
     public void onGuildMemberUpdateNickname(@NotNull GuildMemberUpdateNicknameEvent event) {
-        final String nickname = event.getNewNickname();
-        if (nickname == null) return;
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
-        if (guild.nicknameBlacklist.contains(nickname.toLowerCase())) event.getMember().modifyNickname(guild.getModeratedNickname()).queue();
+        cobalt.data.getGuild(event.getGuild()).checkMemberNickname(event.getMember(), null);
     }
 }

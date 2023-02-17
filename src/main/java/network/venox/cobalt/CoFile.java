@@ -35,7 +35,7 @@ public class CoFile {
         try {
             this.yaml = loader.load();
         } catch (final IOException e) {
-            Cobalt.logger.severe("Failed to load file with path: " + pathString);
+            Cobalt.LOGGER.warn(String.format("Failed to load file with path: %s", pathString));
             e.printStackTrace();
         }
     }
@@ -46,7 +46,7 @@ public class CoFile {
                 Files.createDirectories(file.toPath().getParent());
                 Files.createFile(file.toPath());
             } catch (final IOException e) {
-                Cobalt.logger.severe("Failed to create file with path: " + pathString);
+                Cobalt.LOGGER.warn(String.format("Failed to create file with path: %s", pathString));
                 e.printStackTrace();
             }
             return;
@@ -70,7 +70,7 @@ public class CoFile {
             if (!isResource && file.exists()) try {
                 Files.delete(file.toPath());
             } catch (final IOException e) {
-                Cobalt.logger.severe("Failed to delete file with path: " + pathString);
+                Cobalt.LOGGER.warn(String.format("Failed to delete file with path: %s", pathString));
                 e.printStackTrace();
             }
             return;
@@ -80,7 +80,7 @@ public class CoFile {
         try {
             loader.save(yaml);
         } catch (final IOException e) {
-            Cobalt.logger.severe("Failed to save file with path: " + pathString);
+            Cobalt.LOGGER.warn(String.format("Failed to save file with path: %s", pathString));
             e.printStackTrace();
         }
     }

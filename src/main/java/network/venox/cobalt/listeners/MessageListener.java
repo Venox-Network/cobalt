@@ -1,6 +1,8 @@
 package network.venox.cobalt.listeners;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,7 +18,8 @@ import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -51,11 +54,14 @@ public class MessageListener extends CoListener {
 
         // Highlights
         final Set<String> words = Arrays.stream(message.getContentRaw().split(" "))
-                .map(String::toLowerCase)
+                .map(word -> word.toLowerCase().trim())
                 .collect(Collectors.toSet());
-        for (final CoUser user : cobalt.data.users) for (final String highlight : user.highlights) if (words.contains(highlight)) {
-            user.sendHighlight(highlight, message);
-            break;
+        for (final CoUser user : cobalt.data.users) {
+            final Member member = guild.getMemberById(user.userId);
+            if (member != null && member.hasPermission(channel, Permission.MESSAGE_HISTORY)) for (final String highlight : user.highlights) if (words.contains(highlight)) {
+                user.sendHighlight(highlight, message);
+                break;
+            }
         }
     }
 }

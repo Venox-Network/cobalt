@@ -1,127 +1,91 @@
 package network.venox.cobalt.commands;
 
-import net.dv8tion.jda.api.entities.channel.ChannelType;
+import com.freya02.botcommands.api.annotations.CommandMarker;
+import com.freya02.botcommands.api.annotations.Dependency;
+import com.freya02.botcommands.api.annotations.UserPermissions;
+import com.freya02.botcommands.api.application.ApplicationCommand;
+import com.freya02.botcommands.api.application.CommandScope;
+import com.freya02.botcommands.api.application.annotations.AppOption;
+import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
+import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import com.freya02.botcommands.api.application.slash.annotations.LongRange;
+
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.command.CoExecutableCommand;
 import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.data.objects.CoSlowmode;
-import network.venox.cobalt.events.CoCommandAutoCompleteInteractionEvent;
-import network.venox.cobalt.events.CoSlashCommandInteractionEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Set;
 
+@CommandMarker @UserPermissions(Permission.MANAGE_CHANNEL)
+public class SlowmodeCmd extends ApplicationCommand {
+    @Dependency private Cobalt cobalt;
 
-public class SlowmodeCmd extends CoExecutableCommand {
-    public SlowmodeCmd(@NotNull Cobalt cobalt) {
-        super(cobalt);
-    }
-
-    @Override @NotNull
-    public String description() {
-        return "Manage the dynamic slowmode of a channel";
-    }
-
-    @Override @NotNull
-    public List<OptionData> options() {
-        return List.of(
-                new OptionData(OptionType.CHANNEL, "channel", "The channel to manage slowmode for", false)
-                        .setChannelTypes(ChannelType.TEXT),
-                new OptionData(OptionType.INTEGER, "minimum", "The minimum slowmode (in seconds)", false, true)
-                        .setMinValue(0)
-                        .setMaxValue(21600),
-                new OptionData(OptionType.INTEGER, "maximum", "The maximum slowmode (in seconds)", false, true)
-                        .setMinValue(0)
-                        .setMaxValue(21600));
-    }
-
-    @Override
-    public void onCommand(@NotNull CoSlashCommandInteractionEvent event) {
-        final CoGuild guild = event.getCoGuild();
-        if (guild == null) return;
-        final OptionMapping channelOption = event.getOption("channel");
-        final OptionMapping minimumOption = event.getOption("minimum");
-        final OptionMapping maximumOption = event.getOption("maximum");
-        final TextChannel channel = channelOption == null ? event.getChannel().asTextChannel() : channelOption.getAsChannel().asTextChannel();
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "slowmode",
+            description = "Manage the dynamic slowmode of a channel")
+    public void slowmodeCommand(@NotNull GuildSlashEvent event,
+                          @AppOption(description = "The channel to manage slowmode for") @Nullable TextChannel channel,
+                          @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = 21600) @Nullable Integer minimum,
+                          @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = 21600) @Nullable Integer maximum) {
+        if (channel == null) channel = event.getChannel().asTextChannel();
+        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
         final CoSlowmode current = guild.getSlowmode(channel.getIdLong());
 
         // Remove slowmode if no minimum or maximum is specified
-        if (current != null && minimumOption == null && maximumOption == null) {
+        if (current != null && minimum == null && maximum == null) {
             guild.slowmodes.remove(current);
             event.reply("Removed dynamic slowmode for " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }
 
         // Get minimum
-        int minimum = 0;
-        if (minimumOption == null) {
-            if (current != null) minimum = current.minimum;
+        int minimumValue = 0;
+        if (minimum == null) {
+            if (current != null) minimumValue = current.minimum;
         } else {
-            minimum = minimumOption.getAsInt();
+            minimumValue = minimum;
         }
 
         // Get maximum
-        final int maximum;
-        if (maximumOption == null) {
+        final int maximumValue;
+        if (maximum == null) {
             if (current != null) {
-                maximum = current.maximum;
+                maximumValue = current.maximum;
             } else {
                 event.reply("You must specify a maximum slowmode!").setEphemeral(true).queue();
                 return;
             }
         } else {
-            maximum = maximumOption.getAsInt();
+            maximumValue = maximum;
         }
 
         // Check if minimum is greater than maximum
-        if (minimum > maximum) {
+        if (minimumValue > maximumValue) {
             event.reply("The minimum slowmode cannot be greater than the maximum!").setEphemeral(true).queue();
             return;
         }
 
         // Check if minimum and maximum are the same
-        if (minimum == maximum) {
+        if (minimumValue == maximumValue) {
             event.reply("The minimum and maximum slowmode cannot be the same!").setEphemeral(true).queue();
             return;
         }
 
         // Update slowmode
         if (current != null) {
-            current.minimum = minimum;
-            current.maximum = maximum;
+            current.minimum = minimumValue;
+            current.maximum = maximumValue;
         } else {
-            guild.slowmodes.add(new CoSlowmode(channel.getIdLong(), minimum, maximum));
+            guild.slowmodes.add(new CoSlowmode(channel.getIdLong(), minimumValue, maximumValue));
         }
 
         // Reply
-        event.reply("Set dynamic slowmode for " + channel.getAsMention() + " to `" + minimum + "-" + maximum + "` seconds").setEphemeral(true).queue();
-    }
-
-    @Override @Nullable
-    public Set<Command.Choice> onAutoComplete(@NotNull CoCommandAutoCompleteInteractionEvent event) {
-        final CoGuild guild = event.getCoGuild();
-        final MessageChannelUnion channel = event.getChannel();
-        if (guild == null || channel == null) return null;
-        final CoSlowmode current = guild.getSlowmode(channel.getIdLong());
-        if (current == null) return null;
-        final String option = event.getFocusedOption().getName();
-
-        // minimum
-        if (option.equals("minimum")) return Set.of(new Command.Choice("Current minimum", current.minimum));
-
-        // maximum
-        if (option.equals("maximum")) return Set.of(new Command.Choice("Current maximum", current.maximum));
-
-        return null;
+        event.reply("Set dynamic slowmode for " + channel.getAsMention() + " to `" + minimumValue + "-" + maximumValue + "` seconds").setEphemeral(true).queue();
     }
 }

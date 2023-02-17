@@ -1,8 +1,8 @@
 package network.venox.cobalt.data;
 
 import net.dv8tion.jda.api.JDA;
-
 import net.dv8tion.jda.api.entities.Activity;
+
 import network.venox.cobalt.data.objects.CoSuperBan;
 import network.venox.cobalt.data.objects.CoQuestion;
 import network.venox.cobalt.data.objects.CoWarning;
@@ -41,8 +41,8 @@ public class CoGlobal {
             final Integer id = CoMapper.toInt(node.key());
             final String reason = node.node("reason").getString();
             if (id == null || reason == null) continue;
-            final CoWarning warning = new CoWarning(id, node.node("user").getLong(), reason, node.node("moderator").getLong());
-            if (warning.getUser(jda) != null && warning.getModerator(jda) != null) warnings.add(warning);
+            final CoWarning warning = new CoWarning(jda, id, node.node("user").getLong(), reason, node.node("moderator").getLong());
+            if (warning.getUser() != null && warning.getModerator() != null) warnings.add(warning);
         }
 
         // superBans
@@ -50,7 +50,7 @@ public class CoGlobal {
             final Long id = CoMapper.toLong(node.key());
             final String reason = node.node("reason").getString();
             if (id == null || reason == null) continue;
-            final CoSuperBan superBan = new CoSuperBan(id, reason, node.node("time").getLong(), node.node("moderator").getLong());
+            final CoSuperBan superBan = new CoSuperBan(jda, id, reason, node.node("time").getLong(), node.node("moderator").getLong());
             if (!superBan.isExpired()) superBans.add(superBan);
         }
 
@@ -59,8 +59,8 @@ public class CoGlobal {
             final Integer id = CoMapper.toInt(node.key());
             final String questionText = node.node("question").getString();
             if (id == null || questionText == null) continue;
-            final CoQuestion question = new CoQuestion(id, questionText, node.node("user").getLong(), node.node("used").getInt());
-            if (question.getUser(jda) != null) qotds.add(question);
+            final CoQuestion question = new CoQuestion(jda, id, questionText, node.node("user").getLong(), node.node("used").getInt());
+            if (question.getUser() != null) qotds.add(question);
         }
 
         // qotdCount

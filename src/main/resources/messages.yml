@@ -1,0 +1,142 @@
+# --- EXAMPLE EMBED --- #
+# Not all values are required
+embed:
+  # The type of embed (INFO, SUCCESS, WARNING, ERROR, NONE)
+  # Default: INFO
+  type: INFO
+  # The color of the embed
+  color: "#ff0000"
+  # The author of the embed
+  author:
+    # The name of the author
+    name: "Example"
+    # The url of the author
+    url: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+    # The icon of the author
+    icon: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+  # The title of the embed
+  title:
+    # The text of the title
+    text: "%type%Example"
+    # The url of the title
+    url: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+  # The description of the embed
+  description: "This is an example embed"
+  # The fields of the embed
+  fields:
+    # The first field
+    - name: "Example"
+      value: "This is an example field"
+      inline: true
+    # The second field
+    - name: "Example"
+      value: "This is an example field"
+      inline: true
+    # The third field
+    - name: "Example"
+      value: "This is an example field"
+      inline: true
+  # The thumbnail of the embed
+  thumbnail: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+  # The image of the embed
+  image: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+  # The footer of the embed
+  footer:
+    # The text of the footer
+    text: "This is an example footer"
+    # The icon of the footer
+    icon: "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png"
+  # The timestamp of the embed (in milliseconds)
+  timestamp: 123456789
+# --- END EXAMPLE EMBED --- #
+
+
+
+super:
+  ban: # EMBED %guild%, %reason%, %duration%, %moderator%
+    title:
+      text: "%type%You're banned from all Venox servers"
+    description: "You can't join `%guild%` because you're banned from *all* **Venox servers**"
+    fields:
+      - name: "Reason"
+        value: "%reason%"
+        inline: true
+      - name: "Time Left"
+        value: "%timeleft%"
+        inline: true
+      - name: "Moderator"
+        value: "%moderator%"
+        inline: true
+
+
+command:
+  help: # EMBED
+    title:
+      text: "%type%Help"
+
+  invite: # EMBED | %invite%
+    title:
+      text: "%type%Bot invite"
+    description: "%invite%"
+
+  list-servers: # EMBED
+    title:
+      text: "%type%%object% servers"
+
+  qotd:
+    add:
+      success: # EMBED | %questions%
+        type: SUCCESS
+        title:
+          text: "%type%Question(s) added"
+        description: "%questions%"
+
+  super:
+    ban:
+      success: # EMBED | %username%, %mention%, %reason%, %duration%
+        type: SUCCESS
+        title:
+          text: "%type%Banned %username% from all Venox servers"
+        fields:
+          - name: "User"
+            value: "%mention%"
+            inline: true
+          - name: "Reason"
+            value: "%reason%"
+            inline: true
+          - name: "Duration"
+            value: "%duration%"
+            inline: true
+
+      already: # EMBED | %username%, %mention%, %reason%, %timeleft%, %moderator%
+        type: ERROR
+        title:
+          text: "%type%%username% already super-banned"
+        fields:
+          - name: "User"
+            value: "%mention%"
+            inline: true
+          - name: "Reason"
+            value: "%reason%"
+            inline: true
+          - name: "Time Left"
+            value: "%timeleft%"
+            inline: true
+          - name: "Moderator"
+            value: "%moderator%"
+            inline: true
+
+      user: # EMBED | %reason%, %duration%, %moderator%
+        title:
+          text: "%type%You've been super-banned!"
+        description: "You have been super-banned from Venox Network, meaning you can't join any Venox servers."
+        fields:
+          - name: "Reason"
+            value: "%reason%"
+            inline: true
+          - name: "Duration"
+            value: "%duration%"
+            inline: true
+          - name: "Moderator"
+            value: "%moderator%"
+            inline: true

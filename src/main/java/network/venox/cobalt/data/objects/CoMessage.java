@@ -1,6 +1,7 @@
 package network.venox.cobalt.data.objects;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
 import network.venox.cobalt.data.CoObject;
@@ -43,6 +44,13 @@ public class CoMessage implements CoObject {
     public CoMessage addEmbeds(@NotNull List<CoEmbed> embeds) {
         this.embeds.addAll(embeds);
         return this;
+    }
+
+    @NotNull
+    public List<MessageEmbed> getBuiltEmbeds() {
+        return embeds.stream()
+                .map(CoEmbed::build)
+                .toList();
     }
 
     @NotNull
