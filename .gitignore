@@ -6,6 +6,7 @@
 build/
 
 # Bot
+/data/*
+/logs/*
 /config.yml
 /messages.yml
-/data/*
