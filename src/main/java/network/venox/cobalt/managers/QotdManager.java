@@ -2,6 +2,7 @@ package network.venox.cobalt.managers;
 
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.data.CoGuild;
@@ -37,7 +38,7 @@ public class QotdManager {
         if (question == null) return;
         final int count = cobalt.data.global.qotdCount;
         for (final CoGuild guild: cobalt.data.guilds) {
-            final TextChannel qotdChannel = guild.getQotdChannel();
+            final StandardGuildMessageChannel qotdChannel = guild.getQotdChannel();
             if (qotdChannel != null) question.send(count, qotdChannel, guild.getQotdRole());
         }
         question.used++;

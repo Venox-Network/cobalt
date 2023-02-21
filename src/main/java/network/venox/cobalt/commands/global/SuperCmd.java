@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.global;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -48,6 +48,10 @@ public class SuperCmd extends ApplicationCommand {
                           @AppOption(description = "The ID of the user to ban", autocomplete = AC_BAN_USER) @NotNull String user,
                           @AppOption(description = "The reason for the ban") @NotNull String reason,
                           @AppOption(description = "Duration of the ban. If empty, ban is permanent") @Nullable String duration) {
+        if (user.equals(event.getJDA().getSelfUser().getId())) {
+            event.reply("I can't ban myself!").setEphemeral(true).queue();
+            return;
+        }
         final User userJda = CoUtilities.getUser(event, user);
         if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
 
@@ -84,7 +88,7 @@ public class SuperCmd extends ApplicationCommand {
         // Buttons
         final Long finalDurationLong = durationLong;
         final Button yesButton = Components.successButton(buttonEvent -> ban(buttonEvent, user, reason, finalDurationLong, durationString)).build("Yes");
-        final Button noButton = Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").queue(message -> message.editOriginalComponents(List.of()).queue())).build("No");
+        final Button noButton = Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No");
 
         // Confirmation message
         event.reply("Are you sure you want to **superban** " + userJda.getAsMention() + "?\nThis will ban them from **all** Venox Network servers!")
@@ -98,24 +102,23 @@ public class SuperCmd extends ApplicationCommand {
             subcommand = "kick",
             description = "Kicks the specified user from all Venox servers")
     public void kickCommand(@NotNull GlobalSlashEvent event,
-                          @AppOption(description = "The ID of the user to kick") @NotNull String user,
+                          @AppOption(description = "The ID of the user to kick", autocomplete = AC_BAN_USER) @NotNull String user,
                           @AppOption(description = "The reason for the kick") @NotNull String reason) {
+        if (user.equals(event.getJDA().getSelfUser().getId())) {
+            event.reply("I can't kick myself!").setEphemeral(true).queue();
+            return;
+        }
         final User userJda = CoUtilities.getUser(event, user);
         if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
 
-        // Send message to user
-        userJda.openPrivateChannel()
-                .flatMap(channel -> channel.sendMessage("You have been kicked from all Venox Network servers for the following reason:\n> " + reason))
-                .queue(s -> {}, f -> {});
+        // Buttons
+        final Button yesButton = Components.successButton(buttonEvent -> kick(buttonEvent, user, reason)).build("Yes");
+        final Button noButton = Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No");
 
-        // Kick user from all guilds
-        for (final Guild guild : event.getJDA().getGuilds()) guild.kick(userJda).reason(reason).queue(s -> {}, f -> {});
-
-        // Reply
-        event.reply("Kicked " + userJda.getAsMention() + " from all Venox Network servers").setEphemeral(true).queue();
-
-        // Log
-        cobalt.config.sendLog("superkick", "**User:** " + userJda.getAsMention() + "\n**Reason:** " + reason + "\n**Moderator:** " + event.getUser().getAsMention());
+        // Confirmation message
+        event.reply("Are you sure you want to **superkick** " + userJda.getAsMention() + "?\nThis will kick them from **all** Venox Network servers!")
+                .addActionRow(yesButton, noButton)
+                .setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -202,5 +205,26 @@ public class SuperCmd extends ApplicationCommand {
 
         // Ban user
         superBan.ban();
+    }
+
+    private void kick(@NotNull ButtonEvent event, @NotNull String user, @NotNull String reason) {
+        final User userJda = event.getJDA().getUserById(user);
+        if (userJda == null) return;
+
+        // Send message to moderator
+        event.editMessage("Kicked " + userJda.getAsMention() + " from **all** Venox Network servers")
+                .setComponents(List.of())
+                .queue();
+
+        // Send message to user
+        userJda.openPrivateChannel()
+                .flatMap(channel -> channel.sendMessage("You have been kicked from **all** Venox Network servers by " + event.getUser().getAsMention() + " for the following reason:\n> " + reason))
+                .queue(s -> {}, f -> {});
+
+        // Kick user from all guilds
+        for (final Guild guild : event.getJDA().getGuilds()) guild.kick(userJda).reason(reason).queue(s -> {}, f -> {});
+
+        // Log
+        cobalt.config.sendLog("superkick", "**User:** " + userJda.getAsMention() + "\n**Reason:** " + reason + "\n**Moderator:** " + event.getUser().getAsMention());
     }
 }

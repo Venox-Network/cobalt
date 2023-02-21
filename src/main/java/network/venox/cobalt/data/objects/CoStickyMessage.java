@@ -19,14 +19,15 @@ import java.util.concurrent.TimeUnit;
 
 
 public class CoStickyMessage implements CoObject {
+    @NotNull private final Cobalt cobalt;
+
     public final long channel;
-    @NotNull
-    public CoMessage message;
-    @Nullable
-    public Long current;
+    @NotNull public CoMessage message;
+    @Nullable public Long current;
     @Nullable private ScheduledFuture<?> future;
 
-    public CoStickyMessage(long channel, @NotNull CoMessage message, @Nullable Long current) {
+    public CoStickyMessage(@NotNull Cobalt cobalt, long channel, @NotNull CoMessage message, @Nullable Long current) {
+        this.cobalt = cobalt;
         this.channel = channel;
         this.message = message;
         this.current = current;
@@ -72,7 +73,7 @@ public class CoStickyMessage implements CoObject {
                         .orElse(null));
     }
 
-    public void send(@NotNull Cobalt cobalt, @NotNull Guild guild) {
+    public void send(@NotNull Guild guild) {
         final TextChannel textChannel = getChannel(guild);
         if (textChannel == null) return;
 

@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.global;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -51,7 +51,9 @@ public class ServersCmd extends ApplicationCommand {
         // Send embed
         final CoEmbed embed = cobalt.messages.getEmbed("command", "list-servers")
                 .replace("%object%", object);
-        guilds.forEach(guild -> embed.addField(guild.getName(), "`" + guild.getId() + "`", true));
+        guilds.stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getMemberCount(), o1.getMemberCount()))
+                .forEach(guild -> embed.addField(guild.getName(), "**ID:** `" + guild.getId() + "`\n**Members:** " + guild.getMemberCount(), true));
         event.replyEmbeds(embed.build()).setEphemeral(true).queue();
     }
 

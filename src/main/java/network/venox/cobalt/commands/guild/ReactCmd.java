@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.guild;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;

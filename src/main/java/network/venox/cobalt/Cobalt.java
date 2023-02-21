@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -19,6 +18,7 @@ import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.listeners.GuildMemberListener;
 import network.venox.cobalt.listeners.GuildMemberUpdateListener;
 import network.venox.cobalt.listeners.MessageListener;
+import network.venox.cobalt.listeners.UserListener;
 import network.venox.cobalt.managers.QotdManager;
 
 import org.jetbrains.annotations.Contract;
@@ -32,7 +32,6 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -74,14 +73,15 @@ public class Cobalt {
         }
 
         // Load data
-        data = new CoData(jda);
+        data = new CoData(this);
 
         // Run Member loop
         for (final Guild guild : jda.getGuilds()) {
-            final List<Member> members = guild.loadMembers().get();
-            userCount += members.size();
             final CoGuild coGuild = data.getGuild(guild);
-            members.forEach(member -> coGuild.checkMemberNickname(member, null));
+            guild.loadMembers().onSuccess(members -> {
+                userCount += members.size();
+                members.forEach(member -> coGuild.checkMemberNickname(member, coGuild.nicknameBlacklist));
+            });
         }
 
         // Load config stuff that needs JDA
@@ -121,7 +121,8 @@ public class Cobalt {
         jda.addEventListener(
                 new GuildMemberListener(this),
                 new GuildMemberUpdateListener(this),
-                new MessageListener(this));
+                new MessageListener(this),
+                new UserListener(this));
 
         // Presence (status)
         if (data.global.activity != null) {

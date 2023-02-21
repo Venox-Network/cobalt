@@ -3,8 +3,8 @@ package network.venox.cobalt.data.objects;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import network.venox.cobalt.data.CoObject;
 
@@ -32,8 +32,7 @@ public class CoQuestion implements CoObject {
         this.used = used;
     }
 
-    @NotNull
-    @Override
+    @Override @NotNull
     public Map<String, Object> toMap() {
         final Map<String, Object> map = new HashMap<>();
         map.put("question", question);
@@ -47,7 +46,7 @@ public class CoQuestion implements CoObject {
         return jda.retrieveUserById(user).complete();
     }
 
-    public void send(int count, @NotNull TextChannel channel, @Nullable Role role) {
+    public void send(int count, @NotNull StandardGuildMessageChannel channel, @Nullable Role role) {
         // Get role
         String roleString = "";
         if (role != null) roleString = role.getAsMention() + " ";

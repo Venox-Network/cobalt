@@ -1,9 +1,9 @@
 package network.venox.cobalt.data;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 
+import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,19 +22,19 @@ import java.util.Set;
 
 
 public class CoData {
-    @NotNull private final JDA jda;
+    @NotNull private final Cobalt cobalt;
     public CoGlobal global;
     @NotNull public Set<CoGuild> guilds = new HashSet<>();
     @NotNull public Set<CoUser> users = new HashSet<>();
 
-    public CoData(@NotNull JDA jda) {
-        this.jda = jda;
+    public CoData(@NotNull Cobalt cobalt) {
+        this.cobalt = cobalt;
         load();
     }
 
     public void load() {
         // global
-        this.global = new CoGlobal(jda);
+        this.global = new CoGlobal(cobalt.jda);
 
         // guilds
         this.guilds = new HashSet<>();
@@ -43,7 +43,7 @@ public class CoData {
                 .map(file -> {
                     final Long id = CoMapper.toLong(file.getName().replace(".yml", ""));
                     if (id == null) return null;
-                    return new CoGuild(jda, id);
+                    return new CoGuild(cobalt, id);
                 })
                 .filter(Objects::nonNull)
                 .forEach(guilds::add);
@@ -55,7 +55,7 @@ public class CoData {
                 .map(file -> {
                     final Long id = CoMapper.toLong(file.getName().replace(".yml", ""));
                     if (id == null) return null;
-                    return new CoUser(jda, id);
+                    return new CoUser(cobalt.jda, id);
                 })
                 .filter(Objects::nonNull)
                 .forEach(users::add);
@@ -98,8 +98,8 @@ public class CoData {
     }
 
     @NotNull
-    public Set<CoGuild> getAllGuilds() {
-        jda.getGuilds().forEach(this::getGuild);
+    public Set<CoGuild> loadGuilds() {
+        cobalt.jda.getGuilds().forEach(this::getGuild);
         return guilds;
     }
 
@@ -114,7 +114,7 @@ public class CoData {
         if (coGuild != null) return coGuild;
 
         // Create new guild
-        final CoGuild newGuild = new CoGuild(guild);
+        final CoGuild newGuild = new CoGuild(cobalt, guild);
         guilds.add(newGuild);
         return newGuild;
     }

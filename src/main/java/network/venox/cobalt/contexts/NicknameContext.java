@@ -42,7 +42,10 @@ public class NicknameContext extends ApplicationCommand {
         }
 
         // Add nickname
-        guild.addNicknames(Collections.singleton(nickname));
+        guild.nicknameBlacklist.add(nickname);
+        guild.checkMemberNicknames(Collections.singleton(nickname));
+
+        // Reply
         event.reply("`" + nickname + "` has been **added** to the nickname blacklist").setEphemeral(true).queue();
     }
 }

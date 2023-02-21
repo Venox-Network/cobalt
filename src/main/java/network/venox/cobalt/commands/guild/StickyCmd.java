@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.guild;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -31,7 +31,7 @@ public class StickyCmd extends ApplicationCommand {
             scope = CommandScope.GUILD,
             name = "sticky",
             description = "Sticky a message to keep it as the last message in the current channel")
-    public void onCommand(@NotNull GuildSlashEvent event,
+    public void stickyCommand(@NotNull GuildSlashEvent event,
                           @AppOption(description = "The message to sticky. If empty, sticky will be removed") @Nullable String message) {
         final Guild guild = event.getGuild();
         final CoGuild coGuild = cobalt.data.getGuild(guild);
@@ -65,10 +65,10 @@ public class StickyCmd extends ApplicationCommand {
         // Set new sticky message
         channel.retrieveMessageById(messageId)
                 .queue(sentMessage -> {
-                    final CoStickyMessage stickyMessage = new CoStickyMessage(channel.getIdLong(), new CoMessage(sentMessage), null);
+                    final CoStickyMessage stickyMessage = new CoStickyMessage(cobalt, channel.getIdLong(), new CoMessage(sentMessage), null);
                     coGuild.stickyMessages.add(stickyMessage);
                     event.reply(sentMessage.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
-                    stickyMessage.send(cobalt, guild);
+                    stickyMessage.send(guild);
                 });
     }
 }

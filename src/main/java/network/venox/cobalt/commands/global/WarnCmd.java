@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.global;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -9,7 +9,6 @@ import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import com.freya02.botcommands.api.application.slash.autocomplete.annotations.AutocompletionHandler;
 
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -22,7 +21,6 @@ import network.venox.cobalt.utility.CoUtilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,9 +41,8 @@ public class WarnCmd extends ApplicationCommand {
     public void addCommand(@NotNull GlobalSlashEvent event,
                           @AppOption(description = "The user to add a warning to", autocomplete = AC_ADD_USER) @NotNull String user,
                           @AppOption(description = "The reason for the warning") @NotNull String reason) {
-        if (!cobalt.config.checkIsOwner(event)) return;
         final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null) return;
+        if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
         final User moderator = event.getUser();
 
         // Add warning

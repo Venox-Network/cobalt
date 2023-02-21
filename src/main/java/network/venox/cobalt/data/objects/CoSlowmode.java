@@ -19,20 +19,20 @@ import java.util.Set;
 
 
 public final class CoSlowmode implements CoObject {
-    public final long channelId;
+    public final long channel;
     public int minimum;
     public int maximum;
     @Nullable public Long lastCheck;
 
-    public CoSlowmode(long channelId, int minimum, int maximum) {
-        this.channelId = channelId;
+    public CoSlowmode(long channel, int minimum, int maximum) {
+        this.channel = channel;
         this.minimum = minimum;
         this.maximum = maximum;
     }
 
     @Nullable
     public TextChannel getChannel(@NotNull Guild guild) {
-        return guild.getTextChannelById(channelId);
+        return guild.getTextChannelById(channel);
     }
 
     @Override @NotNull @Contract(" -> new")

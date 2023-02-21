@@ -20,8 +20,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 
 import network.venox.cobalt.Cobalt;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -180,11 +183,47 @@ public class QotdCmd extends ApplicationCommand {
             }
         }
 
-        // Send questions
-        event.reply(questions.stream()
-                        .map(question -> "**" + question.id + ":** " + question.question)
-                        .collect(Collectors.joining("\n")))
-                .queue();
+        // Build messages
+        final List<String> messages = new ArrayList<>();
+        final StringBuilder stringBuilder = new StringBuilder();
+        for (final CoQuestion question : questions) {
+            final String line = "**" + question.id + ":** " + question.question;
+            if (stringBuilder.length() + line.length() > 2000) {
+                messages.add(stringBuilder.toString());
+                stringBuilder.setLength(0);
+            }
+            stringBuilder.append(line).append("\n");
+        }
+        messages.add(stringBuilder.toString());
+        final int size = messages.size();
+
+        // Get buttons
+        final AtomicInteger currentPage = new AtomicInteger();
+        final Button previousButton = Components.primaryButton(buttonEvent -> {
+            final int index = currentPage.get() - 1;
+            // Check index
+            if (index < 0) {
+                buttonEvent.deferEdit().queue();
+                return;
+            }
+            // Edit message
+            buttonEvent.editMessage(messages.get(index)).queue();
+            currentPage.set(index);
+        }).build(Emoji.fromUnicode("U+2B05"));
+        final Button nextButton = Components.primaryButton(buttonEvent -> {
+            final int index = currentPage.get() + 1;
+            // Check index
+            if (index >= size) {
+                buttonEvent.deferEdit().queue();
+                return;
+            }
+            // Edit message
+            buttonEvent.editMessage(messages.get(index)).queue();
+            currentPage.set(index);
+        }).build(Emoji.fromUnicode("U+27A1"));
+
+        // Send initial message with buttons
+        event.reply(messages.get(0)).setEphemeral(true).addActionRow(previousButton, nextButton).queue();
     }
 
     @JDASlashCommand(

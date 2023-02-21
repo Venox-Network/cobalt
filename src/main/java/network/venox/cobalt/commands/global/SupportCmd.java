@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.global;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -13,17 +13,15 @@ import org.jetbrains.annotations.NotNull;
 
 
 @CommandMarker
-public class ReloadCmd extends ApplicationCommand {
+public class SupportCmd extends ApplicationCommand {
     @Dependency private Cobalt cobalt;
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
-            name = "reload",
-            description = "Saves the bots data and reloads it")
+            name = "support",
+            description = "Get the invite to Cobalt's support server")
     public void onCommand(@NotNull GlobalSlashEvent event) {
-        if (!cobalt.config.checkIsOwner(event)) return;
-        cobalt.data.save();
-        cobalt.data.load();
-        event.reply("Data reloaded!").setEphemeral(true).queue();
+        final String supportServer = cobalt.config.guildInvite;
+        if (supportServer != null) event.reply(supportServer).setEphemeral(true).queue();
     }
 }

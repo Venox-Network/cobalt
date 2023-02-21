@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands;
+package network.venox.cobalt.commands.guild;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -11,6 +11,7 @@ import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand
 import com.freya02.botcommands.api.application.slash.annotations.LongRange;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.attribute.ISlowmodeChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
@@ -31,8 +32,8 @@ public class SlowmodeCmd extends ApplicationCommand {
             description = "Manage the dynamic slowmode of a channel")
     public void slowmodeCommand(@NotNull GuildSlashEvent event,
                           @AppOption(description = "The channel to manage slowmode for") @Nullable TextChannel channel,
-                          @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = 21600) @Nullable Integer minimum,
-                          @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = 21600) @Nullable Integer maximum) {
+                          @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer minimum,
+                          @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
         if (channel == null) channel = event.getChannel().asTextChannel();
         final CoGuild guild = cobalt.data.getGuild(event.getGuild());
         final CoSlowmode current = guild.getSlowmode(channel.getIdLong());

@@ -32,9 +32,9 @@ public class StickyContext extends ApplicationCommand {
     public void stickyContext(@NotNull GuildMessageEvent event) {
         final MessageChannelUnion channelUnion = event.getChannel();
         if (channelUnion == null) return;
+        final TextChannel channel = channelUnion.asTextChannel();
         final Guild guild = event.getGuild();
         final CoGuild coGuild = cobalt.data.getGuild(guild);
-        final TextChannel channel = channelUnion.asTextChannel();
         final Message message = event.getTarget();
 
         CoStickyMessage stickyMessage = coGuild.getStickyMessage(channel.getIdLong());
@@ -45,12 +45,12 @@ public class StickyContext extends ApplicationCommand {
             stickyMessage.current = message.getIdLong();
         } else {
             // Set new sticky message
-            stickyMessage = new CoStickyMessage(channel.getIdLong(), new CoMessage(message), null);
+            stickyMessage = new CoStickyMessage(cobalt, channel.getIdLong(), new CoMessage(message), null);
             coGuild.stickyMessages.add(stickyMessage);
         }
 
         // Send & reply
-        stickyMessage.send(cobalt, guild);
+        stickyMessage.send(guild);
         event.reply(message.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
     }
 }
