@@ -30,6 +30,16 @@ public final class CoThreadChannel implements CoObject {
         this.ignoredRoles = ignoredRoles == null ? Set.of() : ignoredRoles;
     }
 
+    @Override @NotNull
+    public Map<String, Object> toMap() {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("count", count);
+        map.put("ignoredPhrases", new ArrayList<>(ignoredPhrases));
+        map.put("ignoredRoles", new ArrayList<>(ignoredRoles));
+        return map;
+    }
+
     @Nullable
     public StandardGuildMessageChannel getChannel(@NotNull Guild guild) {
         return guild.getChannelById(StandardGuildMessageChannel.class, channel);
@@ -56,16 +66,6 @@ public final class CoThreadChannel implements CoObject {
         // Limit to 100 characters
         if (threadName.length() > 100) threadName = threadName.substring(0, 97) + "...";
         return threadName;
-    }
-
-    @Override @NotNull
-    public Map<String, Object> toMap() {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("name", name);
-        map.put("count", count);
-        map.put("ignoredPhrases", new ArrayList<>(ignoredPhrases));
-        map.put("ignoredRoles", new ArrayList<>(ignoredRoles));
-        return map;
     }
 
     public void createThread(@NotNull Message message) {

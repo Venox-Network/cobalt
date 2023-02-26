@@ -42,7 +42,7 @@ public class CoGlobal {
             final String reason = node.node("reason").getString();
             if (id == null || reason == null) continue;
             final CoWarning warning = new CoWarning(jda, id, node.node("user").getLong(), reason, node.node("moderator").getLong());
-            if (warning.getUser() != null && warning.getModerator() != null) warnings.add(warning);
+            if (warning.getUser().complete() != null && warning.getModerator().complete() != null) warnings.add(warning);
         }
 
         // superBans
@@ -60,7 +60,7 @@ public class CoGlobal {
             final String questionText = node.node("question").getString();
             if (id == null || questionText == null) continue;
             final CoQuestion question = new CoQuestion(jda, id, questionText, node.node("user").getLong(), node.node("used").getInt());
-            if (question.getUser() != null) qotds.add(question);
+            question.getUser().queue(s -> qotds.add(question), f -> {});
         }
 
         // qotdCount

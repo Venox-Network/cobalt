@@ -5,13 +5,14 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 
 import network.venox.cobalt.data.CoObject;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -25,34 +26,32 @@ public class CoQuestion implements CoObject {
 
     public CoQuestion(@NotNull JDA jda, int id, @NotNull String question, long user, int used) {
         this.jda = jda;
-
         this.id = id;
         this.question = question;
         this.user = user;
         this.used = used;
     }
 
-    @Override @NotNull
+    @Override @NotNull @Contract(" -> new")
     public Map<String, Object> toMap() {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("question", question);
-        map.put("user", user);
-        map.put("used", used);
-        return map;
+        return Map.of(
+                "question", question,
+                "user", user,
+                "used", used);
     }
 
-    @Nullable
-    public User getUser() {
-        return jda.retrieveUserById(user).complete();
+    @NotNull
+    public CacheRestAction<User> getUser() {
+        return jda.retrieveUserById(user);
     }
 
     public void send(int count, @NotNull StandardGuildMessageChannel channel, @Nullable Role role) {
-        // Get role
+        // Get roleString
         String roleString = "";
-        if (role != null) roleString = role.getAsMention() + " ";
+        if (role != null) roleString = role.getAsMention();
 
         // Send message
-        channel.sendMessage(roleString + "**QOTD #" + count + ":** " + question + "\n*You can also answer in your server's general chat by prefixing " + channel.getAsMention() + " to your message*")
+        channel.sendMessage("**QOTD #" + count + ":** " + question + " " + roleString + "\n*You can also answer in your server's general chat by prefixing " + channel.getAsMention() + " to your message*")
                 .flatMap(message -> message.createThreadChannel(count + ": " + question)
                         .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.TIME_24_HOURS))
                 .queue();

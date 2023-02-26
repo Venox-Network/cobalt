@@ -1,14 +1,20 @@
 package network.venox.cobalt.listeners;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.commands.global.EmbedCmd;
 import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.data.CoUser;
 import network.venox.cobalt.data.objects.*;
@@ -16,6 +22,8 @@ import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Set;
@@ -29,12 +37,81 @@ public class MessageListener extends CoListener {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        final GuildMessageChannel channel = CoMapper.handleException(() -> event.getChannel().asGuildMessageChannel());
         final User author = event.getAuthor();
-        if (channel == null || author.isBot()) return;
+        final long authorId = author.getIdLong();
+        if (author.isBot()) return;
+        final MessageChannelUnion channelUnion = event.getChannel();
+
+        // DM
+        if (channelUnion.getType().equals(ChannelType.PRIVATE)) {
+            // Embed
+            final EmbedCmd.Data data = cobalt.embedBuilders.get(authorId);
+            if (data == null || data.parameter == null) return;
+            final PrivateChannel channel = channelUnion.asPrivateChannel();
+            final String value = event.getMessage().getContentRaw();
+            data.getEmbedMessage(channel).queue(message -> {
+                final EmbedBuilder builder = new EmbedBuilder(message.getEmbeds().get(0));
+                switch (data.parameter) {
+                    case "color" -> builder.setColor(Color.decode(value));
+                    case "author" -> {
+                        final String[] split = value.split("==", 2);
+                        builder.setAuthor(split[0], split.length > 1 ? split[1] : null);
+                    }
+                    case "title" -> {
+                        final String[] split = value.split("==", 2);
+                        builder.setTitle(split[0], split.length > 1 ? split[1] : null);
+                    }
+                    case "description" -> builder.setDescription(value);
+                    case "field" -> {
+                        final String[] split = value.split("==", 3);
+                        if (split.length < 2) {
+                            channel.sendMessage("Invalid field format, please use `name||value` or `name||value||inline`").queue();
+                            return;
+                        }
+                        builder.addField(split[0], split[1], split.length > 2 && Boolean.parseBoolean(split[2]));
+                    }
+                    case "thumbnail" -> builder.setThumbnail(value);
+                    case "image" -> builder.setImage(value);
+                    case "footer" -> {
+                        final String[] split = value.split("==", 2);
+                        builder.setFooter(split[0], split.length > 1 ? split[1] : null);
+                    }
+                    case "timestamp" -> {
+                        if (value.equals("now")) {
+                            builder.setTimestamp(OffsetDateTime.now());
+                        } else {
+                            final Long timestamp = CoMapper.toLong(value);
+                            if (timestamp == null) {
+                                channel.sendMessage("Invalid timestamp, please use a valid epoch timestamp").queue();
+                                return;
+                            }
+                            builder.setTimestamp(Instant.ofEpochMilli(timestamp));
+                        }
+                    }
+                    default -> channel.sendMessage("Unknown parameter `" + data.parameter + "`").queue();
+                }
+
+                // Send new embed
+                channel.sendMessageEmbeds(builder.build())
+                        .addActionRow(EmbedCmd.selectMenu())
+                        .addActionRow(EmbedCmd.getButtons(cobalt, author, data.channel))
+                        .queue(newMessage -> data.embedMessage = newMessage.getIdLong());
+
+                // Delete old messages
+                message.delete().queue();
+                final InteractionHook hook = data.parameterHook;
+                if (hook != null) hook.deleteOriginal().queue();
+            });
+            return;
+        }
+
+        // Guild
+        final Member member = event.getMember();
+        if (member == null) return;
         final Guild guild = event.getGuild();
         final CoGuild coGuild = cobalt.data.getGuild(guild);
-        final long channelId = channel.getIdLong();
+        final GuildMessageChannel guildChannel = event.getGuildChannel();
+        final long channelId = guildChannel.getIdLong();
         final Message message = event.getMessage();
         final MessageType type = message.getType();
 
@@ -57,7 +134,7 @@ public class MessageListener extends CoListener {
         if (stickyMessage != null) stickyMessage.send(guild);
 
         // Slowmode
-        if (channel instanceof TextChannel text) {
+        if (guildChannel instanceof TextChannel text) {
             final CoSlowmode slowmode = coGuild.getSlowmode(channelId);
             if (slowmode != null) slowmode.setSlowmode(text);
         }
@@ -66,15 +143,20 @@ public class MessageListener extends CoListener {
         final CoLimitedMessages limitedMessages = coGuild.getLimitedMessages(channelId);
         if (limitedMessages != null) limitedMessages.processMessage(message);
 
+        // Auto delete
+        final Set<Long> autoDelete = coGuild.autoDeletes.get(channelId);
+        if (autoDelete != null && member.getRoles().stream()
+                .map(Role::getIdLong)
+                .noneMatch(autoDelete::contains)) message.delete().queue();
+
         // Highlights
-        final long authorId = author.getIdLong();
         final Set<String> words = Arrays.stream(message.getContentRaw().split(" "))
                 .map(word -> word.toLowerCase().trim())
                 .collect(Collectors.toSet());
         for (final CoUser user : cobalt.data.users) {
             if (user.userId == authorId) continue;
-            final Member member = guild.getMemberById(user.userId);
-            if (member == null || !member.hasPermission(channel, Permission.MESSAGE_HISTORY) || memberTalkedRecently(member, channel)) continue;
+            final Member coMember = guild.getMemberById(user.userId);
+            if (coMember == null || !coMember.hasPermission(guildChannel, Permission.MESSAGE_HISTORY) || memberTalkedRecently(coMember, guildChannel)) continue;
             for (final String highlight : user.highlights) {
                 if (!words.contains(highlight)) continue;
                 user.sendHighlight(highlight, message);

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 
 import network.venox.cobalt.data.CoObject;
 
@@ -18,16 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 
 public record CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @Nullable Long time, long moderator) implements CoObject {
-    @Nullable
-    public User getUser() {
-        return jda.retrieveUserById(user).complete();
-    }
-
-    @Nullable
-    public User getModerator() {
-        return jda.retrieveUserById(moderator).complete();
-    }
-
     @Override @NotNull
     public Map<String, Object> toMap() {
         final Map<String, Object> map = new HashMap<>();
@@ -35,6 +26,16 @@ public record CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @N
         map.put("time", time);
         map.put("moderator", moderator);
         return map;
+    }
+
+    @NotNull
+    public CacheRestAction<User> getUser() {
+        return jda.retrieveUserById(user);
+    }
+
+    @NotNull
+    public CacheRestAction<User> getModerator() {
+        return jda.retrieveUserById(moderator);
     }
 
     public boolean isExpired() {
@@ -69,15 +70,17 @@ public record CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @N
     }
 
     public void ban() {
-        final User user = getUser();
-        if (user != null) for (final Guild guild : jda.getMutualGuilds(user)) {
-            final Member member = guild.getMember(user);
-            if (member != null && guild.getSelfMember().canInteract(member)) guild.ban(member, 1, TimeUnit.DAYS).reason(reason).queue(s -> {}, f -> {});
-        }
+        getUser().queue(user -> {
+            for (final Guild guild : jda.getMutualGuilds(user)) {
+                final Member member = guild.getMember(user);
+                if (member != null && guild.getSelfMember().canInteract(member)) guild.ban(member, 1, TimeUnit.DAYS).reason(reason).queue(s -> {}, f -> {});
+            }
+        }, f -> {});
     }
 
     public void unban() {
-        final User user = getUser();
-        if (user != null) for (final Guild guild : jda.getGuilds()) guild.unban(user).queue();
+        getUser().queue(user -> {
+            for (final Guild guild : jda.getGuilds()) guild.unban(user).queue();
+        }, f -> {});
     }
 }

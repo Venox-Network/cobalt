@@ -9,7 +9,9 @@ import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import com.freya02.botcommands.api.application.slash.autocomplete.annotations.AutocompletionHandler;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
@@ -41,24 +43,28 @@ public class WarnCmd extends ApplicationCommand {
     public void addCommand(@NotNull GlobalSlashEvent event,
                           @AppOption(description = "The user to add a warning to", autocomplete = AC_ADD_USER) @NotNull String user,
                           @AppOption(description = "The reason for the warning") @NotNull String reason) {
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
+        if (!cobalt.config.checkIsOwner(event)) return;
+        final UserSnowflake snowflake = CoUtilities.getUserSnowflake(event, user);
+        if (snowflake == null) return;
+        final JDA jda = event.getJDA();
+        final long id = snowflake.getIdLong();
         final User moderator = event.getUser();
 
         // Add warning
-        cobalt.data.global.warnings.add(new CoWarning(event.getJDA(), cobalt.data.global.getNextWarningId(), userJda.getIdLong(), reason, moderator.getIdLong()));
-        final int count = cobalt.data.global.getWarnings(userJda.getIdLong()).size();
+        cobalt.data.global.warnings.add(new CoWarning(jda, cobalt.data.global.getNextWarningId(), id, reason, moderator.getIdLong()));
+        final int count = cobalt.data.global.getWarnings(id).size();
 
         // Reply
-        event.reply("**Warned " + userJda.getAsMention() + " for:**\n> " + reason + "\nThey now have **" + count + "** global warning(s)!").setEphemeral(true).queue();
-
-        // DM user
-        userJda.openPrivateChannel()
-                .flatMap(channel -> channel.sendMessage("**You have been globally warned in Venox Network for:**\n> " + reason + "\nYou now have **" + count + "** global warning(s)!"))
-                .queue();
+        event.reply("**Warned " + snowflake.getAsMention() + " for:**\n> " + reason + "\nThey now have **" + count + "** global warning(s)!").setEphemeral(true).queue();
 
         // Log
-        cobalt.config.sendLog("add warning", "**User:**" + userJda.getAsMention() + "\n**Reason:**" + reason + "\n**Moderator:**" + moderator.getAsMention() + "\n**Warnings:**" + count);
+        cobalt.config.sendLog("add warning", "**User:**" + snowflake.getAsMention() + "\n**Reason:**" + reason + "\n**Moderator:**" + moderator.getAsMention() + "\n**Warnings:**" + count);
+
+        // DM user
+        jda.retrieveUserById(id)
+                .flatMap(User::openPrivateChannel)
+                .flatMap(channel -> channel.sendMessage("**You have been globally warned in Venox Network for:**\n> " + reason + "\nYou now have **" + count + "** global warning(s)!"))
+                .queue();
     }
 
     @JDASlashCommand(
@@ -93,20 +99,21 @@ public class WarnCmd extends ApplicationCommand {
             }
 
             // Reply
-            final User warningUser = warning.getUser();
-            final User moderator = warning.getModerator();
-            if (warningUser != null && moderator != null) event.reply("**ID:** " + id + "\n**User:** " + warningUser.getAsMention() + "\n**Reason:** " + warning.reason() + "\n**Moderator:** " + moderator.getAsMention()).setEphemeral(true).queue();
+            warning.getUser()
+                    .flatMap(warningUser -> warning.getModerator()
+                            .flatMap(moderator -> event.reply("**ID:** " + id + "\n**User:** " + warningUser.getAsMention() + "\n**Reason:** " + warning.reason() + "\n**Moderator:** " + moderator.getAsMention()).setEphemeral(true)))
+                    .queue(s -> {}, f -> {});
             return;
         }
 
         // user
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null) return;
-        final List<CoWarning> warnings = getWarnings(event, userJda);
+        final UserSnowflake snowflake = CoUtilities.getUserSnowflake(event, user);
+        if (snowflake == null) return;
+        final List<CoWarning> warnings = getWarnings(event, snowflake);
         if (warnings == null) return;
 
         // Reply
-        event.reply(warningsToString(warnings, userJda)).setEphemeral(true).queue();
+        event.reply(warningsToString(warnings, snowflake)).setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -136,39 +143,39 @@ public class WarnCmd extends ApplicationCommand {
             cobalt.data.global.warnings.remove(warning);
 
             // Reply and log
-            final User warningUser = warning.getUser();
-            if (warningUser == null) return;
-            event.reply("Removed warning from **" + warningUser.getAsMention() + "**").setEphemeral(true).queue();
-            cobalt.config.sendLog("remove warning", "**ID:** " + warning.id() + "\n**User:** " + warningUser.getAsMention() + "\n**Reason:** " + warning.reason() + "\n**Moderator:** " + moderator);
+            warning.getUser().queue(warningUser -> {
+                event.reply("Removed warning from **" + warningUser.getAsMention() + "**").setEphemeral(true).queue();
+                cobalt.config.sendLog("remove warning", "**ID:** " + warning.id() + "\n**User:** " + warningUser.getAsMention() + "\n**Reason:** " + warning.reason() + "\n**Moderator:** " + moderator);
+            }, f -> {});
             return;
         }
 
         // user
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null) return;
-        final List<CoWarning> warnings = getWarnings(event, userJda);
+        final UserSnowflake snowflake = CoUtilities.getUserSnowflake(event, user);
+        if (snowflake == null) return;
+        final List<CoWarning> warnings = getWarnings(event, snowflake);
         if (warnings == null) return;
 
         // Remove warnings
         cobalt.data.global.warnings.removeAll(warnings);
 
         // Reply and log
-        event.reply("Removed **" + warnings.size() + "** warning(s) from **" + userJda.getAsTag() + "**").setEphemeral(true).queue();
-        cobalt.config.sendLog("remove warnings", "**User:** " + userJda.getAsMention() + "\n**Warnings:** " + warnings.size() + "\n**Moderator:** " + moderator);
+        event.reply("Removed **" + warnings.size() + "** warning(s) from " + snowflake.getAsMention()).setEphemeral(true).queue();
+        cobalt.config.sendLog("remove warnings", "**User:** " + snowflake.getAsMention() + "\n**Warnings:** " + warnings.size() + "\n**Moderator:** " + moderator);
     }
 
     @AutocompletionHandler(name = AC_ADD_USER) @NotNull
-    public List<Command.Choice> addUserAutoComplete(@NotNull CommandAutoCompleteInteractionEvent event) {
+    public List<Command.Choice> acAddUser(@NotNull CommandAutoCompleteInteractionEvent event) {
         if (!cobalt.config.isOwner(event.getUser())) return List.of();
         return CoUtilities.acGuildMembers(event);
     }
 
     @AutocompletionHandler(name = AC_LIST_USER) @NotNull
-    public List<Command.Choice> listRemoveUserAutoComplete(@NotNull CommandAutoCompleteInteractionEvent event) {
+    public List<Command.Choice> acListUser(@NotNull CommandAutoCompleteInteractionEvent event) {
         if (!cobalt.config.isOwner(event.getUser())) return List.of();
         return cobalt.data.global.warnings.stream()
                 .map(warning -> {
-                    final User user = warning.getUser();
+                    final User user = warning.getUser().complete();
                     if (user == null) return null;
                     return new Command.Choice(user.getAsTag(), user.getIdLong());
                 })
@@ -178,7 +185,7 @@ public class WarnCmd extends ApplicationCommand {
     }
 
     @AutocompletionHandler(name = AC_LIST_ID) @NotNull
-    public List<String> listRemoveIdAutoComplete(@NotNull CommandAutoCompleteInteractionEvent event,
+    public List<String> acListId(@NotNull CommandAutoCompleteInteractionEvent event,
                                                 @AppOption @Nullable String user) {
         if (!cobalt.config.isOwner(event.getUser())) return List.of();
         final Long userId = CoMapper.toLong(user);
@@ -190,8 +197,8 @@ public class WarnCmd extends ApplicationCommand {
     }
 
     @Nullable
-    private List<CoWarning> getWarnings(@NotNull GlobalSlashEvent event, @NotNull User user) {
-        final List<CoWarning> warnings = cobalt.data.global.getWarnings(user.getIdLong());
+    private List<CoWarning> getWarnings(@NotNull GlobalSlashEvent event, @NotNull UserSnowflake snowflake) {
+        final List<CoWarning> warnings = cobalt.data.global.getWarnings(snowflake.getIdLong());
         if (warnings.isEmpty()) {
             event.reply("No warnings found").setEphemeral(true).queue();
             return null;
@@ -200,11 +207,11 @@ public class WarnCmd extends ApplicationCommand {
     }
 
     @NotNull
-    private String warningsToString(@NotNull List<CoWarning> warnings, @Nullable User user) {
+    private String warningsToString(@NotNull List<CoWarning> warnings, @Nullable UserSnowflake snowflake) {
         final StringBuilder builder = new StringBuilder();
         for (final CoWarning warning : warnings) {
-            final User warningUser = user == null ? warning.getUser() : user;
-            final User moderator = warning.getModerator();
+            final UserSnowflake warningUser = snowflake == null ? CoMapper.toUserSnowflake(warning.user()) : snowflake;
+            final UserSnowflake moderator = CoMapper.toUserSnowflake(warning.moderator());
             if (warningUser != null && moderator != null) builder
                     .append("**ID:** ").append(warning.id())
                     .append("\n**User:** ").append(warningUser.getAsMention())

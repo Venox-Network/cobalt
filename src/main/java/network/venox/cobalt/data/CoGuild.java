@@ -3,6 +3,8 @@ package network.venox.cobalt.data;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import network.venox.cobalt.CoFile;
@@ -40,6 +42,8 @@ public class CoGuild {
     @NotNull public final Set<CoSlowmode> slowmodes = new HashSet<>();
     @NotNull public final Set<CoLimitedMessages> limitedMessages = new HashSet<>();
     @NotNull public final Map<Long, Set<String>> statusRoles = new HashMap<>();
+    @NotNull public final Map<Long, Set<Long>> autoDeletes = new HashMap<>();
+    @NotNull public final Map<Long, Set<Long>> voiceRoles = new HashMap<>();
 
     public CoGuild(@NotNull Cobalt cobalt, long guildId) {
         this.cobalt = cobalt;
@@ -166,6 +170,20 @@ public class CoGuild {
             final List<String> statusesList = node.getList(String.class);
             if (id != null && statusesList != null) statusRoles.put(id, new HashSet<>(statusesList));
         }
+
+        // autoDeletes
+        for (final ConfigurationNode node : file.yaml.node("auto-deletes").childrenMap().values()) {
+            final Long id = CoMapper.toLong(node.key());
+            final List<Long> rolesList = node.node("roles").getList(Long.class);
+            if (id != null && rolesList != null) autoDeletes.put(id, new HashSet<>(rolesList));
+        }
+
+        // voiceRoles
+        for (final ConfigurationNode node : file.yaml.node("voice-roles").childrenMap().values()) {
+            final Long id = CoMapper.toLong(node.key());
+            final List<Long> rolesList = node.node("roles").getList(Long.class);
+            if (id != null && rolesList != null) voiceRoles.put(id, new HashSet<>(rolesList));
+        }
     }
 
     public void save() throws SerializationException {
@@ -232,8 +250,23 @@ public class CoGuild {
         statusRolesNode.set(null);
         for (final Map.Entry<Long, Set<String>> entry : statusRoles.entrySet()) {
             final Long id = entry.getKey();
-            final Set<String> statuses = entry.getValue();
-            if (guild.getRoleById(id) != null && statuses != null) statusRolesNode.node(id).set(statuses);
+            if (guild.getRoleById(id) != null) statusRolesNode.node(id).set(new ArrayList<>(entry.getValue()));
+        }
+
+        // autoDeletes
+        final ConfigurationNode autoDeletesNode = file.yaml.node("auto-deletes");
+        autoDeletesNode.set(null);
+        for (final Map.Entry<Long, Set<Long>> entry : autoDeletes.entrySet()) {
+            final Long id = entry.getKey();
+            if (guild.getChannelById(GuildMessageChannel.class, id) != null) autoDeletesNode.node(id).set(new ArrayList<>(entry.getValue()));
+        }
+
+        // voiceRoles
+        final ConfigurationNode voiceRolesNode = file.yaml.node("voice-roles");
+        voiceRolesNode.set(null);
+        for (final Map.Entry<Long, Set<Long>> entry : voiceRoles.entrySet()) {
+            final Long id = entry.getKey();
+            if (guild.getChannelById(VoiceChannel.class, id) != null) voiceRolesNode.node(id).set(new ArrayList<>(entry.getValue()));
         }
 
         // SAVE FILE
@@ -313,6 +346,18 @@ public class CoGuild {
                 .filter(limitedMessage -> limitedMessage.channel == channelId)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Nullable
+    public Set<Role> getVoiceRoles(long channelId) {
+        final Set<Long> roleIds = voiceRoles.get(channelId);
+        if (roleIds == null) return null;
+        final Guild guild = getGuild();
+        if (guild == null) return null;
+        return roleIds.stream()
+                .map(guild::getRoleById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public void checkMemberNicknames(@Nullable Collection<String> nicknames) {

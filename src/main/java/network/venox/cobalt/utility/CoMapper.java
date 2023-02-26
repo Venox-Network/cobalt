@@ -1,5 +1,8 @@
 package network.venox.cobalt.utility;
 
+import net.dv8tion.jda.api.entities.UserSnowflake;
+import net.dv8tion.jda.api.utils.MiscUtil;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +26,19 @@ public class CoMapper {
     public static Long toLong(@Nullable Object object) {
         if (object == null) return null;
         return handleException(() -> Long.parseLong(object.toString()));
+    }
+
+    @Nullable
+    public static Long parseSnowflake(@NotNull Object object) {
+        return handleException(() -> MiscUtil.parseSnowflake(object.toString()));
+    }
+
+    @Nullable
+    public static UserSnowflake toUserSnowflake(@Nullable Object object) {
+        if (object == null) return null;
+        final Long snowflake = parseSnowflake(object);
+        if (snowflake == null) return null;
+        return handleException(() -> UserSnowflake.fromId(snowflake));
     }
 
     @Nullable

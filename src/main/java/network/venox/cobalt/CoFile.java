@@ -86,7 +86,8 @@ public class CoFile {
     }
 
     @NotNull
-    public CoEmbed getEmbed(@NotNull Object... path) {
-        return new CoEmbed(yaml.node(path));
+    public CoEmbed getEmbed(@NotNull String path) {
+        final Object[] split = path.split("\\.");
+        return new CoEmbed(yaml.node(split));
     }
 }

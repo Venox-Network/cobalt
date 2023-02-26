@@ -2,7 +2,6 @@ package network.venox.cobalt.listeners;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 import network.venox.cobalt.CoListener;
@@ -39,16 +38,16 @@ public class GuildMemberListener extends CoListener {
             }
 
             // Send embed and ban user
-            final User moderator = ban.getModerator();
-            member.getUser().openPrivateChannel()
-                    .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super", "ban")
-                            .replace("%guild%", guild.getName())
-                            .replace("%reason%", ban.reason())
-                            .replace("%timeleft%", ban.getTimeLeft())
-                            .replace("%moderator%", moderator != null ? moderator.getAsMention() : "N/A")
-                            .build()))
-                    .flatMap(message -> guild.ban(member, 1, TimeUnit.DAYS).reason(ban.reason()))
-                    .queue(s -> {}, f -> {});
+            ban.getModerator()
+                    .flatMap(moderate -> member.getUser().openPrivateChannel()
+                            .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super.ban")
+                                    .replace("%guild%", guild.getName())
+                                    .replace("%reason%", ban.reason())
+                                    .replace("%timeleft%", ban.getTimeLeft())
+                                    .replace("%moderator%", moderate.getAsMention())
+                                    .build()))
+                            .flatMap(message -> guild.ban(member, 1, TimeUnit.DAYS).reason(ban.reason())))
+                    .queue();
             return;
         }
 

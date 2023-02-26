@@ -14,13 +14,14 @@ import com.freya02.botcommands.api.components.event.ButtonEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.data.objects.CoEmbed;
 import network.venox.cobalt.data.objects.CoSuperBan;
+import network.venox.cobalt.utility.CoMapper;
 import network.venox.cobalt.utility.CoUtilities;
 import network.venox.cobalt.utility.DurationParser;
 
@@ -48,26 +49,27 @@ public class SuperCmd extends ApplicationCommand {
                           @AppOption(description = "The ID of the user to ban", autocomplete = AC_BAN_USER) @NotNull String user,
                           @AppOption(description = "The reason for the ban") @NotNull String reason,
                           @AppOption(description = "Duration of the ban. If empty, ban is permanent") @Nullable String duration) {
+        if (!cobalt.config.checkIsOwner(event)) return;
         if (user.equals(event.getJDA().getSelfUser().getId())) {
             event.reply("I can't ban myself!").setEphemeral(true).queue();
             return;
         }
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
+        final UserSnowflake snowflake = CoUtilities.getUserSnowflake(event, user);
+        if (snowflake == null) return;
 
         // Check if user is already banned
-        final CoSuperBan current = cobalt.data.global.getSuperBan(userJda.getIdLong());
+        final CoSuperBan current = cobalt.data.global.getSuperBan(snowflake.getIdLong());
         if (current != null) {
             if (!current.isExpired()) {
-                final User currentMod = current.getModerator();
-                if (currentMod != null) event.replyEmbeds(cobalt.messages.getEmbed("command", "super", "ban", "already")
+                current.getUser()
+                        .flatMap(userJda -> event.replyEmbeds(cobalt.messages.getEmbed("command.super.ban.already")
                                 .replace("%username%", userJda.getName())
                                 .replace("%mention%", userJda.getAsMention())
                                 .replace("%reason%", current.reason())
                                 .replace("%timeleft%", current.getTimeLeft())
-                                .replace("%moderator%", currentMod.getAsMention())
-                                .build())
-                        .setEphemeral(true).queue();
+                                .replace("%moderator%", "<@" + current.getModerator() + ">")
+                                .build()).setEphemeral(true))
+                        .queue();
                 return;
             }
             cobalt.data.global.superBans.remove(current);
@@ -85,14 +87,12 @@ public class SuperCmd extends ApplicationCommand {
             durationLong = System.currentTimeMillis() + newDuration.toMillis();
         }
 
-        // Buttons
-        final Long finalDurationLong = durationLong;
-        final Button yesButton = Components.successButton(buttonEvent -> ban(buttonEvent, user, reason, finalDurationLong, durationString)).build("Yes");
-        final Button noButton = Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No");
-
         // Confirmation message
-        event.reply("Are you sure you want to **superban** " + userJda.getAsMention() + "?\nThis will ban them from **all** Venox Network servers!")
-                .addActionRow(yesButton, noButton)
+        final Long finalDurationLong = durationLong;
+        event.reply("Are you sure you want to **superban** " + snowflake.getAsMention() + "?\nThis will ban them from **all** Venox Network servers!")
+                .addActionRow(
+                        Components.successButton(buttonEvent -> ban(buttonEvent, user, reason, finalDurationLong, durationString)).build("Yes"),
+                        Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No"))
                 .setEphemeral(true).queue();
     }
 
@@ -104,20 +104,19 @@ public class SuperCmd extends ApplicationCommand {
     public void kickCommand(@NotNull GlobalSlashEvent event,
                           @AppOption(description = "The ID of the user to kick", autocomplete = AC_BAN_USER) @NotNull String user,
                           @AppOption(description = "The reason for the kick") @NotNull String reason) {
+        if (!cobalt.config.checkIsOwner(event)) return;
         if (user.equals(event.getJDA().getSelfUser().getId())) {
             event.reply("I can't kick myself!").setEphemeral(true).queue();
             return;
         }
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
-
-        // Buttons
-        final Button yesButton = Components.successButton(buttonEvent -> kick(buttonEvent, user, reason)).build("Yes");
-        final Button noButton = Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No");
+        final UserSnowflake snowflake = CoUtilities.getUserSnowflake(event, user);
+        if (snowflake == null) return;
 
         // Confirmation message
-        event.reply("Are you sure you want to **superkick** " + userJda.getAsMention() + "?\nThis will kick them from **all** Venox Network servers!")
-                .addActionRow(yesButton, noButton)
+        event.reply("Are you sure you want to **superkick** " + snowflake.getAsMention() + "?\nThis will kick them from **all** Venox Network servers!")
+                .addActionRow(
+                        Components.successButton(buttonEvent -> kick(buttonEvent, user, reason)).build("Yes"),
+                        Components.dangerButton(buttonEvent -> buttonEvent.editMessage("Cancelled!").setComponents(List.of()).queue()).build("No"))
                 .setEphemeral(true).queue();
     }
 
@@ -128,13 +127,17 @@ public class SuperCmd extends ApplicationCommand {
             description = "Unbans the specified user from all Venox servers")
     public void unbanCommand(@NotNull GlobalSlashEvent event,
                           @AppOption(description = "The ID of the user to unban", autocomplete = AC_UNBAN_USER) @NotNull String user) {
-        final User userJda = CoUtilities.getUser(event, user);
-        if (userJda == null || !cobalt.config.checkIsOwner(event)) return;
+        if (!cobalt.config.checkIsOwner(event)) return;
+        final UserSnowflake snowflake = CoMapper.toUserSnowflake(user);
+        if (snowflake == null) {
+            event.replyEmbeds(CoEmbed.invalidArgument(user).build()).setEphemeral(true).queue();
+            return;
+        }
 
         // Get ban
-        final CoSuperBan ban = cobalt.data.global.getSuperBan(userJda.getIdLong());
+        final CoSuperBan ban = cobalt.data.global.getSuperBan(snowflake.getIdLong());
         if (ban == null) {
-            event.reply(userJda.getAsMention() + " is not super-banned!").setEphemeral(true).queue();
+            event.reply(snowflake.getAsMention() + " is not super-banned!").setEphemeral(true).queue();
             return;
         }
 
@@ -143,7 +146,7 @@ public class SuperCmd extends ApplicationCommand {
         ban.unban();
 
         // Reply
-        event.reply(userJda.getAsMention() + " has been unbanned from all Venox servers").setEphemeral(true).queue();
+        event.reply(snowflake + " has been unbanned from all Venox servers").setEphemeral(true).queue();
     }
 
     @AutocompletionHandler(name = AC_BAN_USER) @NotNull
@@ -157,7 +160,7 @@ public class SuperCmd extends ApplicationCommand {
         if (!cobalt.config.isOwner(event.getUser())) return List.of();
         return cobalt.data.global.superBans.stream()
                 .map(ban -> {
-                    final User user = ban.getUser();
+                    final User user = ban.getUser().complete();
                     if (user == null) return null;
                     return new Command.Choice(user.getAsTag(), user.getIdLong());
                 })
@@ -178,7 +181,7 @@ public class SuperCmd extends ApplicationCommand {
         cobalt.data.global.superBans.add(superBan);
 
         // Send message to moderator
-        event.editMessageEmbeds(cobalt.messages.getEmbed("command", "super", "ban", "success")
+        event.editMessageEmbeds(cobalt.messages.getEmbed("command.super.ban.success")
                         .replace("%username%", userJda.getName())
                         .replace("%mention%", userJda.getAsMention())
                         .replace("%reason%", reason)
@@ -190,7 +193,7 @@ public class SuperCmd extends ApplicationCommand {
 
         // Send message to user
         userJda.openPrivateChannel()
-                .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("command", "super", "ban", "user")
+                .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("command.super.ban.user")
                         .replace("%reason%", reason)
                         .replace("%duration%", durationString)
                         .replace("%moderator%", moderator.getAsMention())

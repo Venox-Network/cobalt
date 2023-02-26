@@ -9,16 +9,14 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.managers.Presence;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import network.venox.cobalt.commands.global.EmbedCmd;
 import network.venox.cobalt.data.CoData;
 import network.venox.cobalt.data.CoGuild;
-import network.venox.cobalt.listeners.GuildMemberListener;
-import network.venox.cobalt.listeners.GuildMemberUpdateListener;
-import network.venox.cobalt.listeners.MessageListener;
-import network.venox.cobalt.listeners.UserListener;
+import network.venox.cobalt.listeners.*;
 import network.venox.cobalt.managers.QotdManager;
 
 import org.jetbrains.annotations.Contract;
@@ -32,6 +30,8 @@ import org.spongepowered.configurate.yaml.NodeStyle;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
@@ -51,6 +51,7 @@ public class Cobalt {
     @NotNull private final Random random = new Random();
     @Nullable public ScheduledFuture<?> statusTask;
     public int userCount = 0;
+    @NotNull public final Map<Long, EmbedCmd.Data> embedBuilders = new HashMap<>();
 
     public Cobalt() {
         // Start bot
@@ -58,12 +59,13 @@ public class Cobalt {
             jda = JDABuilder.create(config.token,
                             GatewayIntent.SCHEDULED_EVENTS,
                             GatewayIntent.MESSAGE_CONTENT,
+                            GatewayIntent.DIRECT_MESSAGES,
                             GatewayIntent.GUILD_PRESENCES,
                             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                             GatewayIntent.GUILD_MEMBERS,
                             GatewayIntent.GUILD_MESSAGES,
-                            GatewayIntent.GUILD_MESSAGE_TYPING)
-                    .disableCache(CacheFlag.VOICE_STATE)
+                            GatewayIntent.GUILD_MESSAGE_TYPING,
+                            GatewayIntent.GUILD_VOICE_STATES)
                     .build().awaitReady();
         } catch (final InterruptedException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -121,6 +123,7 @@ public class Cobalt {
         jda.addEventListener(
                 new GuildMemberListener(this),
                 new GuildMemberUpdateListener(this),
+                new GuildVoiceListener(this),
                 new MessageListener(this),
                 new UserListener(this));
 
@@ -142,6 +145,10 @@ public class Cobalt {
             final Scanner scanner = new Scanner(System.in);
             while (scanner.hasNextLine()) {
                 if (!scanner.nextLine().equals("stop")) continue;
+                embedBuilders.values().forEach(builder -> {
+                    final InteractionHook hook = builder.parameterHook;
+                    if (hook != null) hook.deleteOriginal().complete();
+                });
                 data.save();
                 System.exit(0);
             }

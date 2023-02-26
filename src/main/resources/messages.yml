@@ -79,9 +79,10 @@ command:
       text: "%type%Bot invite"
     description: "%invite%"
 
-  list-servers: # EMBED
+  servers: # EMBED
     title:
-      text: "%type%%object% servers"
+      text: "%type%%entity% servers"
+    description: "**Total servers:** %guilds%\n**Total members:** %members%"
 
   qotd:
     add:

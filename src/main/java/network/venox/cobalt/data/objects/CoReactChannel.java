@@ -26,6 +26,14 @@ public class CoReactChannel implements CoObject {
         this.emojis = emojis;
     }
 
+    @Override @NotNull
+    public Map<String, Object> toMap() {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("channel", channel);
+        if (emojis != null) map.put("emojis", emojis);
+        return map;
+    }
+
     @Nullable
     public List<EmojiUnion> getEmojis() {
         if (emojis == null) return null;
@@ -37,14 +45,6 @@ public class CoReactChannel implements CoObject {
     @Nullable
     public TextChannel getChannel(@NotNull Guild guild) {
         return guild.getTextChannelById(channel);
-    }
-
-    @Override @NotNull
-    public Map<String, Object> toMap() {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("channel", channel);
-        if (emojis != null) map.put("emojis", emojis);
-        return map;
     }
 
     public void addReactions(@NotNull Message message) {

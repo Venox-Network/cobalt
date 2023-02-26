@@ -1,11 +1,11 @@
 package network.venox.cobalt.data.objects;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.RoleAction;
+import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
 import network.venox.cobalt.data.CoObject;
 
@@ -47,25 +47,25 @@ public class CoLimitedMessages implements CoObject {
     }
 
     @Nullable
-    private Role getRole(@NotNull Guild guild) {
+    private RestAction<Role> getRole(@NotNull Guild guild) {
         // Return existing role
         if (role != null) {
             final Role roleJda = guild.getRoleById(role);
-            if (roleJda != null) return roleJda;
+            if (roleJda != null) return new CompletedRestAction<>(guild.getJDA(), roleJda);
         }
 
         // Create role
         final GuildMessageChannel channelJda = getChannel(guild);
         if (channelJda == null) return null;
-        final Role roleJda = guild.createRole()
+        final RoleAction action = guild.createRole()
                 .setName("#" + channelJda.getName())
                 .setMentionable(false)
                 .setHoisted(false)
-                .setPermissions(Permission.EMPTY_PERMISSIONS)
-                .complete();
-        channelJda.getPermissionContainer().upsertPermissionOverride(roleJda).setDenied(Permission.MESSAGE_SEND).queue();
-        role = roleJda.getIdLong();
-        return roleJda;
+                .setPermissions(Permission.EMPTY_PERMISSIONS);
+        return action.onSuccess(roleJda -> {
+            role = roleJda.getIdLong();
+            channelJda.getPermissionContainer().upsertPermissionOverride(roleJda).setDenied(Permission.MESSAGE_SEND).queue();
+        });
     }
 
     @Nullable
@@ -100,16 +100,20 @@ public class CoLimitedMessages implements CoObject {
     public boolean checkUser(@NotNull Member member) {
         final Guild guild = member.getGuild();
         final List<Role> roles = member.getRoles();
-        final Role roleJda = getRole(guild);
+        final RestAction<Role> roleAction = getRole(guild);
 
         // Remove role
         if (users.getOrDefault(member.getIdLong(), 0) + 1 < limit) {
-            if (roleJda != null && roles.contains(roleJda)) guild.removeRoleFromMember(member, roleJda).queue();
+            if (roleAction != null) roleAction.queue(roleJda -> {
+                if (roles.contains(roleJda)) guild.removeRoleFromMember(member, roleJda).queue();
+            });
             return false;
         }
 
         // Add role
-        if (roleJda != null && !roles.contains(roleJda)) guild.addRoleToMember(member, roleJda).queue();
+        if (roleAction != null) roleAction.queue(roleJda -> {
+            if (!roles.contains(roleJda)) guild.addRoleToMember(member, roleJda).queue();
+        });
         return true;
     }
 

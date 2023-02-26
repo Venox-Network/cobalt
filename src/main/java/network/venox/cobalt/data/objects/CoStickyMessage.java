@@ -83,7 +83,7 @@ public class CoStickyMessage implements CoObject {
         // Schedule message to be sent
         if (future != null) future.cancel(true);
         future = cobalt.scheduledExecutorService.schedule(() -> {
-            current = textChannel.sendMessage(message.toBuilder().build()).complete().getIdLong();
+            textChannel.sendMessage(message.toBuilder().build()).queue(msg -> current = msg.getIdLong());
             future = null;
         }, 3, TimeUnit.SECONDS);
     }

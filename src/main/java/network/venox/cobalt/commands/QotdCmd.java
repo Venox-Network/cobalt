@@ -93,7 +93,7 @@ public class QotdCmd extends ApplicationCommand {
         }
 
         // Reply
-        final WebhookMessageEditAction<Message> action = event.getHook().editOriginalEmbeds(cobalt.messages.getEmbed("command", "qotd", "add", "success")
+        final WebhookMessageEditAction<Message> action = event.getHook().editOriginalEmbeds(cobalt.messages.getEmbed("command.qotd.add.success")
                         .replace("%questions%", coQuestions.stream()
                                 .map(question -> "**" + question.id + ":** " + question.question)
                                 .collect(Collectors.joining("\n"))).build());
@@ -284,7 +284,7 @@ public class QotdCmd extends ApplicationCommand {
         if (!cobalt.config.isQotdManager(event.getUser())) return List.of();
         return cobalt.data.global.qotds.stream()
                 .map(question -> {
-                    final User user = question.getUser();
+                    final User user = question.getUser().complete();
                     if (user == null) return null;
                     return new Command.Choice(user.getAsTag(), user.getIdLong());
                 })
