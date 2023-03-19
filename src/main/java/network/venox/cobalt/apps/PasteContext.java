@@ -1,4 +1,4 @@
-package network.venox.cobalt.contexts;
+package network.venox.cobalt.apps;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.application.ApplicationCommand;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @CommandMarker
 public class PasteContext extends ApplicationCommand {
-    @NotNull private static final String pasteUrl = "paste.venox.network";
+    @NotNull private static final String PASTE_URL = "paste.venox.network";
 
     @JDAMessageCommand(
             scope = CommandScope.GLOBAL,
@@ -38,13 +38,13 @@ public class PasteContext extends ApplicationCommand {
         // Establish connection
         final URLConnection connection;
         try {
-            connection = new URL("https://" + pasteUrl + "/documents").openConnection();
+            connection = new URL("https://" + PASTE_URL + "/documents").openConnection();
         } catch (final IOException e) {
             event.reply("Failed to upload paste").setEphemeral(true).queue();
             e.printStackTrace();
             return;
         }
-        connection.setRequestProperty("authority", pasteUrl);
+        connection.setRequestProperty("authority", PASTE_URL);
         connection.setRequestProperty("accept", "application/json, text/javascript, /; q=0.01");
         connection.setRequestProperty("x-requested-with", "XMLHttpRequest");
         connection.setRequestProperty("user-agent", event.getUser().getAsTag() + " via Cobalt");
@@ -68,7 +68,7 @@ public class PasteContext extends ApplicationCommand {
             event.reply("Done!").setEphemeral(true)
                     .flatMap(InteractionHook::deleteOriginal)
                     .queue();
-            message.reply("https://" + pasteUrl + "/" + readStream(connection.getInputStream()).split("\"")[3] + "." + fileName.substring(fileName.lastIndexOf('.') + 1)).queue();
+            message.reply("https://" + PASTE_URL + "/" + readStream(connection.getInputStream()).split("\"")[3] + "." + fileName.substring(fileName.lastIndexOf('.') + 1)).queue();
         } catch (final IOException e) {
             event.reply("Failed to upload paste").setEphemeral(true).queue();
             e.printStackTrace();

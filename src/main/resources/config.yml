@@ -20,6 +20,10 @@ guild:
   qotd-manager: 891405322105811004
   # QOTD Manager chat where QOTD alerts will be sent
   qotd-chat: 891404641277984788
+  # The role ID given to moderators
+  mod: 889244089801900102
+  # Global modmail forum channel for moderators
+  modmail: 1080663471491919952
   # Log channel for global actions (super punishments, etc...)
   log: 1008889846850408489
 

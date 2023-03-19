@@ -24,7 +24,7 @@ public class InviteCmd extends ApplicationCommand {
             description = "Sends an invite link for the bot")
     public void inviteCommand(@NotNull GlobalSlashEvent event) {
         if (!cobalt.config.checkIsOwner(event)) return;
-        event.replyEmbeds(cobalt.messages.getEmbed("command.invite")
+        event.replyEmbeds(cobalt.messages.getEmbed("command", "invite")
                         .replace("%invite%", cobalt.jda.getInviteUrl(Permission.ADMINISTRATOR))
                         .build())
                 .setEphemeral(true).queue();

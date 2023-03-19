@@ -33,40 +33,6 @@ public class VoiceRoleCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "voicerole",
-            subcommand = "add",
-            description = "Add a new voice channel and role connection")
-    public void addCommand(@NotNull GuildSlashEvent event,
-                             @AppOption(description = "The voice channel to connect to the role") @ChannelTypes({ChannelType.VOICE, ChannelType.STAGE}) @NotNull GuildChannel channel,
-                             @AppOption(description = "The role to connect to the voice channel") @NotNull Role role) {
-        final Map<Long, Set<Long>> voiceRoles = cobalt.data.getGuild(event.getGuild()).voiceRoles;
-        final Set<Long> roles = voiceRoles.get(channel.getIdLong());
-        if (roles != null && roles.contains(role.getIdLong())) {
-            event.reply("This role is already connected to this voice channel").setEphemeral(true).queue();
-            return;
-        }
-        voiceRoles.computeIfAbsent(channel.getIdLong(), k -> new HashSet<>()).add(role.getIdLong());
-        event.reply("Connected " + role.getAsMention() + " to " + channel.getAsMention()).setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "voicerole",
-            subcommand = "remove",
-            description = "Remove a voice channel and role connection")
-    public void removeCommand(@NotNull GuildSlashEvent event,
-                             @AppOption(description = "The voice channel to disconnect from the role") @ChannelTypes({ChannelType.VOICE, ChannelType.STAGE}) @NotNull GuildChannel channel,
-                             @AppOption(description = "The role to disconnect from the voice channel") @NotNull Role role) {
-        final Set<Long> roles = cobalt.data.getGuild(event.getGuild()).voiceRoles.get(channel.getIdLong());
-        if (roles == null || !roles.remove(role.getIdLong())) {
-            event.reply("This role is not connected to this voice channel").setEphemeral(true).queue();
-            return;
-        }
-        event.reply("Disconnected " + role.getAsMention() + " from " + channel.getAsMention()).setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "voicerole",
             subcommand = "list",
             description = "List all voice channel and role connections")
     public void listCommand(@NotNull GuildSlashEvent event) {
@@ -84,5 +50,39 @@ public class VoiceRoleCmd extends ApplicationCommand {
             builder.append("\n");
         });
         event.reply(builder.toString()).setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "voicerole",
+            subcommand = "add",
+            description = "Add a new voice channel and role connection")
+    public void addCommand(@NotNull GuildSlashEvent event,
+                           @AppOption(description = "The voice channel to connect to the role") @ChannelTypes({ChannelType.VOICE, ChannelType.STAGE}) @NotNull GuildChannel channel,
+                           @AppOption(description = "The role to connect to the voice channel") @NotNull Role role) {
+        final Map<Long, Set<Long>> voiceRoles = cobalt.data.getGuild(event.getGuild()).voiceRoles;
+        final Set<Long> roles = voiceRoles.get(channel.getIdLong());
+        if (roles != null && roles.contains(role.getIdLong())) {
+            event.reply("This role is already connected to this voice channel").setEphemeral(true).queue();
+            return;
+        }
+        voiceRoles.computeIfAbsent(channel.getIdLong(), k -> new HashSet<>()).add(role.getIdLong());
+        event.reply("Connected " + role.getAsMention() + " to " + channel.getAsMention()).setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "voicerole",
+            subcommand = "remove",
+            description = "Remove a voice channel and role connection")
+    public void removeCommand(@NotNull GuildSlashEvent event,
+                              @AppOption(description = "The voice channel to disconnect from the role") @ChannelTypes({ChannelType.VOICE, ChannelType.STAGE}) @NotNull GuildChannel channel,
+                              @AppOption(description = "The role to disconnect from the voice channel") @NotNull Role role) {
+        final Set<Long> roles = cobalt.data.getGuild(event.getGuild()).voiceRoles.get(channel.getIdLong());
+        if (roles == null || !roles.remove(role.getIdLong())) {
+            event.reply("This role is not connected to this voice channel").setEphemeral(true).queue();
+            return;
+        }
+        event.reply("Disconnected " + role.getAsMention() + " from " + channel.getAsMention()).setEphemeral(true).queue();
     }
 }

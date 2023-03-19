@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 
 import network.venox.cobalt.data.CoObject;
+import network.venox.cobalt.utility.CoUtilities;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +53,7 @@ public class CoQuestion implements CoObject {
 
         // Send message
         channel.sendMessage("**QOTD #" + count + ":** " + question + " " + roleString + "\n*You can also answer in your server's general chat by prefixing " + channel.getAsMention() + " to your message*")
-                .flatMap(message -> message.createThreadChannel(count + ": " + question)
+                .flatMap(message -> message.createThreadChannel(CoUtilities.shorten(count + ": " + question, 100))
                         .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.TIME_24_HOURS))
                 .queue();
     }

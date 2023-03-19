@@ -2,12 +2,14 @@ package network.venox.cobalt.commands.guild;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
+import com.freya02.botcommands.api.annotations.UserPermissions;
 import com.freya02.botcommands.api.application.ApplicationCommand;
 import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.annotations.AppOption;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
@@ -21,9 +23,29 @@ import java.util.Map;
 import java.util.Set;
 
 
-@CommandMarker
+@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE})
 public class AutoDeleteCmd extends ApplicationCommand {
     @Dependency private Cobalt cobalt;
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "autodelete",
+            subcommand = "list",
+            description = "List all channels with message auto-deletion enabled")
+    public void listCommand(@NotNull GuildSlashEvent event) {
+        final Map<Long, Set<Long>> autoDeletes = cobalt.data.getGuild(event.getGuild()).autoDeletes;
+
+        // Check if empty
+        if (autoDeletes.isEmpty()) {
+            event.reply("No channels have message auto-deletion enabled").setEphemeral(true).queue();
+            return;
+        }
+
+        // Reply
+        final StringBuilder builder = new StringBuilder();
+        for (final Long id : autoDeletes.keySet()) builder.append("<#").append(id).append(">, ");
+        event.reply(builder.substring(0, builder.length() - 2)).setEphemeral(true).queue();
+    }
 
     @JDASlashCommand(
             scope = CommandScope.GUILD,
@@ -70,20 +92,24 @@ public class AutoDeleteCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "autodelete",
+            group = "bypass",
             subcommand = "list",
-            description = "List all channels with message auto-deletion enabled")
-    public void listCommand(@NotNull GuildSlashEvent event) {
-        final Map<Long, Set<Long>> autoDeletes = cobalt.data.getGuild(event.getGuild()).autoDeletes;
+            description = "List all roles in the bypass list")
+    public void bypassListCommand(@NotNull GuildSlashEvent event,
+                                  @AppOption(description = "The channel to list the bypass roles for") @Nullable GuildChannel channel) {
+        if (channel == null) channel = event.getChannel().asGuildMessageChannel();
+        final Set<Long> autoDelete = getAutoDelete(event, channel);
+        if (autoDelete == null) return;
 
         // Check if empty
-        if (autoDeletes.isEmpty()) {
-            event.reply("No channels have message auto-deletion enabled").setEphemeral(true).queue();
+        if (autoDelete.isEmpty()) {
+            event.reply("No roles are in the bypass list for " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }
 
         // Reply
         final StringBuilder builder = new StringBuilder();
-        for (final Long id : autoDeletes.keySet()) builder.append("<#").append(id).append(">, ");
+        for (final Long id : autoDelete) builder.append("<@&").append(id).append(">").append(", ");
         event.reply(builder.substring(0, builder.length() - 2)).setEphemeral(true).queue();
     }
 
@@ -133,30 +159,6 @@ public class AutoDeleteCmd extends ApplicationCommand {
         // Remove role
         autoDelete.remove(role.getIdLong());
         event.reply(role.getAsMention() + " is no longer in the bypass list for " + channel.getAsMention()).setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "autodelete",
-            group = "bypass",
-            subcommand = "list",
-            description = "List all roles in the bypass list")
-    public void bypassListCommand(@NotNull GuildSlashEvent event,
-                                  @AppOption(description = "The channel to list the bypass roles for") @Nullable GuildChannel channel) {
-        if (channel == null) channel = event.getChannel().asGuildMessageChannel();
-        final Set<Long> autoDelete = getAutoDelete(event, channel);
-        if (autoDelete == null) return;
-
-        // Check if empty
-        if (autoDelete.isEmpty()) {
-            event.reply("No roles are in the bypass list for " + channel.getAsMention()).setEphemeral(true).queue();
-            return;
-        }
-
-        // Reply
-        final StringBuilder builder = new StringBuilder();
-        for (final Long id : autoDelete) builder.append("<@&").append(id).append(">").append(", ");
-        event.reply(builder.substring(0, builder.length() - 2)).setEphemeral(true).queue();
     }
 
     private Set<Long> getAutoDelete(@NotNull GuildSlashEvent event, @NotNull GuildChannel channel) {

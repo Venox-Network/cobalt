@@ -29,6 +29,20 @@ public class HighlightCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
             name = "highlight",
+            subcommand = "list",
+            description = "List all of your existing highlights")
+    public void listCommand(@NotNull GlobalSlashEvent event) {
+        final Set<String> highlights = cobalt.data.getUser(event.getUser()).highlights;
+        if (highlights.isEmpty()) {
+            event.reply("You don't have any highlights!").setEphemeral(true).queue();
+            return;
+        }
+        event.reply("`" + String.join("`, `", highlights) + "`").setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GLOBAL,
+            name = "highlight",
             subcommand = "add",
             description = "Add a new highlight")
     public void addCommand(@NotNull GlobalSlashEvent event,
@@ -44,20 +58,6 @@ public class HighlightCmd extends ApplicationCommand {
         }
         highlights.addAll(wordSet);
         event.reply("Added `" + String.join("`, `", wordSet) + "` to your highlights").setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
-            name = "highlight",
-            subcommand = "list",
-            description = "List all of your existing highlights")
-    public void listCommand(@NotNull GlobalSlashEvent event) {
-        final Set<String> highlights = cobalt.data.getUser(event.getUser()).highlights;
-        if (highlights.isEmpty()) {
-            event.reply("You don't have any highlights!").setEphemeral(true).queue();
-            return;
-        }
-        event.reply("`" + String.join("`, `", highlights) + "`").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(

@@ -1,4 +1,4 @@
-package network.venox.cobalt.contexts;
+package network.venox.cobalt.apps;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;

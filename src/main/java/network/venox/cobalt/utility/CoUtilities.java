@@ -17,6 +17,9 @@ import network.venox.cobalt.data.objects.CoEmbed;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,16 +27,6 @@ import java.util.List;
 
 
 public class CoUtilities {
-    @Nullable
-    public static UserSnowflake getUserSnowflake(@NotNull GlobalSlashEvent event, @NotNull String user) {
-        final UserSnowflake snowflake = CoMapper.toUserSnowflake(user);
-        if (snowflake == null) {
-            event.replyEmbeds(CoEmbed.invalidArgument(user).build()).setEphemeral(true).queue();
-            return null;
-        }
-        return snowflake;
-    }
-
     @NotNull
     public static String formatBoolean(boolean bool, @NotNull String enabled, @NotNull String disabled) {
         return bool ? enabled : disabled;
@@ -42,6 +35,33 @@ public class CoUtilities {
     @NotNull
     public static String formatBoolean(boolean bool) {
         return formatBoolean(bool, "enabled", "disabled");
+    }
+
+    @NotNull
+    public static String shorten(@NotNull String string, int length) {
+        return string.length() + 3 > length ? string.substring(0, length - 3) + "..." : string;
+    }
+
+    public static void deleteFile(@NotNull Path path, boolean silentFail) {
+        try {
+            Files.delete(path);
+        } catch (final IOException e) {
+            if (!silentFail) e.printStackTrace();
+        }
+    }
+
+    public static void deleteFile(@NotNull Path path) {
+        deleteFile(path, false);
+    }
+
+    @Nullable
+    public static UserSnowflake getUserSnowflake(@NotNull GlobalSlashEvent event, @NotNull String user) {
+        final UserSnowflake snowflake = CoMapper.toUserSnowflake(user);
+        if (snowflake == null) {
+            event.replyEmbeds(CoEmbed.invalidArgument(user).build()).setEphemeral(true).queue();
+            return null;
+        }
+        return snowflake;
     }
 
     @NotNull

@@ -34,7 +34,7 @@ public class CoData {
 
     public void load() {
         // global
-        this.global = new CoGlobal(cobalt.jda);
+        this.global = new CoGlobal(cobalt);
 
         // guilds
         this.guilds = new HashSet<>();

@@ -26,18 +26,11 @@
         </encoder>
     </appender>
 
-    <!-- Log JDA and HikariCP on Info while others are on Debug -->
-    <logger name="net.dv8tion.jda" level="info" additivity="false">
+    <!-- Hide NativeLibraryLoader (TTS) -->
+    <logger name="com.sedmelluq.lava.common.natives.NativeLibraryLoader" level="off" additivity="false">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </logger>
-
-    <!--
-    <logger name="com.zaxxer.hikari" level="info" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-    -->
 
     <root level="info">
         <appender-ref ref="STDOUT"/>

@@ -1,4 +1,4 @@
-package network.venox.cobalt.contexts;
+package network.venox.cobalt.apps;
 
 import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
@@ -7,29 +7,25 @@ import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.context.annotations.JDAMessageCommand;
 import com.freya02.botcommands.api.application.context.message.GlobalMessageEvent;
 
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.entities.Message;
 
 import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.utility.CoUtilities;
 
 import org.jetbrains.annotations.NotNull;
 
 
 @CommandMarker
-public class EchoContext extends ApplicationCommand {
+public class ReactContext extends ApplicationCommand {
     @Dependency private Cobalt cobalt;
 
     @JDAMessageCommand(
             scope = CommandScope.GLOBAL,
-            name = "Echo")
-    public void echoContext(@NotNull GlobalMessageEvent event) {
+            name = "Dynamic react")
+    public void reactContext(@NotNull GlobalMessageEvent event) {
         if (!cobalt.config.checkIsOwner(event)) return;
-        // Delete reply
-        event.deferReply(true)
-                .flatMap(InteractionHook::deleteOriginal)
-                .queue();
-        // Send message
-        final MessageChannelUnion channel = event.getChannel();
-        if (channel != null) channel.sendMessage(event.getTarget().getContentRaw()).queue();
+        final Message message = event.getTarget();
+        CoUtilities.dynamicReact(message);
+        event.reply("Dynamically reacted to " + message.getJumpUrl() + " with these emojis:\n").setEphemeral(true).queue();
     }
 }

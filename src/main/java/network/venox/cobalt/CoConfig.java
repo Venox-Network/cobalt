@@ -4,9 +4,10 @@ import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+
 import network.venox.cobalt.data.objects.CoEmbed;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,8 @@ public class CoConfig {
     @Nullable public final String guildInvite = guildNode.node("invite").getString();
     public final long guildQotdManager = guildNode.node("qotd-manager").getLong();
     public final long guildQotdChat = guildNode.node("qotd-chat").getLong();
+    public final long guildMod = guildNode.node("mod").getLong();
+    public final long guildModmail = guildNode.node("modmail").getLong();
     public final long guildLog = guildNode.node("log").getLong();
 
     // STATUSES
@@ -54,9 +57,10 @@ public class CoConfig {
         this.jda = cobalt.jda;
 
         // statuses
-        final List<Guild> guilds = jda.getGuilds();
-        final String servers = String.valueOf(guilds.size());
-        final String users = String.valueOf(cobalt.userCount);
+        final String servers = String.valueOf(cobalt.guildStats.size());
+        final String users = String.valueOf(cobalt.guildStats.values().stream()
+                .mapToInt(guildStats -> guildStats.memberCount)
+                .sum());
         this.statuses = file.yaml.node("statuses").childrenList().stream()
                 .map(node -> {
                     final String statusString = node.node("status").getString();
@@ -89,6 +93,20 @@ public class CoConfig {
         final Guild guild = getGuild();
         if (guild == null) return null;
         return guild.getTextChannelById(guildQotdChat);
+    }
+
+    @Nullable
+    public Role getGuildMod() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
+        return guild.getRoleById(guildMod);
+    }
+
+    @Nullable
+    public ForumChannel getGuildModmail() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
+        return guild.getForumChannelById(guildModmail);
     }
 
     @Nullable

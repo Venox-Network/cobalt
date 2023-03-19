@@ -46,9 +46,105 @@ import java.util.stream.Stream;
 public class QotdCmd extends ApplicationCommand {
     @NotNull private static final String AC_LIST_USER = "QotdCmd.listCommand.user";
     @NotNull private static final String AC_LIST_ID = "QotdCmd.listCommand.id";
+    @NotNull private static final String AC_LIST_USES = "QotdCmd.listCommand.uses";
     @NotNull private static final String AC_REMOVE_IDS = "QotdCmd.removeCommand.ids";
 
     @Dependency private Cobalt cobalt;
+
+    @JDASlashCommand(
+            scope = CommandScope.GLOBAL,
+            name = "qotd",
+            subcommand = "list",
+            description = "List all (or a specific) QOTD questions in the database")
+    public void listCommand(@NotNull GlobalSlashEvent event,
+                            @AppOption(description = "The user ID of who created the question", autocomplete = AC_LIST_USER) @Nullable String user,
+                            @AppOption(description = "The number of times the question has been used", autocomplete = AC_LIST_USES) @Nullable Integer uses,
+                            @AppOption(description = "The ID of the question to get", autocomplete = AC_LIST_ID) @Nullable Integer id) {
+        if (!cobalt.config.checkIsQotdManager(event)) return;
+
+        // ID-specific
+        if (id != null) {
+            final CoQuestion question = cobalt.data.global.getQuestion(id);
+            if (question == null) {
+                event.reply("Question with ID `" + id + "` does not exist!").setEphemeral(true).queue();
+                return;
+            }
+            event.reply(formatQuestion(question)).setEphemeral(true).queue();
+            return;
+        }
+
+        // User-specific
+        List<CoQuestion> questions = cobalt.data.global.qotds;
+        if (user != null) {
+            final Long userId = CoMapper.toLong(user);
+            if (userId == null) {
+                event.replyEmbeds(CoEmbed.invalidArgument(user).build()).setEphemeral(true).queue();
+                return;
+            }
+            questions = questions.stream()
+                    .filter(question -> question.user == userId)
+                    .toList();
+            if (questions.isEmpty()) {
+                event.getJDA().retrieveUserById(userId)
+                        .queue(userJda -> event.reply(userJda.getAsMention() + " has no questions!").setEphemeral(true).queue(),
+                                throwable -> event.reply("User with ID `" + user + "` does not exist!").setEphemeral(true).queue());
+                return;
+            }
+        }
+
+        // Uses-specific
+        if (uses != null) {
+            questions = questions.stream()
+                    .filter(question -> question.used <= uses)
+                    .toList();
+            if (questions.isEmpty()) {
+                event.reply("No questions have `" + uses + "` or less uses!").setEphemeral(true).queue();
+                return;
+            }
+        }
+
+        // Build messages
+        final List<String> messages = new ArrayList<>();
+        final StringBuilder stringBuilder = new StringBuilder();
+        for (final CoQuestion question : questions) {
+            final String line = formatQuestion(question);
+            if (stringBuilder.length() + line.length() > 2000) {
+                messages.add(stringBuilder.toString());
+                stringBuilder.setLength(0);
+            }
+            stringBuilder.append(line).append("\n");
+        }
+        messages.add(stringBuilder.toString());
+        final int size = messages.size();
+
+        // Get buttons
+        final AtomicInteger currentPage = new AtomicInteger();
+        final Button previousButton = Components.primaryButton(buttonEvent -> {
+            final int index = currentPage.get() - 1;
+            // Check index
+            if (index < 0) {
+                buttonEvent.deferEdit().queue();
+                return;
+            }
+            // Edit message
+            buttonEvent.editMessage(messages.get(index)).queue();
+            currentPage.set(index);
+        }).build(Emoji.fromUnicode("U+2B05"));
+        final Button nextButton = Components.primaryButton(buttonEvent -> {
+            final int index = currentPage.get() + 1;
+            // Check index
+            if (index >= size) {
+                buttonEvent.deferEdit().queue();
+                return;
+            }
+            // Edit message
+            buttonEvent.editMessage(messages.get(index)).queue();
+            currentPage.set(index);
+        }).build(Emoji.fromUnicode("U+27A1"));
+
+        // Send initial message with buttons
+        event.reply(messages.get(0)).setEphemeral(true).addActionRow(previousButton, nextButton).queue();
+    }
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
@@ -93,7 +189,7 @@ public class QotdCmd extends ApplicationCommand {
         }
 
         // Reply
-        final WebhookMessageEditAction<Message> action = event.getHook().editOriginalEmbeds(cobalt.messages.getEmbed("command.qotd.add.success")
+        final WebhookMessageEditAction<Message> action = event.getHook().editOriginalEmbeds(cobalt.messages.getEmbed("command", "qotd", "add", "success")
                         .replace("%questions%", coQuestions.stream()
                                 .map(question -> "**" + question.id + ":** " + question.question)
                                 .collect(Collectors.joining("\n"))).build());
@@ -121,112 +217,6 @@ public class QotdCmd extends ApplicationCommand {
     }
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "qotd",
-            subcommand = "channel",
-            description = "Sets the channel for the QOTD to be sent in")
-    @UserPermissions(Permission.MANAGE_CHANNEL)
-    public void channelCommand(@NotNull GuildSlashEvent event,
-                          @AppOption(description = "The channel to send the QOTD in. Leave empty to remove QOTD") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
-        final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
-
-        // Remove the QOTD channel
-        if (channel == null) {
-            coGuild.qotdChannel = null;
-            event.reply("The QOTD channel for `" + guild.getName() + "` has been removed").setEphemeral(true).queue();
-            return;
-        }
-
-        // Set the QOTD channel
-        coGuild.qotdChannel = channel.getIdLong();
-        event.reply("The QOTD channel for `" + guild.getName() + "` has been set to " + channel.getAsMention()).setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
-            name = "qotd",
-            subcommand = "list",
-            description = "List all (or a specific) QOTD questions in the database")
-    public void listCommand(@NotNull GlobalSlashEvent event,
-                          @AppOption(description = "The user ID of who created the question", autocomplete = AC_LIST_USER) @Nullable String user,
-                          @AppOption(description = "The ID of the question to get", autocomplete = AC_LIST_ID) @Nullable Integer id) {
-        if (!cobalt.config.checkIsQotdManager(event)) return;
-
-        // ID-specific
-        if (id != null) {
-            final CoQuestion question = cobalt.data.global.getQuestion(id);
-            if (question == null) {
-                event.reply("Question with ID `" + id + "` does not exist!").queue();
-                return;
-            }
-            event.reply("**" + question.id + ":** " + question.question).queue();
-            return;
-        }
-
-        // User-specific
-        List<CoQuestion> questions = cobalt.data.global.qotds;
-        if (user != null) {
-            final Long userId = CoMapper.toLong(user);
-            if (userId == null) {
-                event.replyEmbeds(CoEmbed.invalidArgument(user).build()).queue();
-                return;
-            }
-            questions = questions.stream()
-                    .filter(question -> question.user == userId)
-                    .toList();
-            if (questions.isEmpty()) {
-                event.getJDA().retrieveUserById(userId)
-                        .queue(userJda -> event.reply(userJda.getAsMention() + " has no questions!").queue(),
-                                throwable -> event.reply("User with ID `" + user + "` does not exist!").queue());
-                return;
-            }
-        }
-
-        // Build messages
-        final List<String> messages = new ArrayList<>();
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (final CoQuestion question : questions) {
-            final String line = "**" + question.id + ":** " + question.question;
-            if (stringBuilder.length() + line.length() > 2000) {
-                messages.add(stringBuilder.toString());
-                stringBuilder.setLength(0);
-            }
-            stringBuilder.append(line).append("\n");
-        }
-        messages.add(stringBuilder.toString());
-        final int size = messages.size();
-
-        // Get buttons
-        final AtomicInteger currentPage = new AtomicInteger();
-        final Button previousButton = Components.primaryButton(buttonEvent -> {
-            final int index = currentPage.get() - 1;
-            // Check index
-            if (index < 0) {
-                buttonEvent.deferEdit().queue();
-                return;
-            }
-            // Edit message
-            buttonEvent.editMessage(messages.get(index)).queue();
-            currentPage.set(index);
-        }).build(Emoji.fromUnicode("U+2B05"));
-        final Button nextButton = Components.primaryButton(buttonEvent -> {
-            final int index = currentPage.get() + 1;
-            // Check index
-            if (index >= size) {
-                buttonEvent.deferEdit().queue();
-                return;
-            }
-            // Edit message
-            buttonEvent.editMessage(messages.get(index)).queue();
-            currentPage.set(index);
-        }).build(Emoji.fromUnicode("U+27A1"));
-
-        // Send initial message with buttons
-        event.reply(messages.get(0)).setEphemeral(true).addActionRow(previousButton, nextButton).queue();
-    }
-
-    @JDASlashCommand(
             scope = CommandScope.GLOBAL,
             name = "qotd",
             subcommand = "remove",
@@ -251,9 +241,32 @@ public class QotdCmd extends ApplicationCommand {
 
         // Reply
         event.getHook().editOriginal("Removed " + removedQuestions.size() + " question(s)\n" + removedQuestions.stream()
-                        .map(question -> "**" + question.id + ":** " + question.question)
+                        .map(this::formatQuestion)
                         .collect(Collectors.joining("\n")))
                 .queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "qotd",
+            subcommand = "channel",
+            description = "Sets the channel for the QOTD to be sent in")
+    @UserPermissions(Permission.MANAGE_CHANNEL)
+    public void channelCommand(@NotNull GuildSlashEvent event,
+                          @AppOption(description = "The channel to send the QOTD in. Leave empty to remove QOTD") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
+        final Guild guild = event.getGuild();
+        final CoGuild coGuild = cobalt.data.getGuild(guild);
+
+        // Remove the QOTD channel
+        if (channel == null) {
+            coGuild.qotdChannel = null;
+            event.reply("The QOTD channel for `" + guild.getName() + "` has been removed").setEphemeral(true).queue();
+            return;
+        }
+
+        // Set the QOTD channel
+        coGuild.qotdChannel = channel.getIdLong();
+        event.reply("The QOTD channel for `" + guild.getName() + "` has been set to " + channel.getAsMention()).setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -263,7 +276,7 @@ public class QotdCmd extends ApplicationCommand {
             description = "Sets the role that will be pinged for QOTD")
     @UserPermissions(Permission.MANAGE_ROLES)
     public void roleCommand(@NotNull GuildSlashEvent event,
-                          @AppOption(description = "The role to ping for QOTD. Leave empty to remove QOTD") @Nullable Role role) {
+                            @AppOption(description = "The role to ping for QOTD. Leave empty to remove QOTD") @Nullable Role role) {
         final Guild guild = event.getGuild();
         final CoGuild coGuild = cobalt.data.getGuild(guild);
 
@@ -293,17 +306,22 @@ public class QotdCmd extends ApplicationCommand {
                 .toList();
     }
 
+    @AutocompletionHandler(name = AC_LIST_USES) @NotNull
+    public List<String> acListUses(@NotNull CommandAutoCompleteInteractionEvent event,
+                                   @AppOption @Nullable String user) {
+        final Stream<CoQuestion> questions = getQuestionStream(event, user);
+        return questions == null ? List.of() : questions
+                .map(question -> String.valueOf(question.used))
+                .toList();
+    }
+
     @AutocompletionHandler(name = AC_LIST_ID) @NotNull
     public List<String> acListId(@NotNull CommandAutoCompleteInteractionEvent event,
-                                                 @AppOption @Nullable String user) {
-        if (!cobalt.config.isQotdManager(event.getUser())) return List.of();
-        Stream<CoQuestion> questions = cobalt.data.global.qotds.stream();
-        if (user != null) {
-            final Long userId = CoMapper.toLong(user);
-            if (userId == null) return List.of();
-            questions = questions
-                    .filter(question -> question.user == userId);
-        }
+                                 @AppOption @Nullable String user,
+                                 @AppOption @Nullable Integer uses) {
+        Stream<CoQuestion> questions = getQuestionStream(event, user);
+        if (questions == null) return List.of();
+        if (uses != null) questions = questions.filter(question -> question.used <= uses);
         return questions
                 .map(question -> String.valueOf(question.id))
                 .toList();
@@ -315,5 +333,18 @@ public class QotdCmd extends ApplicationCommand {
         return cobalt.data.global.qotds.stream()
                 .map(question -> String.valueOf(question.id))
                 .toList();
+    }
+
+    @NotNull
+    private String formatQuestion(@NotNull CoQuestion question) {
+        return "**" + question.id + "(<@" + question.user + ">):** " + question.question + " *(" + question.used + ")*";
+    }
+
+    @Nullable
+    private Stream<CoQuestion> getQuestionStream(@NotNull CommandAutoCompleteInteractionEvent event, @Nullable String user) {
+        if (!cobalt.config.isQotdManager(event.getUser())) return null;
+        final Long userId = CoMapper.toLong(user);
+        final Stream<CoQuestion> questions = cobalt.data.global.qotds.stream();
+        return userId == null ? questions : questions.filter(question -> question.user == userId);
     }
 }

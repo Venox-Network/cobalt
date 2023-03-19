@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import network.venox.cobalt.data.CoObject;
+import network.venox.cobalt.utility.CoUtilities;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,9 +64,8 @@ public final class CoThreadChannel implements CoObject {
                 .replace("%count%", String.valueOf(count))
                 .replace("%message%", message.getContentRaw());
 
-        // Limit to 100 characters
-        if (threadName.length() > 100) threadName = threadName.substring(0, 97) + "...";
-        return threadName;
+        // Shorten
+        return CoUtilities.shorten(threadName, 100);
     }
 
     public void createThread(@NotNull Message message) {

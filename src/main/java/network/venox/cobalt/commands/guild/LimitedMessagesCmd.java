@@ -32,6 +32,26 @@ public class LimitedMessagesCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "limitedmessages",
+            subcommand = "list",
+            description = "List all channels with limited messages")
+    public void listLimitedMessagesCommand(@NotNull GuildSlashEvent event) {
+        final Set<CoLimitedMessages> limitedMessages = cobalt.data.getGuild(event.getGuild()).limitedMessages;
+
+        // Check if empty
+        if (limitedMessages.isEmpty()) {
+            event.reply("No channels have a per-user message limit").setEphemeral(true).queue();
+            return;
+        }
+
+        // Reply
+        final StringBuilder sb = new StringBuilder();
+        for (final CoLimitedMessages limitedMessage : limitedMessages) sb.append("<#").append(limitedMessage.channel).append(">: `").append(limitedMessage.limit).append("`").append("\n");
+        event.reply(sb.toString()).setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "limitedmessages",
             subcommand = "set",
             description = "Only allow a certain amount of messages in a channel")
     public void limitedMessagesCommand(@NotNull GuildSlashEvent event,
@@ -75,25 +95,5 @@ public class LimitedMessagesCmd extends ApplicationCommand {
         // Remove from limitedMessages and reply
         guild.limitedMessages.remove(existing);
         event.reply("Disabled per-user message limit in " + channel.getAsMention()).setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "limitedmessages",
-            subcommand = "list",
-            description = "List all channels with limited messages")
-    public void listLimitedMessagesCommand(@NotNull GuildSlashEvent event) {
-        final Set<CoLimitedMessages> limitedMessages = cobalt.data.getGuild(event.getGuild()).limitedMessages;
-
-        // Check if empty
-        if (limitedMessages.isEmpty()) {
-            event.reply("No channels have a per-user message limit").setEphemeral(true).queue();
-            return;
-        }
-
-        // Reply
-        final StringBuilder sb = new StringBuilder();
-        for (final CoLimitedMessages limitedMessage : limitedMessages) sb.append("<#").append(limitedMessage.channel).append(">: `").append(limitedMessage.limit).append("`").append("\n");
-        event.reply(sb.toString()).setEphemeral(true).queue();
     }
 }

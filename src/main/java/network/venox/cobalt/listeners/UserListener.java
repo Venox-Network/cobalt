@@ -46,9 +46,9 @@ public class UserListener extends CoListener {
             final boolean hasRole = memberRoles.contains(role);
             if (entry.getValue().stream().anyMatch(status::contains)) {
                 if (!hasRole) guild.addRoleToMember(member, role).queue();
-            } else {
-                if (hasRole) guild.removeRoleFromMember(member, role).queue();
+                continue;
             }
+            if (hasRole) guild.removeRoleFromMember(member, role).queue();
         }
     }
 

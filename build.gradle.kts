@@ -1,5 +1,4 @@
 version = "1.1.2"
-group = "network.venox"
 
 plugins {
     application
@@ -8,21 +7,21 @@ plugins {
 
 repositories {
     mavenCentral() // org.spongepowered:configurate-yaml, io.github.freya022:BotCommands, info.debatty:java-string-similarity
-    maven("https://jitpack.io") // io.github.freya022:BotCommands
+    maven("https://jitpack.io") // io.github.freya022:BotCommands, com.github.walkyst:lavaplayer-fork
     maven("https://repo.clojars.org") // net.clojars.suuft:libretranslate-java
 }
 
 dependencies {
-    implementation("net.dv8tion", "JDA", "5.0.0-beta.4") {
-        exclude("net.dv8tion", "opus-java")
-    }
-    implementation("org.spongepowered", "configurate-yaml", "4.1.2")
-    implementation("io.github.freya022", "BotCommands", "2.8.4")
-    implementation("org.postgresql", "postgresql", "42.5.4")
-    implementation("com.zaxxer", "HikariCP", "5.0.1")
-    implementation("ch.qos.logback", "logback-classic", "1.4.5")
-    implementation("info.debatty", "java-string-similarity", "2.0.0")
-    implementation("net.clojars.suuft", "libretranslate-java", "1.0.5")
+    implementation("net.dv8tion", "JDA", "5.0.0-beta.6") // JDA
+    implementation("org.spongepowered", "configurate-yaml", "4.1.2") // Data storage
+    implementation("io.github.freya022", "BotCommands", "2.8.4") // Command framework
+    implementation("org.postgresql", "postgresql", "42.5.4") // Database
+    implementation("com.zaxxer", "HikariCP", "5.0.1") // Database
+    implementation("ch.qos.logback", "logback-classic", "1.4.5") // Logging
+    implementation("info.debatty", "java-string-similarity", "2.0.0") // QOTD
+    implementation("net.clojars.suuft", "libretranslate-java", "1.0.5") // Translate
+    implementation("com.github.walkyst", "lavaplayer-fork", "1.4.0") // TTS
+    implementation("net.sf.sociaal", "freetts", "1.2.2") // TTS
 }
 
 application.mainClass.set("network.venox.cobalt.Cobalt")

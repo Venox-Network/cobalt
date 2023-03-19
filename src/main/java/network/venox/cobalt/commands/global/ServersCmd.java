@@ -63,7 +63,7 @@ public class ServersCmd extends ApplicationCommand {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, HashMap::new));
 
         // Send embed
-        final CoEmbed embed = cobalt.messages.getEmbed("command.servers")
+        final CoEmbed embed = cobalt.messages.getEmbed("command", "servers")
                 .replace("%entity%", entity)
                 .replace("%guilds%", guildsMap.size())
                 .replace("%members%", guildsMap.values().stream()

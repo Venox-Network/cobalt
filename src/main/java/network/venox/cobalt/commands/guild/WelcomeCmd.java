@@ -30,7 +30,7 @@ public class WelcomeCmd extends ApplicationCommand {
             name = "welcome",
             description = "Set the welcome channel")
     public void welcomeCommand(@NotNull GuildSlashEvent event,
-                               @AppOption(description = "The channel to set as welcome channel") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
+                               @AppOption(description = "The channel to set as welcome channel") @ChannelTypes({ChannelType.TEXT}) @Nullable GuildChannel channel) {
         final CoGuild guild = cobalt.data.getGuild(event.getGuild());
 
         // Remove welcome channel

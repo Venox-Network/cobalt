@@ -39,6 +39,23 @@ public class NicknameCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "nickname",
+            subcommand = "list",
+            description = "List the current phrases in the nickname blacklist")
+    public void listCommand(@NotNull GuildSlashEvent event) {
+        // Get nicknames
+        final Set<String> nicknames = cobalt.data.getGuild(event.getGuild()).nicknameBlacklist;
+        if (nicknames.isEmpty()) {
+            event.reply("The nickname blacklist is empty").setEphemeral(true).queue();
+            return;
+        }
+
+        // Reply
+        event.reply("**The current blacklist contains `" + nicknames.size() + "` nicknames:**\n`" + String.join("`, `", nicknames) + "`").setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "nickname",
             subcommand = "add",
             description = "Add a list of phrases to the nickname blacklist")
     public void addCommand(@NotNull GuildSlashEvent event,
@@ -70,23 +87,6 @@ public class NicknameCmd extends ApplicationCommand {
 
         // Reply
         event.reply("Removed `" + nicknameSet.size() + "` nicknames from the blacklist").setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "nickname",
-            subcommand = "list",
-            description = "List the current phrases in the nickname blacklist")
-    public void listCommand(@NotNull GuildSlashEvent event) {
-        // Get nicknames
-        final Set<String> nicknames = cobalt.data.getGuild(event.getGuild()).nicknameBlacklist;
-        if (nicknames.isEmpty()) {
-            event.reply("The nickname blacklist is empty").setEphemeral(true).queue();
-            return;
-        }
-
-        // Reply
-        event.reply("**The current blacklist contains `" + nicknames.size() + "` nicknames:**\n`" + String.join("`, `", nicknames) + "`").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -147,22 +147,9 @@ public class NicknameCmd extends ApplicationCommand {
             subcommand = "unban",
             description = "Unban a user from changing their nickname")
     public void unbanCommand(@NotNull GuildSlashEvent event,
-                           @AppOption(description = "The user to unban") @NotNull Member member) {
+                             @AppOption(description = "The user to unban") @NotNull Member member) {
         cobalt.data.getGuild(event.getGuild()).bannedNicknameUsers.remove(member.getIdLong());
         event.reply(member.getAsMention() + " can now change their nickname again").setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "nickname",
-            group = "whitelist",
-            subcommand = "add",
-            description = "Adds a role to the nickname whitelist")
-    @UserPermissions(Permission.MANAGE_ROLES)
-    public void whitelistAddCommand(@NotNull GuildSlashEvent event,
-                                 @AppOption(description = "The roles to add to the whitelist") @NotNull Role role) {
-        cobalt.data.getGuild(event.getGuild()).nicknameWhitelist.add(role.getIdLong());
-        event.reply("Added " + role.getAsMention() + " to the nickname whitelist").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -188,6 +175,19 @@ public class NicknameCmd extends ApplicationCommand {
                 .map(IMentionable::getAsMention)
                 .toList();
         event.reply("**The current whitelist contains `" + roles.size() + "` role(s):**\n" + String.join(", ", roles)).setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "nickname",
+            group = "whitelist",
+            subcommand = "add",
+            description = "Adds a role to the nickname whitelist")
+    @UserPermissions(Permission.MANAGE_ROLES)
+    public void whitelistAddCommand(@NotNull GuildSlashEvent event,
+                                 @AppOption(description = "The roles to add to the whitelist") @NotNull Role role) {
+        cobalt.data.getGuild(event.getGuild()).nicknameWhitelist.add(role.getIdLong());
+        event.reply("Added " + role.getAsMention() + " to the nickname whitelist").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(

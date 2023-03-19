@@ -3,6 +3,7 @@ package network.venox.cobalt.data;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
@@ -31,6 +32,8 @@ public class CoGuild {
     @Nullable public Long qotdChannel;
     @Nullable public Long qotdRole;
     @Nullable public Long welcomeChannel;
+    @Nullable public Long muteRole;
+    @NotNull public final Set<Long> mutedUsers = new HashSet<>();
     public int maxNicknameLength;
     @Nullable public String moderatedNickname;
     @NotNull public final Set<String> nicknameBlacklist = new HashSet<>();
@@ -41,6 +44,7 @@ public class CoGuild {
     @NotNull public final Set<CoStickyMessage> stickyMessages = new HashSet<>();
     @NotNull public final Set<CoSlowmode> slowmodes = new HashSet<>();
     @NotNull public final Set<CoLimitedMessages> limitedMessages = new HashSet<>();
+    @NotNull public final Set<CoStatsChannel> statsChannels = new HashSet<>();
     @NotNull public final Map<Long, Set<String>> statusRoles = new HashMap<>();
     @NotNull public final Map<Long, Set<Long>> autoDeletes = new HashMap<>();
     @NotNull public final Map<Long, Set<Long>> voiceRoles = new HashMap<>();
@@ -77,6 +81,14 @@ public class CoGuild {
         // welcomeChannel
         final long welcomeChannelId = file.yaml.node("welcome-channel").getLong();
         if (welcomeChannelId != 0) this.welcomeChannel = welcomeChannelId;
+
+        // muteRole
+        final long muteRoleId = file.yaml.node("mute-role").getLong();
+        if (muteRoleId != 0) this.muteRole = muteRoleId;
+
+        // mutedUsers
+        final List<Long> mutedUsersList = file.yaml.node("muted-users").getList(Long.class);
+        if (mutedUsersList != null) mutedUsers.addAll(mutedUsersList);
 
         // maxNicknameLength
         this.maxNicknameLength = file.yaml.node("max-nickname-length").getInt(0);
@@ -164,6 +176,16 @@ public class CoGuild {
             if (limitedMessage.getChannel(guild) != null) limitedMessages.add(limitedMessage);
         }
 
+        // statsChannels
+        for (final ConfigurationNode node : file.yaml.node("stats-channels").childrenMap().values()) {
+            final Long id = CoMapper.toLong(node.key());
+            final String text = node.node("text").getString();
+            final CoStatsChannel.CoStatsType type = CoStatsChannel.CoStatsType.getType(node.node("type").getString());
+            if (id == null || text == null || type == null || !text.contains("%count%")) continue;
+            final CoStatsChannel statsChannel = new CoStatsChannel(cobalt, id, text, type);
+            if (statsChannel.getChannel(guild) != null) statsChannels.add(statsChannel);
+        }
+
         // statusRoles
         for (final ConfigurationNode node : file.yaml.node("status-roles").childrenMap().values()) {
             final Long id = CoMapper.toLong(node.key());
@@ -198,6 +220,14 @@ public class CoGuild {
 
         // welcomeChannel
         file.yaml.node("welcome-channel").set(getWelcomeChannel() == null ? null : welcomeChannel);
+
+        // muteRole
+        file.yaml.node("mute-role").set(getMuteRole() == null ? null : muteRole);
+
+        // mutedUsers
+        final ConfigurationNode mutedUsersNode = file.yaml.node("muted-users");
+        mutedUsersNode.set(null);
+        for (final Long user : mutedUsers) if (guild.retrieveMemberById(user).complete() != null) mutedUsersNode.appendListNode().set(user);
 
         // maxNicknameLength
         file.yaml.node("max-nickname-length").set(maxNicknameLength == 0 ? null : maxNicknameLength);
@@ -244,6 +274,11 @@ public class CoGuild {
         final ConfigurationNode limitedMessagesNode = file.yaml.node("limited-messages");
         limitedMessagesNode.set(null);
         for (final CoLimitedMessages limitedMessage : limitedMessages) if (limitedMessage.getChannel(guild) != null) limitedMessagesNode.node(limitedMessage.channel).set(limitedMessage.toMap());
+
+        // statsChannels
+        final ConfigurationNode statsChannelsNode = file.yaml.node("stats-channels");
+        statsChannelsNode.set(null);
+        for (final CoStatsChannel statsChannel : statsChannels) if (statsChannel.text.contains("%count%") && statsChannel.getChannel(guild) != null) statsChannelsNode.appendListNode().set(statsChannel.toMap());
 
         // statusRoles
         final ConfigurationNode statusRolesNode = file.yaml.node("status-roles");
@@ -301,11 +336,19 @@ public class CoGuild {
     }
 
     @Nullable
-    public StandardGuildMessageChannel getWelcomeChannel() {
+    public TextChannel getWelcomeChannel() {
         if (welcomeChannel == null) return null;
         final Guild guild = getGuild();
         if (guild == null) return null;
-        return guild.getChannelById(StandardGuildMessageChannel.class, welcomeChannel);
+        return guild.getTextChannelById(welcomeChannel);
+    }
+
+    @Nullable
+    public Role getMuteRole() {
+        if (muteRole == null) return null;
+        final Guild guild = getGuild();
+        if (guild == null) return null;
+        return guild.getRoleById(muteRole);
     }
 
     @Nullable

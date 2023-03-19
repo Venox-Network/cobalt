@@ -2,8 +2,10 @@ package network.venox.cobalt.listeners;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
+import network.venox.cobalt.CoGuildStats;
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.data.CoGuild;
@@ -23,6 +25,7 @@ public class GuildMemberListener extends CoListener {
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild();
         final Member member = event.getMember();
+        final User user = event.getUser();
 
         // Check if user is super-banned
         final CoSuperBan ban = cobalt.data.global.superBans.stream()
@@ -39,8 +42,8 @@ public class GuildMemberListener extends CoListener {
 
             // Send embed and ban user
             ban.getModerator()
-                    .flatMap(moderate -> member.getUser().openPrivateChannel()
-                            .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super.ban")
+                    .flatMap(moderate -> user.openPrivateChannel()
+                            .flatMap(channel -> channel.sendMessageEmbeds(cobalt.messages.getEmbed("super", "ban")
                                     .replace("%guild%", guild.getName())
                                     .replace("%reason%", ban.reason())
                                     .replace("%timeleft%", ban.getTimeLeft())
@@ -54,5 +57,14 @@ public class GuildMemberListener extends CoListener {
         // Check user's name
         final CoGuild coGuild = cobalt.data.getGuild(guild);
         if (coGuild.nicknameBlacklist.contains(member.getEffectiveName().toLowerCase())) member.modifyNickname(coGuild.getModeratedNickname()).queue();
+
+        // Increase stats
+        final CoGuildStats stats = cobalt.guildStats.get(guild.getIdLong());
+        if (stats == null) {
+            cobalt.guildStats.put(guild.getIdLong(), new CoGuildStats(guild));
+            return;
+        }
+        stats.memberCount++;
+        if (!user.isBot()) stats.humanCount++;
     }
 }

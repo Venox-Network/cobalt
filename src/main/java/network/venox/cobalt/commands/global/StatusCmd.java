@@ -31,10 +31,11 @@ public class StatusCmd extends ApplicationCommand {
             scope = CommandScope.GLOBAL,
             name = "status",
             description = "Sets the custom status of the bot")
-    public void onCommand(@NotNull GlobalSlashEvent event,
-                          @AppOption(description = "The status to set") @Nullable String status,
-                          @AppOption(description = "The type of status to set") @Nullable String type) {
+    public void statusCommand(@NotNull GlobalSlashEvent event,
+                              @AppOption(description = "The status to set") @Nullable String status,
+                              @AppOption(description = "The type of status to set") @Nullable String type) {
         if (!cobalt.config.checkIsOwner(event)) return;
+
         // Reset the status
         if (status == null && type == null) {
             cobalt.startStatuses();

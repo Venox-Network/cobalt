@@ -71,6 +71,40 @@ public class ThreadCmd extends ApplicationCommand {
             scope = CommandScope.GUILD,
             name = "thread",
             group = "ignored",
+            subcommand = "list",
+            description = "List the ignored phrases/roles for an auto-thread channel")
+    public void ignoredListCommand(@NotNull GuildSlashEvent event,
+                                   @AppOption(description = "The channel to list the ignored phrases/roles for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
+        if (channel == null) channel = event.getGuildChannel();
+        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
+        if (threadChannel == null) return;
+
+        // Get ignored phrases/roles
+        final Set<String> ignoredPhrases = threadChannel.ignoredPhrases;
+        final boolean hasPhrases = !ignoredPhrases.isEmpty();
+        final boolean hasRoles = !threadChannel.ignoredRoles.isEmpty();
+        if (!hasPhrases && !hasRoles) {
+            event.reply("There are no ignored phrases/roles for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+            return;
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        if (hasPhrases) {
+            builder.append("**Ignored Phrases:** ");
+            ignoredPhrases.forEach(phrase -> builder.append("`").append(phrase).append("` "));
+        }
+        if (hasRoles) {
+            builder.append("\n**Ignored Roles:** ");
+            threadChannel.getIgnoredRoles(event.getGuild()).forEach(role -> builder.append(role.getAsMention()).append(" "));
+        }
+
+        event.reply(builder.toString()).setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "thread",
+            group = "ignored",
             subcommand = "add",
             description = "Add a phrase/role to the ignored list for an auto-thread channel")
     public void ignoredAddCommand(@NotNull GuildSlashEvent event,
@@ -125,40 +159,6 @@ public class ThreadCmd extends ApplicationCommand {
         // Role
         threadChannel.ignoredRoles.remove(role.getIdLong());
         event.reply(role.getAsMention() + " has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "thread",
-            group = "ignored",
-            subcommand = "list",
-            description = "List the ignored phrases/roles for an auto-thread channel")
-    public void ignoredListCommand(@NotNull GuildSlashEvent event,
-                                   @AppOption(description = "The channel to list the ignored phrases/roles for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
-        if (channel == null) channel = event.getGuildChannel();
-        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
-        if (threadChannel == null) return;
-
-        // Get ignored phrases/roles
-        final Set<String> ignoredPhrases = threadChannel.ignoredPhrases;
-        final boolean hasPhrases = !ignoredPhrases.isEmpty();
-        final boolean hasRoles = !threadChannel.ignoredRoles.isEmpty();
-        if (!hasPhrases && !hasRoles) {
-            event.reply("There are no ignored phrases/roles for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
-            return;
-        }
-
-        final StringBuilder builder = new StringBuilder();
-        if (hasPhrases) {
-            builder.append("**Ignored Phrases:** ");
-            ignoredPhrases.forEach(phrase -> builder.append("`").append(phrase).append("` "));
-        }
-        if (hasRoles) {
-            builder.append("\n**Ignored Roles:** ");
-            threadChannel.getIgnoredRoles(event.getGuild()).forEach(role -> builder.append(role.getAsMention()).append(" "));
-        }
-
-        event.reply(builder.toString()).setEphemeral(true).queue();
     }
 
     @Nullable

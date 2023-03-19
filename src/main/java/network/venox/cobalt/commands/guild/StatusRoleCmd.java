@@ -35,6 +35,36 @@ public class StatusRoleCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "statusrole",
+            subcommand = "list",
+            description = "List all roles that will be given to users who have specific status")
+    public void listCommand(@NotNull GuildSlashEvent event,
+                            @AppOption(description = "The role to list the statuses of") @Nullable Role role) {
+        final Guild guild = event.getGuild();
+        final CoGuild coGuild = cobalt.data.getGuild(guild);
+
+        // All status roles
+        if (role == null) {
+            final StringBuilder builder = new StringBuilder();
+            for (Map.Entry<Long, Set<String>> entry : coGuild.statusRoles.entrySet()) {
+                final Role r = guild.getRoleById(entry.getKey());
+                if (r != null) builder.append(r.getAsMention()).append(": `").append(String.join("`, `", entry.getValue())).append("`").append("\n");
+            }
+            event.reply(builder.toString()).setEphemeral(true).queue();
+            return;
+        }
+
+        // Specific status role
+        final Set<String> statuses = coGuild.statusRoles.get(role.getIdLong());
+        if (statuses == null || statuses.isEmpty()) {
+            event.reply(role.getAsMention() + " is not linked to any statuses").setEphemeral(true).queue();
+            return;
+        }
+        event.reply(role.getAsMention() + " is linked to these statuses: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
+    }
+
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "statusrole",
             subcommand = "add",
             description = "Set the role that will be given to users who have specific status")
     public void addCommand(@NotNull GuildSlashEvent event,
@@ -74,36 +104,6 @@ public class StatusRoleCmd extends ApplicationCommand {
         // Remove from statusRoles
         statuses.remove(status);
         event.reply(role.getAsMention() + " will no longer be given to users who have `" + status + "` in their status").setEphemeral(true).queue();
-    }
-
-    @JDASlashCommand(
-            scope = CommandScope.GUILD,
-            name = "statusrole",
-            subcommand = "list",
-            description = "List all roles that will be given to users who have specific status")
-    public void listCommand(@NotNull GuildSlashEvent event,
-                            @AppOption(description = "The role to list the statuses of") @Nullable Role role) {
-        final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
-
-        // All status roles
-        if (role == null) {
-            final StringBuilder builder = new StringBuilder();
-            for (Map.Entry<Long, Set<String>> entry : coGuild.statusRoles.entrySet()) {
-                final Role r = guild.getRoleById(entry.getKey());
-                if (r != null) builder.append(r.getAsMention()).append(": `").append(String.join("`, `", entry.getValue())).append("`").append("\n");
-            }
-            event.reply(builder.toString()).setEphemeral(true).queue();
-            return;
-        }
-
-        // Specific status role
-        final Set<String> statuses = coGuild.statusRoles.get(role.getIdLong());
-        if (statuses == null || statuses.isEmpty()) {
-            event.reply(role.getAsMention() + " is not linked to any statuses").setEphemeral(true).queue();
-            return;
-        }
-        event.reply(role.getAsMention() + " is linked to these statuses: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
     }
 
     @AutocompletionHandler(name = AC_REMOVE_STATUS) @NotNull

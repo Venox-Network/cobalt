@@ -11,13 +11,15 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.managers.Presence;
+import net.dv8tion.jda.api.managers.channel.concrete.VoiceChannelManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import network.venox.cobalt.commands.global.EmbedCmd;
 import network.venox.cobalt.data.CoData;
 import network.venox.cobalt.data.CoGuild;
+import network.venox.cobalt.data.objects.CoStatsChannel;
 import network.venox.cobalt.listeners.*;
-import network.venox.cobalt.managers.QotdManager;
+import network.venox.cobalt.utility.CoUtilities;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -28,12 +30,11 @@ import org.slf4j.LoggerFactory;
 
 import org.spongepowered.configurate.yaml.NodeStyle;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -50,7 +51,7 @@ public class Cobalt {
     @NotNull public final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(10);
     @NotNull private final Random random = new Random();
     @Nullable public ScheduledFuture<?> statusTask;
-    public int userCount = 0;
+    @NotNull public final Map<Long, CoGuildStats> guildStats = new HashMap<>();
     @NotNull public final Map<Long, EmbedCmd.Data> embedBuilders = new HashMap<>();
 
     public Cobalt() {
@@ -74,6 +75,13 @@ public class Cobalt {
             return;
         }
 
+        // TTS
+        System.setProperty("freetts.voices", "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
+        final Path ttsPath = Path.of("tts");
+        final File[] files = ttsPath.toFile().listFiles();
+        if (files != null) for (final File file : files) CoUtilities.deleteFile(file.toPath());
+        CoUtilities.deleteFile(ttsPath, true);
+
         // Load data
         data = new CoData(this);
 
@@ -81,7 +89,9 @@ public class Cobalt {
         for (final Guild guild : jda.getGuilds()) {
             final CoGuild coGuild = data.getGuild(guild);
             guild.loadMembers().onSuccess(members -> {
-                userCount += members.size();
+                guildStats.put(guild.getIdLong(), new CoGuildStats(members.size(), (int) members.stream()
+                        .filter(member -> !member.getUser().isBot())
+                        .count()));
                 members.forEach(member -> coGuild.checkMemberNickname(member, coGuild.nicknameBlacklist));
             });
         }
@@ -113,7 +123,7 @@ public class Cobalt {
                         }
                     }))
                     .addSearchPath("network.venox.cobalt.commands")
-                    .addSearchPath("network.venox.cobalt.contexts")
+                    .addSearchPath("network.venox.cobalt.apps")
                     .build(jda);
         } catch (final IOException e) {
             e.printStackTrace();
@@ -134,11 +144,22 @@ public class Cobalt {
             startStatuses();
         }
 
-        // Auto-save
-        scheduledExecutorService.scheduleAtFixedRate(() -> data.save(), 10, 10, TimeUnit.MINUTES);
+        // Auto-save & statistic channels
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            data.save();
+            for (CoGuild coGuild : data.guilds) {
+                final Set<CoStatsChannel> statsChannels = coGuild.statsChannels;
+                if (statsChannels.isEmpty()) continue;
+                final Guild guild = coGuild.getGuild();
+                if (guild != null) for (CoStatsChannel channel : statsChannels) {
+                    final VoiceChannelManager manager = channel.update(guild);
+                    if (manager != null) manager.queue();
+                }
+            }
+        }, 10, 10, TimeUnit.MINUTES);
 
         // QOTD
-        new QotdManager(this).start();
+        data.global.startQotd();
 
         // stop command
         new Thread(() -> {
@@ -159,7 +180,7 @@ public class Cobalt {
         final Presence presence = jda.getPresence();
         final Activity[] statuses = config.statuses.toArray(new Activity[0]);
         final int length = statuses.length;
-        statusTask = scheduledExecutorService.scheduleAtFixedRate(() -> presence.setActivity(statuses[random.nextInt(length)]), 0, 20, TimeUnit.SECONDS);
+        statusTask = scheduledExecutorService.scheduleAtFixedRate(() -> presence.setActivity(statuses[random.nextInt(length)]), 0, 30, TimeUnit.SECONDS);
     }
 
     @Contract(pure = true)
