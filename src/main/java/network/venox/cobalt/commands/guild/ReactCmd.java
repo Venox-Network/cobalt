@@ -13,12 +13,14 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.data.objects.CoReactChannel;
-import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.javautilities.MiscUtility;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +38,9 @@ public class ReactCmd extends ApplicationCommand {
     public void setCommand(@NotNull GuildSlashEvent event,
                           @AppOption(description = "The channel to manage") @Nullable TextChannel channel,
                           @AppOption(description = "The emojis to set. If empty, channel will be dynamic") @Nullable String emojis) {
-        final TextChannel channelSet = channel != null ? channel : CoMapper.handleException(() -> event.getChannel().asTextChannel());
+        final TextChannel channelSet = channel != null ? channel : MiscUtility.handleException(() -> event.getChannel().asTextChannel()).orElse(null);
         if (channelSet == null) return;
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
+        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
 
         // Dynamic
         if (emojis == null) {
@@ -46,9 +48,9 @@ public class ReactCmd extends ApplicationCommand {
             if (reactChannel != null) {
                 reactChannel.emojis = null;
             } else {
-                guild.reactChannels.add(new CoReactChannel(channelSet.getIdLong(), null));
+                guild.reactChannels.add(new CoReactChannel(event.getJDA(), guild.guildId, channelSet.getIdLong(), null));
             }
-            event.reply(channelSet.getAsMention() + " has been set as a dynamic react channel").setEphemeral(true).queue();
+            event.reply(LazyEmoji.YES + " " + channelSet.getAsMention() + " has been set as a dynamic react channel").setEphemeral(true).queue();
             return;
         }
 
@@ -59,9 +61,9 @@ public class ReactCmd extends ApplicationCommand {
         if (reactChannel != null) {
             reactChannel.emojis = emojiList;
         } else {
-            guild.reactChannels.add(new CoReactChannel(channelSet.getIdLong(), emojiList));
+            guild.reactChannels.add(new CoReactChannel(event.getJDA(), guild.guildId, channelSet.getIdLong(), emojiList));
         }
-        event.reply(channelSet.getAsMention() + " has been set as a static react channel with emojis: " + String.join(" ", emojiList)).setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + channelSet.getAsMention() + " has been set as a static react channel with emojis: " + String.join(" ", emojiList)).setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -72,19 +74,19 @@ public class ReactCmd extends ApplicationCommand {
     public void unsetCommand(@NotNull GuildSlashEvent event,
                           @AppOption(description = "The channel to unset as a reaction channel") @Nullable TextChannel channel) {
         if (!cobalt.config.checkIsOwner(event)) return;
-        final TextChannel channelSet = channel != null ? channel : CoMapper.handleException(() -> event.getChannel().asTextChannel());
+        final TextChannel channelSet = channel != null ? channel : MiscUtility.handleException(() -> event.getChannel().asTextChannel()).orElse(null);
         if (channelSet == null) return;
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
+        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
 
         // Get reaction channel
         final CoReactChannel reactChannel = guild.getReactChannel(channelSet.getIdLong());
         if (reactChannel == null) {
-            event.reply("This channel is not a reaction channel").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " This channel is not a reaction channel").setEphemeral(true).queue();
             return;
         }
 
         // Remove reaction channel
         guild.reactChannels.remove(reactChannel);
-        event.reply(channelSet.getAsMention() + " is no longer a reaction channel").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + channelSet.getAsMention() + " is no longer a reaction channel").setEphemeral(true).queue();
     }
 }

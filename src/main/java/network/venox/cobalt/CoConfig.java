@@ -1,149 +1,115 @@
 package network.venox.cobalt;
 
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-
-import network.venox.cobalt.data.objects.CoEmbed;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.serialize.SerializationException;
-import org.spongepowered.configurate.yaml.NodeStyle;
 
-import java.util.*;
+import xyz.srnyx.lazylibrary.LazyEmbed;
+import xyz.srnyx.lazylibrary.config.LazyChannel;
+import xyz.srnyx.lazylibrary.config.LazyRole;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
 public class CoConfig {
-    private JDA jda;
-    @NotNull public final CoFile file = new CoFile("config", NodeStyle.BLOCK, true);
+    @NotNull private final Cobalt bot;
 
-    @Nullable public final String token = file.yaml.node("token").getString();
-    @Nullable public final String database = file.yaml.node("database").getString();
-    @NotNull public final List<Long> owners;
+    @NotNull public final GuildNode guild;
+    @Nullable public List<Activity> statuses;
+    @NotNull public final Set<String> welcomeQuestions;
+    @NotNull public final Set<String> qotwSimilarityIgnored;
 
-    // GUILD
-    @NotNull private final ConfigurationNode guildNode = file.yaml.node("guild");
-    public final long guildId = guildNode.node("id").getLong();
-    @Nullable public final String guildInvite = guildNode.node("invite").getString();
-    public final long guildQotdManager = guildNode.node("qotd-manager").getLong();
-    public final long guildQotdChat = guildNode.node("qotd-chat").getLong();
-    public final long guildMod = guildNode.node("mod").getLong();
-    public final long guildModmail = guildNode.node("modmail").getLong();
-    public final long guildLog = guildNode.node("log").getLong();
-
-    // STATUSES
-    @NotNull public Set<Activity> statuses = new HashSet<>();
-
-    public CoConfig() {
-        // owners
-        List<Long> newOwners = null;
-        try {
-            newOwners = file.yaml.node("owners").getList(Long.class);
-        } catch (final SerializationException e) {
-            e.printStackTrace();
-        }
-        owners = newOwners == null ? Collections.emptyList() : newOwners;
-    }
-
-    public void loadJda(@NotNull Cobalt cobalt) {
-        this.jda = cobalt.jda;
-
-        // statuses
-        final String servers = String.valueOf(cobalt.guildStats.size());
-        final String users = String.valueOf(cobalt.guildStats.values().stream()
-                .mapToInt(guildStats -> guildStats.memberCount)
-                .sum());
-        this.statuses = file.yaml.node("statuses").childrenList().stream()
-                .map(node -> {
-                    final String statusString = node.node("status").getString();
-                    final String typeString = node.node("type").getString();
-                    if (statusString == null || typeString == null) return null;
-                    return Activity.of(Activity.ActivityType.valueOf(typeString.toUpperCase()), statusString
-                            .replace("%servers%", servers)
-                            .replace("%users%", users));
-                })
+    public CoConfig(@NotNull Cobalt bot) {
+        this.bot = bot;
+        guild = new GuildNode(bot.settings.fileSettings.file.yaml.node("guild"));
+        welcomeQuestions = bot.settings.fileSettings.file.yaml.node("welcome-questions").childrenList().stream()
+                .map(ConfigurationNode::getString)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        qotwSimilarityIgnored = bot.settings.fileSettings.file.yaml.node("qotw-similarity-ignored").childrenList().stream()
+                .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    @Nullable
-    public Guild getGuild() {
-        return jda.getGuildById(guildId);
-    }
+    public void loadStatuses() {
+        final String servers = String.valueOf(bot.dataManager.guildStats.size());
+        final String users = String.valueOf(bot.dataManager.guildStats.values().stream()
+                .mapToInt(DataManager.GuildStats::memberCount)
+                .sum());
+        statuses = bot.settings.fileSettings.file.yaml.node("statuses").childrenList().stream()
+                .map(node -> {
+                    // Get status
+                    final String status = node.getString();
+                    if (status == null) return null;
 
-    @Nullable
-    public Role getGuildQotdManager(@Nullable Guild guild) {
-        if (guild == null) {
-            guild = getGuild();
-            if (guild == null) return null;
-        }
-        return guild.getRoleById(guildQotdManager);
-    }
+                    // Get type
+                    Activity.ActivityType type = Activity.ActivityType.CUSTOM_STATUS;
+                    if (status.startsWith("watching")) {
+                        type = Activity.ActivityType.WATCHING;
+                    } else if (status.startsWith("listening")) {
+                        type = Activity.ActivityType.LISTENING;
+                    } else if (status.startsWith("playing")) {
+                        type = Activity.ActivityType.PLAYING;
+                    }
 
-    @Nullable
-    public TextChannel getGuildQotdChat() {
-        final Guild guild = getGuild();
-        if (guild == null) return null;
-        return guild.getTextChannelById(guildQotdChat);
-    }
-
-    @Nullable
-    public Role getGuildMod() {
-        final Guild guild = getGuild();
-        if (guild == null) return null;
-        return guild.getRoleById(guildMod);
-    }
-
-    @Nullable
-    public ForumChannel getGuildModmail() {
-        final Guild guild = getGuild();
-        if (guild == null) return null;
-        return guild.getForumChannelById(guildModmail);
-    }
-
-    @Nullable
-    public TextChannel getGuildLog() {
-        final Guild guild = getGuild();
-        if (guild == null) return null;
-        return guild.getTextChannelById(guildLog);
-    }
-
-    public void sendLog(@NotNull String title, @NotNull String message) {
-        final TextChannel log = getGuildLog();
-        if (log != null) log.sendMessage("**`     " + title.toUpperCase() + "     `**\n" + message + "\n**`     " + title.toUpperCase() + "     `**").setAllowedMentions(List.of()).queue();
-    }
-
-    public boolean isOwner(@NotNull User user) {
-        return owners.contains(user.getIdLong());
+                    // Get Activity
+                    return Activity.of(type, status
+                            .replace("%servers%", servers)
+                            .replace("%users%", users));
+                })
+                .filter(Objects::nonNull)
+                .toList();
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean checkIsOwner(@NotNull GenericCommandInteractionEvent event) {
-        final boolean isOwner = isOwner(event.getUser());
-        if (!isOwner) event.replyEmbeds(CoEmbed.NO_PERMISSION.build()).setEphemeral(true).queue();
+        final boolean isOwner = bot.isOwner(event.getUser().getIdLong());
+        if (!isOwner) event.replyEmbeds(LazyEmbed.noPermission().build(bot)).setEphemeral(true).queue();
         return isOwner;
     }
 
-    public boolean isQotdManager(@NotNull User user) {
-        final Guild guild = getGuild();
-        if (guild == null) return false;
-        final Member member = guild.getMember(user);
-        final Role qotdManager = getGuildQotdManager(guild);
-        return member != null && qotdManager != null && member.getRoles().contains(qotdManager);
-    }
+    public class GuildNode implements Supplier<Guild> {
+        public final long id;
+        @Nullable public final String invite;
+        @NotNull public final LazyRole botManager;
+        @NotNull public final LazyChannel<GuildMessageChannel> botManagerChat;
+        @NotNull public final LazyRole mod;
+        @NotNull public final LazyChannel<ForumChannel> modmail;
+        @NotNull public final LazyChannel<GuildMessageChannel> log;
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean checkIsQotdManager(@NotNull GlobalSlashEvent event) {
-        final boolean isQotdManager = isQotdManager(event.getUser());
-        if (!isQotdManager) event.replyEmbeds(CoEmbed.NO_PERMISSION.build()).setEphemeral(true).queue();
-        return isQotdManager;
+        public GuildNode(@NotNull ConfigurationNode node) {
+            this.id = node.node("id").getLong();
+            this.invite = node.node("invite").getString();
+            this.botManager = new LazyRole(bot, this, node.node("bot-manager"));
+            this.botManagerChat = new LazyChannel<>(this, node.node("bot-manager-chat"));
+            this.mod = new LazyRole(bot, this, node.node("mod"));
+            this.modmail = new LazyChannel<>(this, node.node("modmail"));
+            this.log = new LazyChannel<>(this, node.node("log"));
+        }
+
+        @Override
+        public Guild get() {
+            return getGuild();
+        }
+
+        @NotNull
+        public Guild getGuild() {
+            return Objects.requireNonNull(bot.jda.getGuildById(id));
+        }
+
+        public void sendLog(@NotNull String title, @NotNull String message) {
+            log.getChannel().ifPresent(channel -> channel.sendMessage("**`     " + title.toUpperCase() + "     `**\n" + message + "\n**`     " + title.toUpperCase() + "     `**").setAllowedMentions(Set.of()).queue());
+        }
     }
 }

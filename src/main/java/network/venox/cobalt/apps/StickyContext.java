@@ -15,16 +15,17 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
-import network.venox.cobalt.data.objects.CoMessage;
 import network.venox.cobalt.data.objects.CoStickyMessage;
+import network.venox.cobalt.mongo.Server;
 
 import org.jetbrains.annotations.NotNull;
+
+import xyz.srnyx.lazylibrary.LazyMessage;
 
 
 @CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
 public class StickyContext extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDAMessageCommand(
             scope = CommandScope.GUILD,
@@ -34,23 +35,23 @@ public class StickyContext extends ApplicationCommand {
         if (channelUnion == null) return;
         final TextChannel channel = channelUnion.asTextChannel();
         final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
+        final Server server = bot.oldData.getGuild(guild);
         final Message message = event.getTarget();
 
-        CoStickyMessage stickyMessage = coGuild.getStickyMessage(channel.getIdLong());
+        CoStickyMessage stickyMessage = server.getStickyMessage(channel.getIdLong());
         if (stickyMessage != null) {
             // Edit existing sticky message
-            stickyMessage.delete(guild);
-            stickyMessage.message = new CoMessage(message);
+            stickyMessage.delete();
+            stickyMessage.message = new LazyMessage(message);
             stickyMessage.current = message.getIdLong();
         } else {
             // Set new sticky message
-            stickyMessage = new CoStickyMessage(cobalt, channel.getIdLong(), new CoMessage(message), null);
-            coGuild.stickyMessages.add(stickyMessage);
+            stickyMessage = new CoStickyMessage(bot, guild.getIdLong(), channel.getIdLong(), new LazyMessage(message), null);
+            server.stickyMessages.add(stickyMessage);
         }
 
         // Send & reply
-        stickyMessage.send(guild);
+        stickyMessage.send();
         event.reply(message.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
     }
 }

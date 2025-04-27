@@ -13,6 +13,8 @@ import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
 
 @CommandMarker
 public class InviteCmd extends ApplicationCommand {
@@ -23,10 +25,6 @@ public class InviteCmd extends ApplicationCommand {
             name = "invite",
             description = "Sends an invite link for the bot")
     public void inviteCommand(@NotNull GlobalSlashEvent event) {
-        if (!cobalt.config.checkIsOwner(event)) return;
-        event.replyEmbeds(cobalt.messages.getEmbed("command", "invite")
-                        .replace("%invite%", cobalt.jda.getInviteUrl(Permission.ADMINISTRATOR))
-                        .build())
-                .setEphemeral(true).queue();
+        if (cobalt.config.checkIsOwner(event)) event.reply(LazyEmoji.YES + " " + cobalt.jda.getInviteUrl(Permission.ADMINISTRATOR)).setEphemeral(true).queue();
     }
 }

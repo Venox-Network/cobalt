@@ -6,8 +6,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 
-import network.venox.cobalt.data.CoObject;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,14 +16,35 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
-public record CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @Nullable Long time, long moderator) implements CoObject {
-    @Override @NotNull
+public final class CoSuperBan extends CoObject {
+    @NotNull private final JDA jda;
+
+    public final long user;
+    @NotNull public final String reason;
+    @Nullable public final Long time;
+    public final long moderator;
+
+    public CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @Nullable Long time, long moderator) {
+        this.jda = jda;
+        this.user = user;
+        this.reason = reason;
+        this.time = time;
+        this.moderator = moderator;
+    }
+
+    @Override
+    @NotNull
     public Map<String, Object> toMap() {
         final Map<String, Object> map = new HashMap<>();
         map.put("reason", reason);
-        map.put("time", time);
+        if (time != null) map.put("time", time);
         map.put("moderator", moderator);
         return map;
+    }
+
+    @Override
+    public boolean isNull() {
+        return getUser().complete() == null || getModerator().complete() == null;
     }
 
     @NotNull
@@ -65,22 +84,22 @@ public record CoSuperBan(@NotNull JDA jda, long user, @NotNull String reason, @N
         if (hours >= 1) builder.append(hours).append("h ");
         if (minutes >= 1) builder.append(minutes).append("m ");
         if (seconds >= 1) builder.append(seconds).append("s ");
-        if (builder.length() == 0) builder.append("0s");
+        if (builder.isEmpty()) builder.append("0s");
         return builder.toString();
     }
 
     public void ban() {
-        getUser().queue(user -> {
-            for (final Guild guild : jda.getMutualGuilds(user)) {
-                final Member member = guild.getMember(user);
+        getUser().queue(userJda -> {
+            for (final Guild guild : jda.getMutualGuilds(userJda)) {
+                final Member member = guild.getMember(userJda);
                 if (member != null && guild.getSelfMember().canInteract(member)) guild.ban(member, 1, TimeUnit.DAYS).reason(reason).queue(s -> {}, f -> {});
             }
-        }, f -> {});
+        });
     }
 
     public void unban() {
-        getUser().queue(user -> {
-            for (final Guild guild : jda.getGuilds()) guild.unban(user).queue();
-        }, f -> {});
+        getUser().queue(userJda -> {
+            for (final Guild guild : jda.getGuilds()) guild.unban(userJda).queue();
+        });
     }
 }

@@ -15,6 +15,8 @@ import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 public class HighlightCmd extends ApplicationCommand {
     @NotNull private static final String AC_REMOVE_WORDS = "HighlightCmd.removeCommand.word";
 
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
@@ -32,12 +34,12 @@ public class HighlightCmd extends ApplicationCommand {
             subcommand = "list",
             description = "List all of your existing highlights")
     public void listCommand(@NotNull GlobalSlashEvent event) {
-        final Set<String> highlights = cobalt.data.getUser(event.getUser()).highlights;
+        final Set<String> highlights = bot.oldData.getUser(event.getUser()).highlights;
         if (highlights.isEmpty()) {
-            event.reply("You don't have any highlights!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You don't have any highlights!").setEphemeral(true).queue();
             return;
         }
-        event.reply("`" + String.join("`, `", highlights) + "`").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " `" + String.join("`, `", highlights) + "`").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -47,17 +49,21 @@ public class HighlightCmd extends ApplicationCommand {
             description = "Add a new highlight")
     public void addCommand(@NotNull GlobalSlashEvent event,
                            @AppOption(description = "The word(s) to highlight. Use spaces to separate multiple") @NotNull String words) {
-        final Set<String> highlights = cobalt.data.getUser(event.getUser()).highlights;
+        final Set<String> highlights = bot.oldData.getUser(event.getUser()).highlights;
         final Set<String> wordSet = Arrays.stream(words.split(" "))
                 .map(String::toLowerCase)
                 .filter(word -> !highlights.contains(word))
                 .collect(Collectors.toSet());
         if (wordSet.isEmpty()) {
-            event.reply("You already have all of those highlights!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You already have all of those highlights!").setEphemeral(true).queue();
+            return;
+        }
+        if (highlights.size() + wordSet.size() > 10) {
+            event.reply(LazyEmoji.NO + " You can't have more than **10** highlights!").setEphemeral(true).queue();
             return;
         }
         highlights.addAll(wordSet);
-        event.reply("Added `" + String.join("`, `", wordSet) + "` to your highlights").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " Added `" + String.join("`, `", wordSet) + "` to your highlights").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -67,21 +73,21 @@ public class HighlightCmd extends ApplicationCommand {
             description = "Remove (an) existing highlight(s)")
     public void removeCommand(@NotNull GlobalSlashEvent event,
                               @AppOption(description = "The word to remove from your highlights. Use spaces to separate multiple", autocomplete = AC_REMOVE_WORDS) @NotNull String words) {
-        final Set<String> highlights = cobalt.data.getUser(event.getUser()).highlights;
+        final Set<String> highlights = bot.oldData.getUser(event.getUser()).highlights;
         final Set<String> wordSet = Arrays.stream(words.split(" "))
                 .map(String::toLowerCase)
                 .filter(highlights::contains)
                 .collect(Collectors.toSet());
         if (wordSet.isEmpty()) {
-            event.reply("You don't have any of those highlights!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You don't have any of those highlights!").setEphemeral(true).queue();
             return;
         }
         highlights.removeAll(wordSet);
-        event.reply("Removed `" + String.join("`, `", wordSet) + "` from your highlights").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " Removed `" + String.join("`, `", wordSet) + "` from your highlights").setEphemeral(true).queue();
     }
 
     @AutocompletionHandler(name = AC_REMOVE_WORDS) @NotNull
     public Set<String> removeAutoComplete(@NotNull CommandAutoCompleteInteractionEvent event) {
-        return cobalt.data.getUser(event.getUser()).highlights;
+        return bot.oldData.getUser(event.getUser()).highlights;
     }
 }

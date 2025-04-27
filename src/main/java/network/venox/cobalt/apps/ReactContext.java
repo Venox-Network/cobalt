@@ -10,22 +10,29 @@ import com.freya02.botcommands.api.application.context.message.GlobalMessageEven
 import net.dv8tion.jda.api.entities.Message;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.utility.CoUtilities;
+import network.venox.cobalt.CoUtilities;
 
 import org.jetbrains.annotations.NotNull;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
+import java.util.List;
 
 
 @CommandMarker
 public class ReactContext extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDAMessageCommand(
             scope = CommandScope.GLOBAL,
             name = "Dynamic react")
     public void reactContext(@NotNull GlobalMessageEvent event) {
-        if (!cobalt.config.checkIsOwner(event)) return;
+        if (!bot.config.checkIsOwner(event)) return;
         final Message message = event.getTarget();
-        CoUtilities.dynamicReact(message);
-        event.reply("Dynamically reacted to " + message.getJumpUrl() + " with these emojis:\n").setEphemeral(true).queue();
+        final List<String> emojis = CoUtilities.dynamicReact(message);
+        event.reply(LazyEmoji.YES + " Dynamically reacted to " + message.getJumpUrl() + " with these emojis:\n" + emojis.stream()
+                        .reduce((a, b) -> a + " " + b)
+                        .orElse("None"))
+                .setEphemeral(true).queue();
     }
 }

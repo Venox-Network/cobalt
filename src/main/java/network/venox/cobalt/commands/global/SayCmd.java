@@ -17,6 +17,8 @@ import network.venox.cobalt.Cobalt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
 
 @CommandMarker
 public class SayCmd extends ApplicationCommand {
@@ -30,14 +32,13 @@ public class SayCmd extends ApplicationCommand {
                           @AppOption(description = "The message to say") @NotNull String message,
                           @AppOption(description = "The channel to say the message in") @Nullable TextChannel channel) {
         if (!cobalt.config.checkIsOwner(event)) return;
-        // Get channel
         final TextChannel currentChannel = event.getChannel().asTextChannel();
         if (channel == null) channel = currentChannel;
 
         // Send message
         final MessageCreateAction action = channel.sendMessage(message);
         if (channel.getIdLong() != currentChannel.getIdLong()) {
-            action.queue(sentMessage -> event.reply(sentMessage.getJumpUrl()).setEphemeral(true).queue());
+            action.queue(sentMessage -> event.reply(LazyEmoji.YES + " " + sentMessage.getJumpUrl()).setEphemeral(true).queue());
             return;
         }
         action.flatMap(sentMessage -> event.deferReply(true))

@@ -1,16 +1,20 @@
 package network.venox.cobalt.data.objects;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
-import network.venox.cobalt.data.CoObject;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,35 +23,24 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class CoLimitedMessages implements CoObject {
-    public final long channel;
-    public int limit;
-    @Nullable private Long role;
-    @NotNull public Map<Long, Integer> users = new HashMap<>();
-
-    public CoLimitedMessages(long channel, int limit, @Nullable Long role, @Nullable Map<Long, Integer> users) {
-        this.channel = channel;
-        this.limit = limit;
-        this.role = role;
-        if (users != null) this.users = users;
-    }
-
-    @Override @NotNull
-    public Map<String, Object> toMap() {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("limit", limit);
-        map.put("role", role);
-        if (!users.isEmpty()) map.put("users", users);
-        return map;
+public class CoLimitedMessages extends CoObject {
+    @Nullable
+    public Guild getGuild() {
+        return jda.getGuildById(guildId);
     }
 
     @Nullable
-    public GuildMessageChannel getChannel(@NotNull Guild guild) {
+    public GuildMessageChannel getChannel() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
         return guild.getChannelById(GuildMessageChannel.class, channel);
     }
 
     @Nullable
-    private RestAction<Role> getRole(@NotNull Guild guild) {
+    public RestAction<Role> getRole() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
+
         // Return existing role
         if (role != null) {
             final Role roleJda = guild.getRoleById(role);
@@ -55,7 +48,7 @@ public class CoLimitedMessages implements CoObject {
         }
 
         // Create role
-        final GuildMessageChannel channelJda = getChannel(guild);
+        final GuildMessageChannel channelJda = getChannel();
         if (channelJda == null) return null;
         final RoleAction action = guild.createRole()
                 .setName("#" + channelJda.getName())
@@ -69,7 +62,9 @@ public class CoLimitedMessages implements CoObject {
     }
 
     @Nullable
-    public Map<Member, Integer> getUsers(@NotNull Guild guild) {
+    public Map<Member, Integer> getUsers() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
         return users.entrySet().stream()
                 .map(entry -> {
                     final Member member = guild.getMemberById(entry.getKey());
@@ -89,7 +84,7 @@ public class CoLimitedMessages implements CoObject {
         // Check if user has reached limit
         if (checkUser(author) && count + 1 == limit) {
             author.getUser().openPrivateChannel()
-                    .flatMap(privateChannel -> privateChannel.sendMessage("You have reached the message limit of `" + limit + "` in <#" + channel + ">!"))
+                    .flatMap(privateChannel -> privateChannel.sendMessage(LazyEmoji.WARNING + " You have reached the message limit of `" + limit + "` in <#" + channel + ">!"))
                     .queue(s -> {}, f -> {});
         }
 
@@ -98,9 +93,10 @@ public class CoLimitedMessages implements CoObject {
     }
 
     public boolean checkUser(@NotNull Member member) {
-        final Guild guild = member.getGuild();
+        final Guild guild = getGuild();
+        if (guild == null) return false;
         final List<Role> roles = member.getRoles();
-        final RestAction<Role> roleAction = getRole(guild);
+        final RestAction<Role> roleAction = getRole();
 
         // Remove role
         if (users.getOrDefault(member.getIdLong(), 0) + 1 < limit) {
@@ -117,8 +113,8 @@ public class CoLimitedMessages implements CoObject {
         return true;
     }
 
-    public void checkAllUsers(@NotNull Guild guild) {
-        final Map<Member, Integer> members = getUsers(guild);
+    public void checkAllUsers() {
+        final Map<Member, Integer> members = getUsers();
         if (members != null) members.keySet().forEach(this::checkUser);
     }
 }

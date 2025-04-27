@@ -14,10 +14,12 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.commands.Command;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.objects.CoEmbed;
-import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
+
+import xyz.srnyx.javautilities.manipulation.Mapper;
+
+import xyz.srnyx.lazylibrary.LazyEmbed;
 
 import java.util.List;
 
@@ -26,7 +28,7 @@ import java.util.List;
 public class LeaveCmd extends ApplicationCommand {
     @NotNull private static final String AC_LEAVE_SERVER = "LeaveCmd.leaveCommand.server";
 
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
@@ -34,15 +36,15 @@ public class LeaveCmd extends ApplicationCommand {
             description = "Leaves the specified server")
     public void leaveCommand(@NotNull GlobalSlashEvent event,
                           @AppOption(description = "The ID of the server to leave", autocomplete = AC_LEAVE_SERVER) @NotNull String server) {
-        if (!cobalt.config.checkIsOwner(event)) return;
-        final Long serverId = CoMapper.toLong(server);
+        if (!bot.config.checkIsOwner(event)) return;
+        final Long serverId = Mapper.toLong(server).orElse(null);
         if (serverId == null) {
-            event.replyEmbeds(CoEmbed.invalidArgument(server).build()).setEphemeral(true).queue();
+            event.replyEmbeds(LazyEmbed.invalidArgument("server", server).build(bot)).setEphemeral(true).queue();
             return;
         }
-        final Guild guild = cobalt.jda.getGuildById(serverId);
+        final Guild guild = bot.jda.getGuildById(serverId);
         if (guild == null) {
-            event.replyEmbeds(CoEmbed.invalidArgument(server).build()).setEphemeral(true).queue();
+            event.replyEmbeds(LazyEmbed.invalidArgument("server", server).build(bot)).setEphemeral(true).queue();
             return;
         }
 
@@ -50,19 +52,18 @@ public class LeaveCmd extends ApplicationCommand {
         guild.leave().queue();
 
         // Message
-        event.replyEmbeds(new CoEmbed(CoEmbed.Type.SUCCESS)
+        event.replyEmbeds(new LazyEmbed()
                 .setTitle("%type%Left server")
                 .setDescription("Left server **" + guild.getName() + "** (`" + serverId + "`)")
-                .build()).setEphemeral(true).queue();
+                .build(bot)).setEphemeral(true).queue();
 
         // Log
-        cobalt.config.sendLog("left guild", "**Guild:** " + guild.getName() + " (`" + serverId + "`)\n**Executor:** " + event.getUser().getAsMention());
+        bot.config.guild.sendLog("left guild", "**Guild:** " + guild.getName() + " (`" + serverId + "`)\n**Executor:** " + event.getUser().getAsMention());
     }
 
     @AutocompletionHandler(name = AC_LEAVE_SERVER) @NotNull
     public List<Command.Choice> onAutoCompleteServer(@NotNull CommandAutoCompleteInteractionEvent event) {
-        if (!cobalt.config.owners.contains(event.getUser().getIdLong())) return List.of();
-        return cobalt.jda.getGuilds().stream()
+        return !bot.isOwner(event.getUser().getIdLong()) ? List.of() : bot.jda.getGuilds().stream()
                 .map(guild -> new Command.Choice(guild.getName(), guild.getId()))
                 .toList();
     }

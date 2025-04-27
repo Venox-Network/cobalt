@@ -15,10 +15,11 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_SERVER})
@@ -28,20 +29,22 @@ public class WelcomeCmd extends ApplicationCommand {
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "welcome",
+            subcommand = "set",
             description = "Set the welcome channel")
     public void welcomeCommand(@NotNull GuildSlashEvent event,
                                @AppOption(description = "The channel to set as welcome channel") @ChannelTypes({ChannelType.TEXT}) @Nullable GuildChannel channel) {
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
+        if (channel == null) channel = event.getChannel().asGuildMessageChannel();
+        cobalt.oldData.getGuild(event.getGuild()).welcomeChannel = channel.getIdLong();
+        event.reply(LazyEmoji.YES + " Welcome channel has been set to " + channel.getAsMention()).setEphemeral(true).queue();
+    }
 
-        // Remove welcome channel
-        if (channel == null) {
-            guild.welcomeChannel = null;
-            event.reply("Welcome channel has been removed").setEphemeral(true).queue();
-            return;
-        }
-
-        // Set welcome channel
-        guild.welcomeChannel = channel.getIdLong();
-        event.reply("Welcome channel has been set to " + channel.getAsMention()).setEphemeral(true).queue();
+    @JDASlashCommand(
+            scope = CommandScope.GUILD,
+            name = "welcome",
+            subcommand = "remove",
+            description = "Remove the welcome channel")
+    public void welcomeCommand(@NotNull GuildSlashEvent event) {
+        cobalt.oldData.getGuild(event.getGuild()).welcomeChannel = null;
+        event.reply(LazyEmoji.YES + " Welcome channel has been removed").setEphemeral(true).queue();
     }
 }

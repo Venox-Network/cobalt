@@ -1,0 +1,20 @@
+name: Build
+on:
+  push:
+    branches:
+      - java
+    paths:
+      - 'gradle/**'
+      - 'src/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradlew'
+      - 'gradlew.bat'
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: srnyx/tools/.github/workflows/build.yml@main
+    with:
+      name: Cobalt
+      java: 21

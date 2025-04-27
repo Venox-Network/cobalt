@@ -16,11 +16,12 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.data.objects.CoThreadChannel;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import java.util.Set;
 
@@ -38,17 +39,17 @@ public class ThreadCmd extends ApplicationCommand {
                               @AppOption(description = "The channel to enable auto-threading for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel,
                               @AppOption(description = "The name each thread will have") @Nullable String name) {
         if (channel == null) channel = event.getGuildChannel();
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
+        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
 
         // Check if thread channel already exists
         if (guild.getThreadChannel(channel.getIdLong()) != null) {
-            event.reply("Auto-threading for " + channel.getAsMention() + " is already enabled").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " Auto-threading for " + channel.getAsMention() + " is already enabled").setEphemeral(true).queue();
             return;
         }
 
         // Add thread channel
-        guild.threadChannels.add(new CoThreadChannel(channel.getIdLong(), name, 1, null, null));
-        event.reply("Auto-threading for " + channel.getAsMention() + " has been **enabled**").setEphemeral(true).queue();
+        guild.threadChannels.add(new CoThreadChannel(event.getJDA(), guild.guildId, channel.getIdLong(), name, 1, null, null));
+        event.reply(LazyEmoji.YES + " Auto-threading for " + channel.getAsMention() + " has been **enabled**").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -63,8 +64,8 @@ public class ThreadCmd extends ApplicationCommand {
         if (threadChannel == null) return;
 
         // Remove thread channel
-        cobalt.data.getGuild(event.getGuild()).threadChannels.remove(threadChannel);
-        event.reply("Auto-threading for " + channel.getAsMention() + " has been **disabled**").setEphemeral(true).queue();
+        cobalt.oldData.getGuild(event.getGuild()).threadChannels.remove(threadChannel);
+        event.reply(LazyEmoji.YES + " Auto-threading for " + channel.getAsMention() + " has been **disabled**").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -84,7 +85,7 @@ public class ThreadCmd extends ApplicationCommand {
         final boolean hasPhrases = !ignoredPhrases.isEmpty();
         final boolean hasRoles = !threadChannel.ignoredRoles.isEmpty();
         if (!hasPhrases && !hasRoles) {
-            event.reply("There are no ignored phrases/roles for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " There are no ignored phrases/roles for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
         }
 
@@ -95,7 +96,8 @@ public class ThreadCmd extends ApplicationCommand {
         }
         if (hasRoles) {
             builder.append("\n**Ignored Roles:** ");
-            threadChannel.getIgnoredRoles(event.getGuild()).forEach(role -> builder.append(role.getAsMention()).append(" "));
+            final Set<Role> ignoredRoles = threadChannel.getIgnoredRoles();
+            if (ignoredRoles != null) ignoredRoles.forEach(role -> builder.append(role.getAsMention()).append(" "));
         }
 
         event.reply(builder.toString()).setEphemeral(true).queue();
@@ -112,7 +114,7 @@ public class ThreadCmd extends ApplicationCommand {
                                   @AppOption(description = "The phrase to add to the ignored list") @Nullable String phrase,
                                   @AppOption(description = "The role to add to the ignored list") @Nullable Role role) {
         if (phrase == null && role == null) {
-            event.reply("You must provide a phrase or role to add to the ignored list").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You must provide a phrase or role to add to the ignored list").setEphemeral(true).queue();
             return;
         }
         if (channel == null) channel = event.getGuildChannel();
@@ -122,13 +124,13 @@ public class ThreadCmd extends ApplicationCommand {
         // Phrase
         if (phrase != null) {
             threadChannel.ignoredPhrases.add(phrase.toLowerCase().trim());
-            event.reply("`" + phrase + "` has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+            event.reply(LazyEmoji.YES + " `" + phrase + "` has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
         }
 
         // Role
         threadChannel.ignoredRoles.add(role.getIdLong());
-        event.reply(role.getAsMention() + " has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + role.getAsMention() + " has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -142,7 +144,7 @@ public class ThreadCmd extends ApplicationCommand {
                                      @AppOption(description = "The phrase to remove from the ignored list") @Nullable String phrase,
                                      @AppOption(description = "The role to remove from the ignored list") @Nullable Role role) {
         if (phrase == null && role == null) {
-            event.reply("You must provide a phrase or role to remove from the ignored list").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You must provide a phrase or role to remove from the ignored list").setEphemeral(true).queue();
             return;
         }
         if (channel == null) channel = event.getGuildChannel();
@@ -152,20 +154,20 @@ public class ThreadCmd extends ApplicationCommand {
         // Phrase
         if (phrase != null) {
             threadChannel.ignoredPhrases.remove(phrase);
-            event.reply("`" + phrase + "` has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+            event.reply(LazyEmoji.YES + " `" + phrase + "` has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
         }
 
         // Role
         threadChannel.ignoredRoles.remove(role.getIdLong());
-        event.reply(role.getAsMention() + " has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + role.getAsMention() + " has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
     }
 
     @Nullable
     private CoThreadChannel getThreadChannel(@NotNull GuildSlashEvent event, @NotNull GuildChannel channel) {
-        final CoThreadChannel threadChannel = cobalt.data.getGuild(event.getGuild()).getThreadChannel(channel.getIdLong());
+        final CoThreadChannel threadChannel = cobalt.oldData.getGuild(event.getGuild()).getThreadChannel(channel.getIdLong());
         if (threadChannel == null) {
-            event.reply("Auto-threading for " + channel.getAsMention() + " is not enabled").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " Auto-threading for " + channel.getAsMention() + " is not enabled").setEphemeral(true).queue();
             return null;
         }
         return threadChannel;

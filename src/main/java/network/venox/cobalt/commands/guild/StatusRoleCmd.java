@@ -17,10 +17,11 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class StatusRoleCmd extends ApplicationCommand {
     public void listCommand(@NotNull GuildSlashEvent event,
                             @AppOption(description = "The role to list the statuses of") @Nullable Role role) {
         final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
+        final CoGuild coGuild = cobalt.oldData.getGuild(guild);
 
         // All status roles
         if (role == null) {
@@ -56,10 +57,10 @@ public class StatusRoleCmd extends ApplicationCommand {
         // Specific status role
         final Set<String> statuses = coGuild.statusRoles.get(role.getIdLong());
         if (statuses == null || statuses.isEmpty()) {
-            event.reply(role.getAsMention() + " is not linked to any statuses").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " " + role.getAsMention() + " is not linked to any statuses").setEphemeral(true).queue();
             return;
         }
-        event.reply(role.getAsMention() + " is linked to these statuses: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + role.getAsMention() + " is linked to these statuses: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -80,8 +81,8 @@ public class StatusRoleCmd extends ApplicationCommand {
                 .collect(Collectors.toSet());
 
         // Add to statusRoles and reply
-        cobalt.data.getGuild(event.getGuild()).statusRoles.computeIfAbsent(role.getIdLong(), s -> new HashSet<>()).addAll(statuses);
-        event.reply(role.getAsMention() + " will now be given to users who have any of these phrases in their status: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
+        cobalt.oldData.getGuild(event.getGuild()).statusRoles.computeIfAbsent(role.getIdLong(), s -> new HashSet<>()).addAll(statuses);
+        event.reply(LazyEmoji.YES + " " + role.getAsMention() + " will now be given to users who have any of these phrases in their status: `" + String.join("`, `", statuses) + "`").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
@@ -95,15 +96,15 @@ public class StatusRoleCmd extends ApplicationCommand {
         status = status.toLowerCase().trim();
 
         // Get statuses
-        final Set<String> statuses = cobalt.data.getGuild(event.getGuild()).statusRoles.get(role.getIdLong());
+        final Set<String> statuses = cobalt.oldData.getGuild(event.getGuild()).statusRoles.get(role.getIdLong());
         if (statuses == null || !statuses.contains(status)) {
-            event.reply(role.getAsMention() + " is not linked to the status `" + status + "`").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " " + role.getAsMention() + " is not linked to the status `" + status + "`").setEphemeral(true).queue();
             return;
         }
 
         // Remove from statusRoles
         statuses.remove(status);
-        event.reply(role.getAsMention() + " will no longer be given to users who have `" + status + "` in their status").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + role.getAsMention() + " will no longer be given to users who have `" + status + "` in their status").setEphemeral(true).queue();
     }
 
     @AutocompletionHandler(name = AC_REMOVE_STATUS) @NotNull
@@ -111,7 +112,7 @@ public class StatusRoleCmd extends ApplicationCommand {
         final OptionMapping roleOption = event.getOption("role");
         final Guild guild = event.getGuild();
         if (roleOption == null || guild == null) return Collections.emptyList();
-        final Set<String> statuses = cobalt.data.getGuild(guild).statusRoles.get(roleOption.getAsLong());
+        final Set<String> statuses = cobalt.oldData.getGuild(guild).statusRoles.get(roleOption.getAsLong());
         if (statuses == null) return Collections.emptyList();
         return new ArrayList<>(statuses);
     }

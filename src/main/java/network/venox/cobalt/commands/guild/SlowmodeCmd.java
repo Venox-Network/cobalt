@@ -15,11 +15,12 @@ import net.dv8tion.jda.api.entities.channel.attribute.ISlowmodeChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
 import network.venox.cobalt.data.objects.CoSlowmode;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @CommandMarker @UserPermissions(Permission.MANAGE_CHANNEL)
@@ -35,13 +36,13 @@ public class SlowmodeCmd extends ApplicationCommand {
                           @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer minimum,
                           @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
         if (channel == null) channel = event.getChannel().asTextChannel();
-        final CoGuild guild = cobalt.data.getGuild(event.getGuild());
+        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
         final CoSlowmode current = guild.getSlowmode(channel.getIdLong());
 
         // Remove slowmode if no minimum or maximum is specified
         if (current != null && minimum == null && maximum == null) {
             guild.slowmodes.remove(current);
-            event.reply("Removed dynamic slowmode for " + channel.getAsMention()).setEphemeral(true).queue();
+            event.reply(LazyEmoji.YES + " Removed dynamic slowmode for " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }
 
@@ -59,7 +60,7 @@ public class SlowmodeCmd extends ApplicationCommand {
             if (current != null) {
                 maximumValue = current.maximum;
             } else {
-                event.reply("You must specify a maximum slowmode!").setEphemeral(true).queue();
+                event.reply(LazyEmoji.NO + " You must specify a maximum slowmode!").setEphemeral(true).queue();
                 return;
             }
         } else {
@@ -68,13 +69,13 @@ public class SlowmodeCmd extends ApplicationCommand {
 
         // Check if minimum is greater than maximum
         if (minimumValue > maximumValue) {
-            event.reply("The minimum slowmode cannot be greater than the maximum!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " The minimum slowmode cannot be greater than the maximum!").setEphemeral(true).queue();
             return;
         }
 
         // Check if minimum and maximum are the same
         if (minimumValue == maximumValue) {
-            event.reply("The minimum and maximum slowmode cannot be the same!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " The minimum and maximum slowmode cannot be the same!").setEphemeral(true).queue();
             return;
         }
 
@@ -83,10 +84,10 @@ public class SlowmodeCmd extends ApplicationCommand {
             current.minimum = minimumValue;
             current.maximum = maximumValue;
         } else {
-            guild.slowmodes.add(new CoSlowmode(channel.getIdLong(), minimumValue, maximumValue));
+            guild.slowmodes.add(new CoSlowmode(event.getJDA(), guild.guildId, channel.getIdLong(), minimumValue, maximumValue));
         }
 
         // Reply
-        event.reply("Set dynamic slowmode for " + channel.getAsMention() + " to `" + minimumValue + "-" + maximumValue + "` seconds").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " Set dynamic slowmode for " + channel.getAsMention() + " to `" + minimumValue + "-" + maximumValue + "` seconds").setEphemeral(true).queue();
     }
 }

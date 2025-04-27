@@ -1,58 +1,29 @@
-version = "1.1.2"
+import xyz.srnyx.gradlegalaxy.enums.Repository
+import xyz.srnyx.gradlegalaxy.enums.repository
+import xyz.srnyx.gradlegalaxy.utility.magicMongo
+import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
+
 
 plugins {
     application
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("xyz.srnyx.gradle-galaxy") version "1.3.3"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
-repositories {
-    mavenCentral() // org.spongepowered:configurate-yaml, io.github.freya022:BotCommands, info.debatty:java-string-similarity
-    maven("https://jitpack.io") // io.github.freya022:BotCommands, com.github.walkyst:lavaplayer-fork
-    maven("https://repo.clojars.org") // net.clojars.suuft:libretranslate-java
-}
+repositories.mavenLocal()
+
+magicMongo("ef0c2370bd")
+setupLazyLibrary("3.2.0", "5.3.2", "network.venox", "1.2.0", "A Discord bot for Venox Network")
+
+repository(Repository.CLOJARS)
 
 dependencies {
-    implementation("net.dv8tion", "JDA", "5.0.0-beta.6") // JDA
-    implementation("org.spongepowered", "configurate-yaml", "4.1.2") // Data storage
-    implementation("io.github.freya022", "BotCommands", "2.8.4") // Command framework
-    implementation("org.postgresql", "postgresql", "42.5.4") // Database
-    implementation("com.zaxxer", "HikariCP", "5.0.1") // Database
-    implementation("ch.qos.logback", "logback-classic", "1.4.5") // Logging
-    implementation("info.debatty", "java-string-similarity", "2.0.0") // QOTD
+    implementation("org.quartz-scheduler", "quartz", "2.5.0-rc1") // QOTW
+    implementation("info.debatty", "java-string-similarity", "2.0.0") // QOTW
     implementation("net.clojars.suuft", "libretranslate-java", "1.0.5") // Translate
-    implementation("com.github.walkyst", "lavaplayer-fork", "1.4.0") // TTS
+    implementation("com.github.walkyst", "lavaplayer-fork", "1.4.2") // TTS
     implementation("net.sf.sociaal", "freetts", "1.2.2") // TTS
-}
 
-application.mainClass.set("network.venox.cobalt.Cobalt")
-
-tasks {
-    // Remove '-all' from the JAR file name and clean up the build folder
-    shadowJar {
-        archiveClassifier.set("")
-    }
-
-    // Make 'gradle build' run 'gradle shadowJar'
-    build {
-        dependsOn("shadowJar")
-    }
-
-    // Text encoding
-    compileJava {
-        options.encoding = "UTF-8"
-        options.compilerArgs.plusAssign("-parameters")
-    }
-
-    // Disable unnecessary tasks
-    classes { enabled = false }
-    jar { enabled = false }
-    distTar { enabled = false }
-    distZip { enabled = false }
-    shadowDistTar { enabled = false }
-    shadowDistZip { enabled = false }
-    compileTestJava { enabled = false }
-    processTestResources { enabled = false }
-    testClasses { enabled = false }
-    test { enabled = false }
-    check { enabled = false }
+    compileOnly("io.github.freya022", "BotCommands", "2.10.4") // For documentation
+    compileOnly("org.mongodb", "mongodb-driver-sync", "5.2.0") // For documentation
 }

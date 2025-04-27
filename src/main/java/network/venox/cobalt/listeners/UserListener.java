@@ -4,62 +4,50 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
-import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateActivitiesEvent;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.mongo.Server;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 public class UserListener extends CoListener {
-    public UserListener(@NotNull Cobalt cobalt) {
-        super(cobalt);
+    public UserListener(@NotNull Cobalt bot) {
+        super(bot);
     }
 
     @Override
-    public void onUserActivityStart(@NotNull UserActivityStartEvent event) {
-        final Activity activity = event.getNewActivity();
-        if (!activity.getType().equals(Activity.ActivityType.CUSTOM_STATUS)) return;
-        final Guild guild = event.getGuild();
-        final Set<Map.Entry<Role, Set<String>>> entries = cobalt.data.getGuild(guild).statusRoles.entrySet().stream()
-                .map(entry -> {
-                    final Role role = guild.getRoleById(entry.getKey());
-                    return role == null ? null : Map.entry(role, entry.getValue());
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-
-        // Check status roles
+    public void onUserUpdateActivities(@NotNull UserUpdateActivitiesEvent event) {
         final Member member = event.getMember();
-        final List<Role> memberRoles = member.getRoles();
-        final String status = activity.getName().toLowerCase().trim();
-        for (final Map.Entry<Role, Set<String>> entry : entries) {
-            final Role role = entry.getKey();
-            final boolean hasRole = memberRoles.contains(role);
-            if (entry.getValue().stream().anyMatch(status::contains)) {
-                if (!hasRole) guild.addRoleToMember(member, role).queue();
-                continue;
+        if (member.getUser().isBot()) return;
+        final Guild guild = member.getGuild();
+
+        // Get statusRoles
+        final Map<String, Long> statusRoles = bot.dataManager.mongo.getMagicCollection(Server.class).findOne("_id", guild.getIdLong())
+                .map(server -> server.statusRoles)
+                .orElse(Map.of());
+        if (statusRoles.isEmpty()) return;
+
+        // Check each status role
+        for (final Map.Entry<String, Long> entry : statusRoles.entrySet()) {
+            // Add role if user has status
+            final List<Activity> activities = event.getNewValue();
+            if (activities != null && activities.stream().anyMatch(activity -> activity.getType() == Activity.ActivityType.CUSTOM_STATUS && activity.getName().toLowerCase().contains(entry.getKey()))) {
+                final Role role = guild.getRoleById(entry.getValue());
+                if (role != null && !member.getRoles().contains(role)) guild.addRoleToMember(member, role).queue(null, LazyUtilities.IGNORE_UNKNOWN_MEMBER);
+                return;
             }
-            if (hasRole) guild.removeRoleFromMember(member, role).queue();
-        }
-    }
 
-    @Override
-    public void onUserActivityEnd(@NotNull UserActivityEndEvent event) {
-        if (!event.getOldActivity().getType().equals(Activity.ActivityType.CUSTOM_STATUS)) return;
-        final Guild guild = event.getGuild();
-        final Member member = event.getMember();
-        cobalt.data.getGuild(event.getGuild()).statusRoles.keySet().stream()
-                .map(guild::getRoleById)
-                .filter(Objects::nonNull)
-                .forEach(role -> guild.removeRoleFromMember(member, role).queue());
+            // Remove role if user doesn't have status
+            final Role role = guild.getRoleById(entry.getValue());
+            if (role != null && member.getRoles().contains(role)) guild.removeRoleFromMember(member, role).queue(null, LazyUtilities.IGNORE_UNKNOWN_MEMBER);
+        }
     }
 }

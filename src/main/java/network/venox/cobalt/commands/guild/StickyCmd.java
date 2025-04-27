@@ -14,13 +14,15 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.CoGuild;
-import network.venox.cobalt.data.objects.CoMessage;
 import network.venox.cobalt.data.objects.CoStickyMessage;
-import network.venox.cobalt.utility.CoMapper;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.javautilities.manipulation.Mapper;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.LazyMessage;
 
 
 @CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
@@ -34,41 +36,41 @@ public class StickyCmd extends ApplicationCommand {
     public void stickyCommand(@NotNull GuildSlashEvent event,
                           @AppOption(description = "The message to sticky. If empty, sticky will be removed") @Nullable String message) {
         final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
+        final CoGuild coGuild = cobalt.oldData.getGuild(guild);
         final TextChannel channel = event.getChannel().asTextChannel();
 
         // Delete existing sticky message
         if (message == null) {
             final CoStickyMessage stickyMessage = coGuild.getStickyMessage(channel.getIdLong());
             if (stickyMessage != null) {
-                stickyMessage.delete(guild);
+                stickyMessage.delete();
                 coGuild.stickyMessages.remove(stickyMessage);
             }
-            event.reply("Sticky message has been removed from " + channel.getAsMention()).setEphemeral(true).queue();
+            event.reply(LazyEmoji.YES + " Sticky message has been removed from " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }
 
         // Get messageId
-        final Long messageId = CoMapper.toLong(message);
+        final Long messageId = Mapper.toLong(message);
         if (messageId == null) {
-            event.reply("Invalid message ID").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " Invalid message ID").setEphemeral(true).queue();
             return;
         }
 
         // Delete existing sticky message
         final CoStickyMessage current = coGuild.getStickyMessage(channel.getIdLong());
         if (current != null) {
-            current.delete(guild);
+            current.delete();
             coGuild.stickyMessages.remove(current);
         }
 
         // Set new sticky message
         channel.retrieveMessageById(messageId)
                 .queue(sentMessage -> {
-                    final CoStickyMessage stickyMessage = new CoStickyMessage(cobalt, channel.getIdLong(), new CoMessage(sentMessage), null);
+                    final CoStickyMessage stickyMessage = new CoStickyMessage(cobalt, guild.getIdLong(), channel.getIdLong(), new LazyMessage(sentMessage), null);
                     coGuild.stickyMessages.add(stickyMessage);
-                    event.reply(sentMessage.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
-                    stickyMessage.send(guild);
+                    event.reply(LazyEmoji.YES + " " + sentMessage.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
+                    stickyMessage.send();
                 });
     }
 }

@@ -16,16 +16,20 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.commands.Command;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.objects.CoEmbed;
-import network.venox.cobalt.utility.CoMapper;
-import network.venox.cobalt.utility.CoUtilities;
+import network.venox.cobalt.CoUtilities;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.MiscUtility;
+import xyz.srnyx.javautilities.manipulation.Mapper;
+
+import xyz.srnyx.lazylibrary.LazyEmbed;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -33,29 +37,31 @@ import java.util.stream.Collectors;
 public class ServersCmd extends ApplicationCommand {
     @NotNull private static final String AC_SERVERS_USER = "ServersCmd.serversCommand.user";
 
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
             name = "servers",
             description = "Lists all servers the bot is in")
     public void serversCommand(@NotNull GlobalSlashEvent event,
-                          @AppOption(description = "The ID of the user to get mutual servers of", autocomplete = AC_SERVERS_USER) @Nullable String user) {
-        if (!cobalt.config.checkIsOwner(event)) return;
+                               @AppOption(description = "The ID of the user to get mutual servers of", autocomplete = AC_SERVERS_USER) @Nullable String user) {
+        if (!bot.config.checkIsOwner(event)) return;
         final JDA jda = event.getJDA();
 
         // Get entity & guilds
         String entity = jda.getSelfUser().getAsTag();
-        List<Guild> guilds = cobalt.jda.getGuilds();
+        List<Guild> guilds = bot.jda.getGuilds();
         if (user != null) {
-            final Long userId = CoMapper.toLong(user);
-            if (userId == null) {
-                event.replyEmbeds(CoEmbed.invalidArgument(user).build()).setEphemeral(true).queue();
+            final Optional<Long> userId = Mapper.toLong(user);
+            if (userId.isEmpty()) {
+                event.replyEmbeds(LazyEmbed.invalidArgument("user", user).build(bot)).setEphemeral(true).queue();
                 return;
             }
-            final User userEntity = jda.retrieveUserById(userId).complete();
+            final User userEntity = jda.retrieveUserById(userId.get()).complete();
             entity = userEntity.getAsTag();
-            guilds = userEntity.getMutualGuilds();
+            guilds = jda.getGuilds().stream()
+                    .filter(guild -> MiscUtility.handleException(() -> guild.retrieveMember(userEntity).complete()).isPresent())
+                    .toList();
         }
         final Map<Guild, Integer> guildsMap = guilds.stream()
                 .map(guild -> Map.entry(guild, guild.getMemberCount()))
@@ -63,19 +69,18 @@ public class ServersCmd extends ApplicationCommand {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, HashMap::new));
 
         // Send embed
-        final CoEmbed embed = cobalt.messages.getEmbed("command", "servers")
-                .replace("%entity%", entity)
-                .replace("%guilds%", guildsMap.size())
-                .replace("%members%", guildsMap.values().stream()
+        final LazyEmbed embed = new LazyEmbed()
+                .setTitle(entity + " servers")
+                .setDescription("**Total servers:** " + guildsMap.size() + "\n**Total members:** " + guildsMap.values().stream()
                         .mapToInt(Integer::intValue)
                         .sum());
         guildsMap.forEach((guild, members) -> embed.addField(guild.getName(), "**ID:** `" + guild.getId() + "`\n**Members:** " + members, true));
-        event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+        event.replyEmbeds(embed.build(bot)).setEphemeral(true).queue();
     }
 
     @AutocompletionHandler(name = AC_SERVERS_USER) @NotNull
     public List<Command.Choice> acServersUser(@NotNull CommandAutoCompleteInteractionEvent event) {
-        if (!cobalt.config.isOwner(event.getUser())) return List.of();
+        if (!bot.isOwner(event.getUser().getIdLong())) return List.of();
         return CoUtilities.acGuildMembers(event);
     }
 }

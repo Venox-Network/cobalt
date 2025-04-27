@@ -1,34 +1,33 @@
 package network.venox.cobalt.listeners;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.commands.global.EmbedCmd;
-import network.venox.cobalt.data.CoGuild;
-import network.venox.cobalt.data.CoUser;
 import network.venox.cobalt.data.objects.*;
-import network.venox.cobalt.utility.CoMapper;
+import network.venox.cobalt.CoUtilities;
+import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
-import java.time.Instant;
+import xyz.srnyx.javautilities.StringUtility;
+
+import xyz.srnyx.lazylibrary.LazyEmbed;
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
 import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -59,15 +58,13 @@ public class MessageListener extends CoListener {
         final Member member = event.getMember();
         if (member == null) return;
         final Guild guild = event.getGuild();
-        final CoGuild coGuild = cobalt.data.getGuild(guild);
+        final long guildId = guild.getIdLong();
+        final CoGuild coGuild = bot.oldData.getGuild(guild);
         final GuildMessageChannel guildChannel = event.getGuildChannel();
         final long channelId = guildChannel.getIdLong();
+        final String authorName = author.getName();
         final Message message = event.getMessage();
         final MessageType type = message.getType();
-
-        // Welcome channel
-        final Long welcomeChannel = coGuild.welcomeChannel;
-        if (welcomeChannel != null && channelId == welcomeChannel && type.equals(MessageType.GUILD_MEMBER_JOIN)) message.addReaction(Emoji.fromUnicode("U+1F44B")).queue();
 
         // React channel
         final CoReactChannel reactChannel = coGuild.getReactChannel(channelId);
@@ -81,7 +78,7 @@ public class MessageListener extends CoListener {
 
         // Sticky message
         final CoStickyMessage stickyMessage = coGuild.getStickyMessage(channelId);
-        if (stickyMessage != null) stickyMessage.send(guild);
+        if (stickyMessage != null) stickyMessage.send();
 
         // Limited messages
         final CoLimitedMessages limitedMessages = coGuild.getLimitedMessages(channelId);
@@ -93,127 +90,198 @@ public class MessageListener extends CoListener {
                 .map(Role::getIdLong)
                 .noneMatch(autoDelete::contains)) message.delete().queue();
 
-        // Highlights
+        // AFK (disable)
+        final CoUser coUser = bot.oldData.getUser(author);
+        if (coUser.afk()) message.reply(":wave: **Welcome back,** you are no longer AFK!").queue(s -> coUser.afk = false);
+
+        // User data
+        if (!guild.getSelfMember().hasPermission(guildChannel, Permission.MESSAGE_HISTORY)) return;
         final long authorId = author.getIdLong();
-        final Set<String> words = Arrays.stream(message.getContentRaw().split(" "))
-                .map(word -> word.toLowerCase().trim())
+        final String content = message.getContentRaw();
+        final String contentLower = content.toLowerCase().replaceAll("https?://(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,63}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&/=]{0,63}", "");
+        final String jumpUrl = message.getJumpUrl();
+        final Set<Long> mentions = message.getMentions().getUsers().stream()
+                .map(ISnowflake::getIdLong)
                 .collect(Collectors.toSet());
-        for (final CoUser user : cobalt.data.users) {
-            if (user.userId == authorId) continue;
-            final Member coMember = guild.getMemberById(user.userId);
-            if (coMember == null || !coMember.hasPermission(guildChannel, Permission.MESSAGE_HISTORY) || memberTalkedRecently(coMember, guildChannel)) continue;
-            for (final String highlight : user.highlights) {
-                if (!words.contains(highlight)) continue;
-                user.sendHighlight(highlight, message);
-                break;
+        final OffsetDateTime time = OffsetDateTime.now().minus(CoUser.HIGHLIGHT_TIME, ChronoUnit.MILLIS);
+        final MessageHistory.MessageRetrieveAction historyAction = message.getChannel().getHistoryBefore(message, 4);
+        for (final CoUser otherCoUser : bot.oldData.users) {
+            if (otherCoUser.id == authorId) continue;
+            final CacheRestAction<User> otherUserAction = otherCoUser.getUser();
+
+            // Check if mentioned
+            if (mentions.stream().anyMatch(streamId -> streamId == otherCoUser.userId)) {
+                // AFK (alert)
+                if (otherCoUser.afk()) otherUserAction
+                        .flatMap(otherUser -> message.reply(LazyEmoji.WARNING + " **`" + otherUser.getName() + "`** is currently AFK!"))
+                        .queue();
+                continue;
             }
+
+            // Highlights
+            if (content.length() < 500) otherCoUser.getMember(guild).queue(coMember -> {
+                if (coMember.hasPermission(guildChannel, Permission.MESSAGE_HISTORY)) CoUtilities.userTalkedOrMentionedRecently(otherCoUser.userId, guildChannel, time).queue(talkedRecently -> {
+                    if (talkedRecently == null || talkedRecently) return;
+                    // Check if in an audio channel
+                    final GuildVoiceState voiceState = coMember.getVoiceState();
+                    if (voiceState != null && voiceState.inAudioChannel()) return;
+                    // Check cooldown
+                    final Long cooldown = otherCoUser.highlightCooldowns.get(guildId);
+                    if (cooldown != null) {
+                        if (cooldown - System.currentTimeMillis() > 0) return;
+                        otherCoUser.highlightCooldowns.remove(guildId);
+                    }
+                    // Check highlights
+                    for (final String highlight : otherCoUser.highlights) {
+                        final int index = contentLower.indexOf(highlight);
+                        if (index == -1) continue;
+                        // Add to cooldowns
+                        otherCoUser.highlightCooldowns.put(guildId, System.currentTimeMillis() + CoUser.HIGHLIGHT_TIME);
+                        // Send embed in DMs
+                        final LazyEmbed embed = new LazyEmbed()
+                                .setAuthor(authorName, "https://discord.com/users/" + author.getId(), author.getEffectiveAvatarUrl())
+                                .setTitle(highlight, jumpUrl)
+                                .setFooter("#" + message.getChannel().getName() + " in " + message.getGuild().getName(), message.getGuild().getIconUrl())
+                                .setTimestamp(message.getTimeCreated());
+                        historyAction
+                                .flatMap(history -> {
+                                    // Previous messages
+                                    final List<Message> messages = new ArrayList<>(history.getRetrievedHistory());
+                                    Collections.reverse(messages);
+                                    messages.forEach(msg -> embed.addField(msg.getAuthor().getName(), StringUtility.shorten(msg.getContentRaw(), 1024), false));
+                                    // Highlighted message
+                                    embed.addField(authorName, StringUtility.shorten(content.substring(0, index) +
+                                            "[" + content.substring(index, index + highlight.length()) + "](" + jumpUrl + ")" +
+                                            content.substring(index + highlight.length()), 1024), false);
+                                    return otherUserAction;
+                                })
+                                .flatMap(User::openPrivateChannel)
+                                .flatMap(channel -> channel.sendMessageEmbeds(embed.build(bot)))
+                                .queue();
+                        break;
+                    }
+                });
+            }, f -> {});
         }
     }
 
+    private void onPrivateChannelReceived(@NotNull MessageReceivedEvent event) {
+        // Global modmail
+        final Message message = event.getMessage();
+        if (message.getContentRaw().isEmpty() && message.getAttachments().isEmpty()) return;
+        final User author = event.getAuthor();
+        // Create new thread
+        final CoModmail modmail = bot.oldData.global.getModmailByUserId(author.getIdLong());
+        if (modmail == null) {
+            CoModmail.sendModmailConfirmation(bot, author, message).queue();
+            return;
+        }
+        final ThreadChannel thread = modmail.getThread();
+        final MessageEmbed embed = modmail.getUserEmbed(message.getContentRaw(), message.getIdLong());
+        if (modmail.closed || thread == null || embed == null) {
+            bot.oldData.global.modmails.remove(modmail);
+            CoModmail.sendModmailConfirmation(bot, author, message).queue();
+            return;
+        }
+        CoModmail.getCreateAction(thread, message, embed).queue(msg -> modmail.scheduleExpireWarning(null));
+    }
+
     private void onTextChannelReceived(@NotNull MessageReceivedEvent event) {
+        // Slowmode
         final TextChannel channel = event.getGuildChannel().asTextChannel();
-        final CoSlowmode slowmode = cobalt.data.getGuild(event.getGuild()).getSlowmode(channel.getIdLong());
+        final CoSlowmode slowmode = bot.oldData.getGuild(event.getGuild()).getSlowmode(channel.getIdLong());
         if (slowmode != null) slowmode.setSlowmode(channel);
     }
 
     private void onThreadChannelReceived(@NotNull MessageReceivedEvent event) {
-        final ThreadChannel channel = event.getGuildChannel().asThreadChannel();
-        final CacheRestAction<User> userAction = cobalt.data.global.getModmailUser(channel.getIdLong());
+        // Global modmail
+        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
+        if (modmail == null) return;
+        final CacheRestAction<User> userAction = modmail.getUser();
         if (userAction == null) return;
-        final MessageCreateBuilder builder = MessageCreateBuilder.fromMessage(event.getMessage());
-        builder.setContent("**" + event.getAuthor().getAsMention() + ":**\n" + builder.getContent());
+        final Message message = event.getMessage();
         userAction
                 .flatMap(User::openPrivateChannel)
-                .flatMap(privateChannel -> privateChannel.sendMessage(builder.build()))
+                .flatMap(channel -> CoModmail.getCreateAction(channel, message, modmail.getModeratorEmbed(event.getAuthor(), message.getContentRaw(), message.getIdLong())))
                 .queue();
     }
 
-    private void onPrivateChannelReceived(@NotNull MessageReceivedEvent event) {
-        final User author = event.getAuthor();
-        final long authorId = author.getIdLong();
+    @Override
+    public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
+        final ChannelType type = event.getChannelType();
 
-        // Embed
-        final EmbedCmd.Data data = cobalt.embedBuilders.get(authorId);
-        if (data != null) {
-            if (data.parameter == null) return;
-            final PrivateChannel channel = event.getChannel().asPrivateChannel();
-            final String value = event.getMessage().getContentRaw();
-            data.getEmbedMessage(channel).queue(message -> {
-                final EmbedBuilder builder = new EmbedBuilder(message.getEmbeds().get(0));
-                switch (data.parameter) {
-                    case "color" -> builder.setColor(Color.decode(value));
-                    case "author" -> {
-                        final String[] split = value.split("==", 2);
-                        builder.setAuthor(split[0], split.length > 1 ? split[1] : null);
-                    }
-                    case "title" -> {
-                        final String[] split = value.split("==", 2);
-                        builder.setTitle(split[0], split.length > 1 ? split[1] : null);
-                    }
-                    case "description" -> builder.setDescription(value);
-                    case "field" -> {
-                        final String[] split = value.split("==", 3);
-                        if (split.length < 2) {
-                            channel.sendMessage("Invalid field format, please use `name||value` or `name||value||inline`").queue();
-                            return;
-                        }
-                        builder.addField(split[0], split[1], split.length > 2 && Boolean.parseBoolean(split[2]));
-                    }
-                    case "thumbnail" -> builder.setThumbnail(value);
-                    case "image" -> builder.setImage(value);
-                    case "footer" -> {
-                        final String[] split = value.split("==", 2);
-                        builder.setFooter(split[0], split.length > 1 ? split[1] : null);
-                    }
-                    case "timestamp" -> {
-                        if (value.equals("now")) {
-                            builder.setTimestamp(OffsetDateTime.now());
-                        } else {
-                            final Long timestamp = CoMapper.toLong(value);
-                            if (timestamp == null) {
-                                channel.sendMessage("Invalid timestamp, please use a valid epoch timestamp").queue();
-                                return;
-                            }
-                            builder.setTimestamp(Instant.ofEpochMilli(timestamp));
-                        }
-                    }
-                    default -> channel.sendMessage("Unknown parameter `" + data.parameter + "`").queue();
-                }
-
-                // Send new embed
-                channel.sendMessageEmbeds(builder.build())
-                        .addActionRow(EmbedCmd.selectMenu())
-                        .addActionRow(EmbedCmd.getButtons(cobalt, author, data.channel))
-                        .queue(newMessage -> data.embedMessage = newMessage.getIdLong());
-
-                // Delete old messages
-                message.delete().queue();
-                final InteractionHook hook = data.parameterHook;
-                if (hook != null) hook.deleteOriginal().queue();
-            });
+        // PrivateChannel
+        if (type.equals(ChannelType.PRIVATE)) {
+            onPrivateChannelUpdate(event);
             return;
         }
 
-        // Global modmail
-        final ThreadChannel thread = cobalt.data.global.getModmailThread(authorId);
-        final MessageCreateBuilder builder = MessageCreateBuilder.fromMessage(event.getMessage());
-        if (builder.getContent().isEmpty()) return;
-        // Create new thread
-        if (thread == null) {
-            cobalt.data.global.sendModmailConfirmation(author, builder).queue();
-            return;
-        }
-        // Send message to existing thread
-        thread.sendMessage(builder.build()).queue();
+        // ThreadChannel
+        if (type.equals(ChannelType.GUILD_PUBLIC_THREAD) || type.equals(ChannelType.GUILD_PRIVATE_THREAD)) onThreadChannelUpdate(event);
     }
 
-    private boolean memberTalkedRecently(@NotNull Member member, @NotNull GuildMessageChannel channel) {
-        final long memberId = member.getIdLong();
-        final OffsetDateTime threeMinutesAgo = OffsetDateTime.now().minusMinutes(3);
-        for (final Message message : channel.getHistory().retrievePast(50).complete()) {
-            if (message.getTimeCreated().isBefore(threeMinutesAgo)) break;
-            if (message.getAuthor().getIdLong() == memberId) return true;
+    public void onPrivateChannelUpdate(@NotNull MessageUpdateEvent event) {
+        // Global modmail
+        final CoModmail modmail = bot.oldData.global.getModmailByUserId(event.getAuthor().getIdLong());
+        if (modmail == null) return;
+        final ThreadChannel thread = modmail.getThread();
+        final Message message = event.getMessage();
+        final MessageEmbed embed = modmail.getUserEmbed(message.getContentRaw(), message.getIdLong());
+        if (thread != null && embed != null) CoModmail.getModmailMessage(thread, event.getMessage().getIdLong())
+                .queue(foundMessage -> {
+                    if (foundMessage != null) foundMessage.editMessage(new MessageEditBuilder().setEmbeds(embed).build()).queue();
+                });
+    }
+
+    public void onThreadChannelUpdate(@NotNull MessageUpdateEvent event) {
+        // Global modmail
+        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
+        if (modmail == null) return;
+        final CacheRestAction<User> userAction = modmail.getUser();
+        if (userAction == null) return;
+        final Message message = event.getMessage();
+        userAction
+                .flatMap(User::openPrivateChannel)
+                .flatMap(privateChannel -> CoModmail.getModmailMessage(privateChannel, event.getMessage().getIdLong()))
+                .flatMap(Objects::nonNull, otherMessage -> otherMessage.editMessage(new MessageEditBuilder().setEmbeds(modmail.getModeratorEmbed(event.getAuthor(), message.getContentRaw(), message.getIdLong())).build()))
+                .queue();
+    }
+
+    @Override
+    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
+        final ChannelType type = event.getChannelType();
+
+        // PrivateChannel
+        if (type.equals(ChannelType.PRIVATE)) {
+            onPrivateChannelDelete(event);
+            return;
         }
-        return false;
+
+        // ThreadChannel
+        if (type.equals(ChannelType.GUILD_PUBLIC_THREAD) || type.equals(ChannelType.GUILD_PRIVATE_THREAD)) onThreadChannelDelete(event);
+    }
+
+    public void onPrivateChannelDelete(@NotNull MessageDeleteEvent event) {
+        // Global modmail
+        final User user = event.getChannel().asPrivateChannel().getUser();
+        if (user == null) return;
+        final CoModmail modmail = bot.oldData.global.getModmailByUserId(user.getIdLong());
+        if (modmail == null) return;
+        final ThreadChannel channel = modmail.getThread();
+        if (channel != null) CoModmail.getModmailMessage(channel, event.getMessageIdLong())
+                .flatMap(Objects::nonNull, Message::delete)
+                .queue();
+    }
+
+    public void onThreadChannelDelete(@NotNull MessageDeleteEvent event) {
+        // Global modmail
+        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
+        if (modmail == null) return;
+        final CacheRestAction<User> userAction = modmail.getUser();
+        if (userAction != null) userAction
+                .flatMap(User::openPrivateChannel)
+                .flatMap(privateChannel -> CoModmail.getModmailMessage(privateChannel, event.getMessageIdLong()))
+                .flatMap(Objects::nonNull, Message::delete)
+                .queue();
     }
 }

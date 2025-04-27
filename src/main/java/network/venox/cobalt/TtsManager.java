@@ -23,9 +23,11 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
 import net.dv8tion.jda.api.managers.AudioManager;
 
-import network.venox.cobalt.utility.CoUtilities;
-
 import org.jetbrains.annotations.NotNull;
+
+import xyz.srnyx.javautilities.FileUtility;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import javax.sound.sampled.AudioFileFormat;
 
@@ -43,7 +45,7 @@ public class TtsManager {
     static {
         AudioSourceManagers.registerLocalSource(playerManager);
         sendHandler.player.addListener(event -> {
-            if (event instanceof TrackEndEvent endEvent) CoUtilities.deleteFile(Path.of(endEvent.track.getInfo().uri), true);
+            if (event instanceof TrackEndEvent endEvent) FileUtility.deleteFile(Path.of(endEvent.track.getInfo().uri), true);
         });
     }
 
@@ -58,33 +60,33 @@ public class TtsManager {
         // Check if user is in a channel
         final AudioChannelUnion channel = voiceState.getChannel();
         if (channel == null) {
-            event.reply("You are not in a voice channel!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You are not in a voice channel!").setEphemeral(true).queue();
             return;
         }
 
         // Check if bot is already in a different channel
         final AudioChannelUnion selfChannel = selfVoiceState.getChannel();
         if (selfChannel != null && !selfChannel.equals(channel)) {
-            event.reply("I'm already in another voice channel!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " I'm already in another voice channel!").setEphemeral(true).queue();
             return;
         }
 
         // Check if text is empty
         if (text.isBlank()) {
-            event.reply("Text cannot be empty!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " Text cannot be empty!").setEphemeral(true).queue();
             return;
         }
 
         // Check if text is too long
         final int length = text.length();
         if (length > 500) {
-            event.reply("Character count exceeded limit: **" + length + "**/500!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " Character count exceeded limit: **" + length + "**/500!").setEphemeral(true).queue();
             return;
         }
         
         // Check if already speaking
         if (sendHandler.player.getPlayingTrack() != null) {
-            event.reply("I'm already speaking!").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " I'm already speaking!").setEphemeral(true).queue();
             return;
         }
 

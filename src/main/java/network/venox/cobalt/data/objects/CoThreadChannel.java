@@ -1,29 +1,34 @@
 package network.venox.cobalt.data.objects;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
-import network.venox.cobalt.data.CoObject;
-import network.venox.cobalt.utility.CoUtilities;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.javautilities.StringUtility;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-public final class CoThreadChannel implements CoObject {
+public final class CoThreadChannel extends CoObject {
+    @NotNull private final JDA jda;
+    private final long guildId;
+
     public final long channel;
     @Nullable public final String name;
     public int count;
     @NotNull public final Set<String> ignoredPhrases;
     @NotNull public final Set<Long> ignoredRoles;
 
-    public CoThreadChannel(long channel, @Nullable String name, int count, @Nullable Set<String> ignoredPhrases, @Nullable Set<Long> ignoredRoles) {
+    public CoThreadChannel(@NotNull JDA jda, long guildId, long channel, @Nullable String name, int count, @Nullable Set<String> ignoredPhrases, @Nullable Set<Long> ignoredRoles) {
+        this.jda = jda;
+        this.guildId = guildId;
         this.channel = channel;
         this.name = name;
         this.count = count;
@@ -36,18 +41,32 @@ public final class CoThreadChannel implements CoObject {
         final Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("count", count);
-        map.put("ignoredPhrases", new ArrayList<>(ignoredPhrases));
-        map.put("ignoredRoles", new ArrayList<>(ignoredRoles));
+        if (!ignoredPhrases.isEmpty()) map.put("ignoredPhrases", new ArrayList<>(ignoredPhrases));
+        if (!ignoredRoles.isEmpty()) map.put("ignoredRoles", new ArrayList<>(ignoredRoles));
         return map;
     }
 
+    @Override
+    public boolean isNull() {
+        return false;
+    }
+
     @Nullable
-    public StandardGuildMessageChannel getChannel(@NotNull Guild guild) {
+    public Guild getGuild() {
+        return jda.getGuildById(guildId);
+    }
+
+    @Nullable
+    public StandardGuildMessageChannel getChannel() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
         return guild.getChannelById(StandardGuildMessageChannel.class, channel);
     }
 
-    @NotNull
-    public Set<Role> getIgnoredRoles(@NotNull Guild guild) {
+    @Nullable
+    public Set<Role> getIgnoredRoles() {
+        final Guild guild = getGuild();
+        if (guild == null) return null;
         return ignoredRoles.stream()
                 .map(guild::getRoleById)
                 .filter(Objects::nonNull)
@@ -65,7 +84,7 @@ public final class CoThreadChannel implements CoObject {
                 .replace("%message%", message.getContentRaw());
 
         // Shorten
-        return CoUtilities.shorten(threadName, 100);
+        return StringUtility.shorten(threadName, 100);
     }
 
     public void createThread(@NotNull Message message) {
@@ -76,7 +95,8 @@ public final class CoThreadChannel implements CoObject {
         // Check ignoredRoles
         if (!ignoredRoles.isEmpty()) {
             final Member member = message.getMember();
-            if (member == null || !Collections.disjoint(getIgnoredRoles(message.getGuild()), member.getRoles())) return;
+            final Set<Role> ignoredRolesSet = getIgnoredRoles();
+            if (member == null || ignoredRolesSet == null || !Collections.disjoint(ignoredRolesSet, member.getRoles())) return;
         }
 
         // Create thread

@@ -5,10 +5,27 @@ token: "PUT_BOT_TOKEN_HERE"
 # Supports: MariaDB, SQLite, PostgreSQL, H2
 database: "PUT_CONNECTION_STRING_HERE"
 
+# The Mongo database connection string to store data for the bot
+mongo: "PUT_CONNECTION_STRING_HERE"
+
 # Owner IDs of the bot
 owners:
-  - 242385234992037888 # srnyx
-  - 273538684526264320 # ChrizxzFTW
+  primary: 242385234992037888 # srnyx
+  other:
+    - 273538684526264320 # ChrizxzFTW
+    - 533985117589471233 # Reece
+
+# The API key used for the YouTube API for statistic channels
+youtube-api-key: "PUT_YOUTUBE_API_KEY_HERE"
+
+# The API information for the Twitch API for statistic channels
+twitch:
+  # The Twitch client's ID
+  client-id: "PUT_TWITCH_CLIENT_ID_HERE"
+  # The Twitch client's secret
+  client-secret: "PUT_TWITCH_CLIENT_SECRET_HERE"
+  # The OAuth token for the Twitch client
+  access-token: "PUT_TWITCH_ACCESS_TOKEN_HERE"
 
 # Settings regarding the main guild for the bot (support server)
 guild:
@@ -16,10 +33,10 @@ guild:
   id: 879734848946847774
   # The invite URL for the guild
   invite: "https://discord.gg/gAeMxAv9kp"
-  # QOTD Manager role ID
-  qotd-manager: 891405322105811004
-  # QOTD Manager chat where QOTD alerts will be sent
-  qotd-chat: 891404641277984788
+  # Bot Manager role ID
+  bot-manager: 891405322105811004
+  # Bot Manager chat where QOTW alerts and other notifications will be sent
+  bot-manager-chat: 891404641277984788
   # The role ID given to moderators
   mod: 889244089801900102
   # Global modmail forum channel for moderators
@@ -27,27 +44,59 @@ guild:
   # Log channel for global actions (super punishments, etc...)
   log: 1008889846850408489
 
-# Rotating status messages for the bot. Types: PLAYING, LISTENING, WATCHING
+# Rotating status messages for the bot
 statuses:
-  - status: "%servers% servers"
-    type: WATCHING
-  - status: "%users% users"
-    type: WATCHING
-  - status: "over chriz.cf"
-    type: WATCHING
-  - status: "over srnyx.xyz/discord"
-    type: WATCHING
-  - status: "over venox.network"
-    type: WATCHING
-  - status: "over simpearth.xyz/discord"
-    type: WATCHING
-  - status: "over events.red"
-    type: WATCHING
-  - status: "over lasertag.venox.network"
-    type: WATCHING
-  - status: "srnyx.xyz/pl"
-    type: LISTENING
-  - status: "chriz.cf/playlist"
-    type: LISTENING
-  - status: "on lasertag.venox.network"
-    type: PLAYING
+  - "watching %servers% servers"
+  - "watching %users% users"
+  - "watching over srnyx.com/discord"
+  - "watching over discord.gg/commandgeek"
+  - "watching over venox.network"
+  - "watching over srnyx.com"
+  - "watching over chriz.cf"
+  - "watching over lasertag.venox.network"
+  - "listening to srnyx.com/playlist"
+  - "listening to chriz.cf/playlist"
+  - "playing on play.commandgeek.com"
+  - "playing on lasertag.venox.network"
+
+# A list of questions to be used when a user joins a server
+welcome-questions:
+  - "Where are you from?"
+  - "Who's your favorite content creator?"
+  - "Who's your favorite superhero?"
+  - "Who's your favorite super-villain?"
+  - "Who's your favorite actor?"
+  - "Who's your favorite singer/band?"
+  - "What's your favorite video game?"
+  - "What's your favorite movie?"
+  - "What's your favorite TV show?"
+  - "What's your favorite song?"
+  - "What's your favorite food?"
+  - "What's your favorite color?"
+  - "What's your favorite animal?"
+  - "What's your favorite sport?"
+  - "What's your favorite hobby?"
+  - "What's your favorite subject in school?"
+  - "What's your favorite holiday?"
+  - "What's your favorite season?"
+  - "What's your favorite weather?"
+  - "What's your favorite emoji?"
+  - "What's your favorite meme?"
+  - "What's your favorite video game?"
+  - "What's your favorite video game console?"
+  - "What's your favorite thing to do?"
+
+# A list of words to ignore when checking for similar QOTWs
+qotw-similarity-ignored:
+  - "if"
+  - "what"
+  - "are"
+  - "you"
+  - "why"
+  - "how"
+  - "the"
+  - "best"
+  - "is"
+  - "your"
+  - "favorite"
+  - "what's"

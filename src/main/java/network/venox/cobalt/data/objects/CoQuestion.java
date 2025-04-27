@@ -1,32 +1,32 @@
 package network.venox.cobalt.data.objects;
 
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
 
-import network.venox.cobalt.data.CoObject;
-import network.venox.cobalt.utility.CoUtilities;
+import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.StringUtility;
+
 import java.util.Map;
 
 
-public class CoQuestion implements CoObject {
-    @NotNull private final JDA jda;
+public class CoQuestion extends CoObject {
+    @NotNull private final Cobalt cobalt;
 
     public final int id;
     @NotNull public final String question;
     public final long user;
     public int used;
 
-    public CoQuestion(@NotNull JDA jda, int id, @NotNull String question, long user, int used) {
-        this.jda = jda;
+    public CoQuestion(@NotNull Cobalt cobalt, int id, @NotNull String question, long user, int used) {
+        this.cobalt = cobalt;
         this.id = id;
         this.question = question;
         this.user = user;
@@ -41,9 +41,24 @@ public class CoQuestion implements CoObject {
                 "used", used);
     }
 
+    @Override
+    public boolean isNull() {
+        return false;
+    }
+
     @NotNull
     public CacheRestAction<User> getUser() {
-        return jda.retrieveUserById(user);
+        return cobalt.jda.retrieveUserById(user);
+    }
+
+    @NotNull
+    public String getFormatted() {
+        return "**" + id + " (<@" + user + ">, " + used + "):** " + question;
+    }
+
+    @NotNull
+    public String getCleaned() {
+        return clean(cobalt, question);
     }
 
     public void send(int count, @NotNull StandardGuildMessageChannel channel, @Nullable Role role) {
@@ -52,9 +67,16 @@ public class CoQuestion implements CoObject {
         if (role != null) roleString = role.getAsMention();
 
         // Send message
-        channel.sendMessage("**QOTD #" + count + ":** " + question + " " + roleString + "\n*You can also answer in your server's general chat by prefixing " + channel.getAsMention() + " to your message*")
-                .flatMap(message -> message.createThreadChannel(CoUtilities.shorten(count + ": " + question, 100))
+        channel.sendMessage("**QOTW #" + count + ":** " + question + " " + roleString + "\n*You can also answer in your server's general chat by prefixing " + channel.getAsMention() + " to your message*")
+                .flatMap(message -> message.createThreadChannel(StringUtility.shorten(count + ": " + question, 100))
                         .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.TIME_24_HOURS))
                 .queue();
+    }
+
+    @NotNull
+    public static String clean(@NotNull Cobalt cobalt, @NotNull String question) {
+        String clean = question.toLowerCase().trim().replace("[\\p{P} ]", "");
+        for (final String word : cobalt.config.qotwSimilarityIgnored) clean = clean.replace(word, "");
+        return clean;
     }
 }
