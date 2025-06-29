@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import network.venox.cobalt.Cobalt;
 
@@ -23,8 +22,6 @@ import java.util.*;
 public class Server {
     @BsonId public ObjectId id;
     @BsonProperty("guild") public long guildId;
-    @BsonProperty("qotw_channel") @Nullable public Long qotwChannelId;
-    @BsonProperty("qotw_role") @Nullable public Long qotwRoleId;
     @BsonProperty("welcome_channel") @Nullable public Long welcomeChannelId;
     @BsonProperty("mute_role") @Nullable public Long muteRoleId;
     @BsonProperty("muted_users") @Nullable public Set<Long> mutedUserIds;
@@ -34,20 +31,6 @@ public class Server {
     @Nullable
     public Guild getGuild(@NotNull JDA jda) {
         return jda.getGuildById(guildId);
-    }
-
-    @Nullable
-    public StandardGuildMessageChannel getQotwChannel(@NotNull JDA jda) {
-        if (qotwChannelId == null) return null;
-        final Guild guild = getGuild(jda);
-        return guild == null ? null : guild.getChannelById(StandardGuildMessageChannel.class, qotwChannelId);
-    }
-
-    @Nullable
-    public Role getQotwRole(@NotNull JDA jda) {
-        if (qotwRoleId == null) return null;
-        final Guild guild = getGuild(jda);
-        return guild == null ? null : guild.getRoleById(qotwRoleId);
     }
 
     @Nullable

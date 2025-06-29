@@ -27,16 +27,11 @@ public class CoConfig {
     @NotNull public final GuildNode guild;
     @Nullable public List<Activity> statuses;
     @NotNull public final Set<String> welcomeQuestions;
-    @NotNull public final Set<String> qotwSimilarityIgnored;
 
     public CoConfig(@NotNull Cobalt bot) {
         this.bot = bot;
         guild = new GuildNode(bot.settings.fileSettings.file.yaml.node("guild"));
         welcomeQuestions = bot.settings.fileSettings.file.yaml.node("welcome-questions").childrenList().stream()
-                .map(ConfigurationNode::getString)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        qotwSimilarityIgnored = bot.settings.fileSettings.file.yaml.node("qotw-similarity-ignored").childrenList().stream()
                 .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());

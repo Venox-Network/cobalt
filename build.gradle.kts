@@ -18,8 +18,6 @@ setupLazyLibrary("3.2.0", "5.3.2", "network.venox", "1.2.0", "A Discord bot for 
 repository(Repository.CLOJARS)
 
 dependencies {
-    implementation("org.quartz-scheduler", "quartz", "2.5.0-rc1") // QOTW
-    implementation("info.debatty", "java-string-similarity", "2.0.0") // QOTW
     implementation("net.clojars.suuft", "libretranslate-java", "1.0.5") // Translate
     implementation("com.github.walkyst", "lavaplayer-fork", "1.4.2") // TTS
     implementation("net.sf.sociaal", "freetts", "1.2.2") // TTS

@@ -33,9 +33,6 @@ public class Cobalt extends LazyLibrary {
                 new MessageListener(this),
                 new UserListener(this));
 
-        // QOTW
-        dataManager.startQotw();
-
         // Status log message
         LOGGER.info("Cobalt has finished starting!");
     }
