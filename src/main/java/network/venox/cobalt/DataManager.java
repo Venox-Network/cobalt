@@ -22,8 +22,6 @@ public class DataManager {
         if (url == null) throw new IllegalArgumentException("MongoDB URL not found in config!");
         mongo = new SingleMongo(url).database.loadMagicCollections(Map.of(
                 "bans", Ban.class,
-                "misc", Global.class,
-                "modmails", Modmail.class,
                 "servers", Server.class,
                 "warnings", Warning.class));
 

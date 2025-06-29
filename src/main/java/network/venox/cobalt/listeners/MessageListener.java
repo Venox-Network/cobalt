@@ -4,13 +4,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
-import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.requests.restaction.CacheRestAction;
-import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
@@ -43,16 +39,10 @@ public class MessageListener extends CoListener {
         final ChannelType channelType = event.getChannel().getType();
 
         // PrivateChannel
-        if (channelType.equals(ChannelType.PRIVATE)) {
-            onPrivateChannelReceived(event);
-            return;
-        }
+        if (channelType.equals(ChannelType.PRIVATE)) return;
 
         // TextChannel
         if (channelType.equals(ChannelType.TEXT)) onTextChannelReceived(event);
-
-        // ThreadChannel
-        if (channelType.equals(ChannelType.GUILD_PUBLIC_THREAD) || channelType.equals(ChannelType.GUILD_PRIVATE_THREAD)) onThreadChannelReceived(event);
 
         // Guild
         final Member member = event.getMember();
@@ -165,123 +155,10 @@ public class MessageListener extends CoListener {
         }
     }
 
-    private void onPrivateChannelReceived(@NotNull MessageReceivedEvent event) {
-        // Global modmail
-        final Message message = event.getMessage();
-        if (message.getContentRaw().isEmpty() && message.getAttachments().isEmpty()) return;
-        final User author = event.getAuthor();
-        // Create new thread
-        final CoModmail modmail = bot.oldData.global.getModmailByUserId(author.getIdLong());
-        if (modmail == null) {
-            CoModmail.sendModmailConfirmation(bot, author, message).queue();
-            return;
-        }
-        final ThreadChannel thread = modmail.getThread();
-        final MessageEmbed embed = modmail.getUserEmbed(message.getContentRaw(), message.getIdLong());
-        if (modmail.closed || thread == null || embed == null) {
-            bot.oldData.global.modmails.remove(modmail);
-            CoModmail.sendModmailConfirmation(bot, author, message).queue();
-            return;
-        }
-        CoModmail.getCreateAction(thread, message, embed).queue(msg -> modmail.scheduleExpireWarning(null));
-    }
-
     private void onTextChannelReceived(@NotNull MessageReceivedEvent event) {
         // Slowmode
         final TextChannel channel = event.getGuildChannel().asTextChannel();
         final CoSlowmode slowmode = bot.oldData.getGuild(event.getGuild()).getSlowmode(channel.getIdLong());
         if (slowmode != null) slowmode.setSlowmode(channel);
-    }
-
-    private void onThreadChannelReceived(@NotNull MessageReceivedEvent event) {
-        // Global modmail
-        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
-        if (modmail == null) return;
-        final CacheRestAction<User> userAction = modmail.getUser();
-        if (userAction == null) return;
-        final Message message = event.getMessage();
-        userAction
-                .flatMap(User::openPrivateChannel)
-                .flatMap(channel -> CoModmail.getCreateAction(channel, message, modmail.getModeratorEmbed(event.getAuthor(), message.getContentRaw(), message.getIdLong())))
-                .queue();
-    }
-
-    @Override
-    public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
-        final ChannelType type = event.getChannelType();
-
-        // PrivateChannel
-        if (type.equals(ChannelType.PRIVATE)) {
-            onPrivateChannelUpdate(event);
-            return;
-        }
-
-        // ThreadChannel
-        if (type.equals(ChannelType.GUILD_PUBLIC_THREAD) || type.equals(ChannelType.GUILD_PRIVATE_THREAD)) onThreadChannelUpdate(event);
-    }
-
-    public void onPrivateChannelUpdate(@NotNull MessageUpdateEvent event) {
-        // Global modmail
-        final CoModmail modmail = bot.oldData.global.getModmailByUserId(event.getAuthor().getIdLong());
-        if (modmail == null) return;
-        final ThreadChannel thread = modmail.getThread();
-        final Message message = event.getMessage();
-        final MessageEmbed embed = modmail.getUserEmbed(message.getContentRaw(), message.getIdLong());
-        if (thread != null && embed != null) CoModmail.getModmailMessage(thread, event.getMessage().getIdLong())
-                .queue(foundMessage -> {
-                    if (foundMessage != null) foundMessage.editMessage(new MessageEditBuilder().setEmbeds(embed).build()).queue();
-                });
-    }
-
-    public void onThreadChannelUpdate(@NotNull MessageUpdateEvent event) {
-        // Global modmail
-        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
-        if (modmail == null) return;
-        final CacheRestAction<User> userAction = modmail.getUser();
-        if (userAction == null) return;
-        final Message message = event.getMessage();
-        userAction
-                .flatMap(User::openPrivateChannel)
-                .flatMap(privateChannel -> CoModmail.getModmailMessage(privateChannel, event.getMessage().getIdLong()))
-                .flatMap(Objects::nonNull, otherMessage -> otherMessage.editMessage(new MessageEditBuilder().setEmbeds(modmail.getModeratorEmbed(event.getAuthor(), message.getContentRaw(), message.getIdLong())).build()))
-                .queue();
-    }
-
-    @Override
-    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        final ChannelType type = event.getChannelType();
-
-        // PrivateChannel
-        if (type.equals(ChannelType.PRIVATE)) {
-            onPrivateChannelDelete(event);
-            return;
-        }
-
-        // ThreadChannel
-        if (type.equals(ChannelType.GUILD_PUBLIC_THREAD) || type.equals(ChannelType.GUILD_PRIVATE_THREAD)) onThreadChannelDelete(event);
-    }
-
-    public void onPrivateChannelDelete(@NotNull MessageDeleteEvent event) {
-        // Global modmail
-        final User user = event.getChannel().asPrivateChannel().getUser();
-        if (user == null) return;
-        final CoModmail modmail = bot.oldData.global.getModmailByUserId(user.getIdLong());
-        if (modmail == null) return;
-        final ThreadChannel channel = modmail.getThread();
-        if (channel != null) CoModmail.getModmailMessage(channel, event.getMessageIdLong())
-                .flatMap(Objects::nonNull, Message::delete)
-                .queue();
-    }
-
-    public void onThreadChannelDelete(@NotNull MessageDeleteEvent event) {
-        // Global modmail
-        final CoModmail modmail = bot.oldData.global.getModmailByThreadId(event.getGuildChannel().asThreadChannel().getIdLong());
-        if (modmail == null) return;
-        final CacheRestAction<User> userAction = modmail.getUser();
-        if (userAction != null) userAction
-                .flatMap(User::openPrivateChannel)
-                .flatMap(privateChannel -> CoModmail.getModmailMessage(privateChannel, event.getMessageIdLong()))
-                .flatMap(Objects::nonNull, Message::delete)
-                .queue();
     }
 }

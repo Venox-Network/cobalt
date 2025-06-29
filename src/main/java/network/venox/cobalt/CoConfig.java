@@ -1,7 +1,6 @@
 package network.venox.cobalt;
 
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
@@ -80,7 +79,6 @@ public class CoConfig {
         @NotNull public final LazyRole botManager;
         @NotNull public final LazyChannel<GuildMessageChannel> botManagerChat;
         @NotNull public final LazyRole mod;
-        @NotNull public final LazyChannel<ForumChannel> modmail;
         @NotNull public final LazyChannel<GuildMessageChannel> log;
 
         public GuildNode(@NotNull ConfigurationNode node) {
@@ -89,7 +87,6 @@ public class CoConfig {
             this.botManager = new LazyRole(bot, this, node.node("bot-manager"));
             this.botManagerChat = new LazyChannel<>(this, node.node("bot-manager-chat"));
             this.mod = new LazyRole(bot, this, node.node("mod"));
-            this.modmail = new LazyChannel<>(this, node.node("modmail"));
             this.log = new LazyChannel<>(this, node.node("log"));
         }
 
