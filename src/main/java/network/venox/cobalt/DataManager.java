@@ -20,10 +20,7 @@ public class DataManager {
     public DataManager(@NotNull Cobalt bot) {
         final String url = bot.settings.fileSettings.file.yaml.node("mongo").getString();
         if (url == null) throw new IllegalArgumentException("MongoDB URL not found in config!");
-        mongo = new SingleMongo(url).database.loadMagicCollections(Map.of(
-                "bans", Ban.class,
-                "servers", Server.class,
-                "warnings", Warning.class));
+        mongo = new SingleMongo(url).database.loadMagicCollections(Map.of("servers", Server.class));
 
         // Get guild stats
         for (final Guild guild : bot.jda.getGuilds()) guild.loadMembers().onSuccess(members -> {
