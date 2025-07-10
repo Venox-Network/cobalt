@@ -26,7 +26,6 @@ public class Server {
     @BsonProperty("mute_role") @Nullable public Long muteRoleId;
     @BsonProperty("muted_users") @Nullable public Set<Long> mutedUserIds;
     @BsonProperty("status_roles") @Nullable public Map<String, Long> statusRoles;
-    @BsonProperty("auto_deletes") @Nullable public Map<Long, Set<Long>> autoDeletes;
 
     @Nullable
     public Guild getGuild(@NotNull JDA jda) {

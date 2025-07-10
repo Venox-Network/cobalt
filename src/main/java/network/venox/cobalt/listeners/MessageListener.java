@@ -74,12 +74,6 @@ public class MessageListener extends CoListener {
         final CoLimitedMessages limitedMessages = coGuild.getLimitedMessages(channelId);
         if (limitedMessages != null) limitedMessages.processMessage(message);
 
-        // Auto delete
-        final Set<Long> autoDelete = coGuild.autoDeletes.get(channelId);
-        if (autoDelete != null && member.getRoles().stream()
-                .map(Role::getIdLong)
-                .noneMatch(autoDelete::contains)) message.delete().queue();
-
         // AFK (disable)
         final CoUser coUser = bot.oldData.getUser(author);
         if (coUser.afk()) message.reply(":wave: **Welcome back,** you are no longer AFK!").queue(s -> coUser.afk = false);
