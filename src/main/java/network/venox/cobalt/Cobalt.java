@@ -30,8 +30,7 @@ public class Cobalt extends LazyLibrary {
         jda.addEventListener(
                 new GuildMemberListener(this),
                 new GuildVoiceListener(this),
-                new MessageListener(this),
-                new UserListener(this));
+                new MessageListener(this));
 
         // Status log message
         LOGGER.info("Cobalt has finished starting!");
