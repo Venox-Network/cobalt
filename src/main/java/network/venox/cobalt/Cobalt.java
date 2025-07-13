@@ -16,7 +16,7 @@ import java.nio.file.Path;
 
 
 public class Cobalt extends LazyLibrary {
-    @NotNull public final CoConfig config = new CoConfig(this);
+    public CoConfig config;
     @NotNull public final DataManager dataManager = new DataManager(this);
 
     public Cobalt() {
@@ -59,6 +59,7 @@ public class Cobalt extends LazyLibrary {
 
     @Override
     public void onNecessaryTasksDone() {
+        config = new CoConfig(this);
         config.loadStatuses();
         if (config.statuses != null) settings.activities(config.statuses);
     }
