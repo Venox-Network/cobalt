@@ -61,7 +61,7 @@ public class StickyMessage {
                             Filters.eq("_id", channel),
                             Updates.set(PROP_CURRENT, msg.getIdLong())));
             bot.dataManager.stickyFutures.remove(channel);
-        }, 3, TimeUnit.MINUTES));
+        }, 1, TimeUnit.MINUTES));
     }
 
     public void delete(@NotNull MessageChannel textChannel) {
