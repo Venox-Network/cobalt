@@ -48,7 +48,7 @@ public class StickyCmd extends ApplicationCommand {
         // Delete existing sticky message
         if (message == null) {
             final StickyMessage stickyMessage = collection.findOneAndDelete(Filters.eq("_id", channel.getIdLong()));
-            if (stickyMessage != null) stickyMessage.delete(event.getJDA());
+            if (stickyMessage != null) stickyMessage.delete(channel);
             event.reply(LazyEmoji.YES + " Sticky message has been removed from " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }

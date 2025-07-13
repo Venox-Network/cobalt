@@ -1,5 +1,8 @@
 package network.venox.cobalt.mongo;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -7,9 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
 import network.venox.cobalt.Cobalt;
 
@@ -47,30 +48,26 @@ public class StickyMessage {
         return guild(jda).map(guild -> guild.getTextChannelById(channel));
     }
 
-    @NotNull
-    public RestAction<Message> current(@NotNull JDA jda) {
-        return channel(jda)
-                .map(textChannel -> textChannel.retrieveMessageById(current).onErrorMap(t -> null))
-                .orElseGet(() -> new CompletedRestAction<>(jda, null));
-    }
-
-    public void send(@NotNull Cobalt bot, @NotNull MessageChannel guildChannel) {
+    public void send(@NotNull Cobalt bot, @NotNull MessageChannel messageChannel) {
         // Delete current message
-        delete(guildChannel.getJDA());
+        delete(messageChannel);
 
         // Schedule message to be sent
         final ScheduledFuture<?> future = bot.dataManager.stickyFutures.get(channel);
         if (future != null) future.cancel(true);
         bot.dataManager.stickyFutures.put(channel, LazyUtilities.IO_SCHEDULER.schedule(() -> {
-            guildChannel.sendMessage(message.toBuilder().build()).queue(msg -> current = msg.getIdLong());
+            messageChannel.sendMessage(message.toBuilder().build())
+                    .queue(msg -> bot.dataManager.mongo.getMagicCollection(StickyMessage.class).updateOne(
+                            Filters.eq("_id", channel),
+                            Updates.set(PROP_CURRENT, msg.getIdLong())));
             bot.dataManager.stickyFutures.remove(channel);
-        }, 3, TimeUnit.SECONDS));
+        }, 3, TimeUnit.MINUTES));
     }
 
-    public void delete(@NotNull JDA jda) {
-        current(jda)
-                .flatMap(Objects::nonNull, Message::delete)
-                .queue();
+    public void delete(@NotNull MessageChannel textChannel) {
+        textChannel.retrieveMessageById(current)
+                .flatMap(Message::delete)
+                .queue(null, LazyUtilities.IGNORE_UNKNOWN_MESSAGE);
     }
 
     public static class MongoMessage {
