@@ -80,9 +80,16 @@ public class MessageListener extends CoListener {
                 Updates.unset(CoUser.PROP_AFK));
         if (coUser != null && coUser.afk) message.reply(":wave: **Welcome back,** you are no longer AFK!").queue();
 
+        // Update highlights cooldown
         final Guild guild = event.getGuild();
-        if (!guild.getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
         final long guildId = guild.getIdLong();
+        final long now = System.currentTimeMillis();
+        final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
+        bot.dataManager.highlightCooldowns
+                .computeIfAbsent(authorId, v -> new HashMap<>())
+                .put(guildId, newCooldown);
+
+        // Highlights stuff
         final String authorName = author.getName();
         final String content = message.getContentRaw();
         final String contentLower = content.toLowerCase().replaceAll("https?://(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,63}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&/=]{0,63}", "");
@@ -91,18 +98,16 @@ public class MessageListener extends CoListener {
         final Set<Long> mentions = message.getMentions().getUsers().stream()
                 .map(ISnowflake::getIdLong)
                 .collect(Collectors.toSet());
+
+        // Get highlights embed factory
         final LazyEmbed embedForFactory = new LazyEmbed()
                 .setAuthor(authorName, "https://discord.com/users/" + authorId, author.getEffectiveAvatarUrl())
                 .setFooter("#" + channel.getName() + " in " + guild.getName(), guild.getIconUrl())
                 .setTimestamp(message.getTimeCreated());
-        final LazyEmbed.Factory embedFactory = embedForFactory.toFactory();
-        final long now = System.currentTimeMillis();
-        final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
-
-        // Get recent message history
         final List<Message> history = new ArrayList<>(message.getChannel().getHistoryBefore(message, 4).complete().getRetrievedHistory());
         Collections.reverse(history);
         for (final Message msg1 : history) embedForFactory.addField(new MessageEmbed.Field(msg1.getAuthor().getName(), StringUtility.shorten(msg1.getContentRaw(), 1024), false));
+        final LazyEmbed.Factory embedFactory = embedForFactory.toFactory();
 
         for (final CoUser otherCoUser : userCollection.find(Filters.or( // If other features added to this loop, update this filter!
                 Filters.eq(CoUser.PROP_AFK, true),
@@ -147,7 +152,7 @@ public class MessageListener extends CoListener {
 
                     // Add to cooldowns
                     bot.dataManager.highlightCooldowns
-                            .computeIfAbsent(otherCoUser.id, k -> new HashMap<>())
+                            .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
                             .put(guildId, newCooldown);
 
                     final LazyEmbed embed = embedFactory.newEmbed().setTitle(highlight, jumpUrl);
