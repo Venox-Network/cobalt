@@ -39,7 +39,14 @@ public class DataManager {
     public DataManager(@NotNull Cobalt bot) {
         final String url = bot.settings.fileSettings.file.yaml.node("mongo").getString();
         if (url == null) throw new IllegalArgumentException("MongoDB URL not found in config!");
-        mongo = new SingleMongo(url).database.loadMagicCollections(Map.of("servers", Server.class));
+        mongo = new SingleMongo(url).database.loadMagicCollections(Map.of(
+                "auto_slowmodes", AutoSlowmode.class,
+                "auto_threads", AutoThread.class,
+                "users", CoUser.class,
+                "limited_messages", LimitedMessages.class,
+                "react_channels", ReactChannel.class,
+                "servers", Server.class,
+                "sticky_messages", StickyMessage.class));
 
         // guildCount, totalMembers, uniqueMembers
         final Set<Long> users = new HashSet<>();
