@@ -1,13 +1,14 @@
 package network.venox.cobalt.mongo;
 
-import net.suuft.libretranslate.Language;
-
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import space.dynomake.libretranslate.Language;
+
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -29,11 +30,11 @@ public class CoUser {
 
     @NotNull
     public Language language() {
-        return language == null ? Language.ENGLISH : language;
+        return Objects.requireNonNullElse(language, Language.ENGLISH);
     }
 
     @NotNull
     public Set<String> highlights() {
-        return highlights == null ? Set.of() : highlights;
+        return Objects.requireNonNullElse(highlights, Set.of());
     }
 }

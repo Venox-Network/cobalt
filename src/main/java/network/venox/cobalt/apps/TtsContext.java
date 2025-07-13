@@ -26,7 +26,7 @@ public class TtsContext extends ApplicationCommand {
             scope = CommandScope.GUILD,
             name = "TTS")
     public void ttsContext(@NotNull GuildMessageEvent event) {
-        if (Boolean.FALSE.equals(LazyUtilities.userHasChannelPermission(event, Permission.MESSAGE_SEND))) {
+        if (!LazyUtilities.userHasChannelPermission(event, Permission.MESSAGE_SEND)) {
             event.replyEmbeds(LazyEmbed.noPermission().build(bot)).setEphemeral(true).queue();
             return;
         }

@@ -27,24 +27,29 @@ public class Server {
     @NotNull public static final String PROP_MUTED_USERS = "muted_users";
 
     @BsonId public ObjectId id;
-    @BsonProperty(PROP_GUILD) public long guildId;
-    @BsonProperty(PROP_WELCOME_CHANNEL) @Nullable public Long welcomeChannelId;
-    @BsonProperty(PROP_MUTE_ROLE) @Nullable public Long muteRoleId;
-    @BsonProperty(PROP_MUTED_USERS) @Nullable public Set<Long> mutedUserIds;
+    @BsonProperty(PROP_GUILD) public long guild;
+    @BsonProperty(PROP_WELCOME_CHANNEL) @Nullable public Long welcomeChannel;
+    @BsonProperty(PROP_MUTE_ROLE) @Nullable public Long muteRole;
+    @BsonProperty(PROP_MUTED_USERS) @Nullable public Set<Long> mutedUsers;
 
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
-        return Optional.ofNullable(jda.getGuildById(guildId));
+        return Optional.ofNullable(jda.getGuildById(guild));
     }
 
     @NotNull
     public Optional<TextChannel> welcomeChannel(@NotNull JDA jda) {
-        return welcomeChannelId != null ? guild(jda).map(value -> value.getTextChannelById(welcomeChannelId)) : Optional.empty();
+        return welcomeChannel != null ? guild(jda).map(value -> value.getTextChannelById(welcomeChannel)) : Optional.empty();
     }
 
     @NotNull
     public Optional<Role> muteRole(@NotNull JDA jda) {
-        return muteRoleId != null ? guild(jda).map(value -> value.getRoleById(muteRoleId)) : Optional.empty();
+        return muteRole != null ? guild(jda).map(value -> value.getRoleById(muteRole)) : Optional.empty();
+    }
+
+    @NotNull
+    public Set<Long> mutedUsers() {
+        return Objects.requireNonNullElse(mutedUsers, Collections.emptySet());
     }
 
     public void sendWelcomeMessage(@NotNull Cobalt bot, @NotNull User user) {

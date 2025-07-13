@@ -12,10 +12,12 @@ import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
+
 
 @CommandMarker
 public class MockCmd extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
             scope = CommandScope.GLOBAL,
@@ -30,7 +32,7 @@ public class MockCmd extends ApplicationCommand {
     public static String mockify(@NotNull String text) {
         return text.chars()
                 .mapToObj(c -> (char) c)
-                .map(c -> Cobalt.RANDOM.nextBoolean() ? Character.toUpperCase(c) : Character.toLowerCase(c))
+                .map(c -> LazyUtilities.RANDOM.nextBoolean() ? Character.toUpperCase(c) : Character.toLowerCase(c))
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
     }

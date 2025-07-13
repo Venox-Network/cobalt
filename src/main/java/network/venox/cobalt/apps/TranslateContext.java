@@ -7,13 +7,13 @@ import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.context.annotations.JDAMessageCommand;
 import com.freya02.botcommands.api.application.context.message.GlobalMessageEvent;
 
-import net.suuft.libretranslate.Language;
-
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.components.TranslateMenu;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
+
+import space.dynomake.libretranslate.Language;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
@@ -31,6 +31,7 @@ public class TranslateContext extends ApplicationCommand {
             event.reply(LazyEmoji.NO + " Message cannot be empty!").setEphemeral(true).queue();
             return;
         }
+        event.deferReply(true).queue();
 
         // Get user's language
         final Language language = bot.dataManager.mongo.getMagicCollection(CoUser.class).findOne("_id", event.getUser().getIdLong())
@@ -38,7 +39,6 @@ public class TranslateContext extends ApplicationCommand {
                 .orElse(Language.ENGLISH);
 
         // Translate and reply
-        final TranslateMenu.TranslateMessage translateMessage = TranslateMenu.getMessage(message, language);
-        event.reply(translateMessage.message()).setComponents(translateMessage.actionRow()).setEphemeral(true).queue();
+        event.getHook().editOriginal(TranslateMenu.getMessage(message, language)).queue();
     }
 }

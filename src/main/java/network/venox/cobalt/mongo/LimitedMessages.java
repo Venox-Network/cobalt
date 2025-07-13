@@ -36,18 +36,18 @@ public class LimitedMessages {
     @BsonProperty(PROP_USERS) @NotNull public Map<String, Integer> users = new HashMap<>();
 
     @NotNull
-    public Optional<Guild> getGuild(@NotNull JDA jda) {
+    public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));
     }
 
     @NotNull
-    public Optional<GuildMessageChannel> getChannel(@NotNull JDA jda) {
-        return getGuild(jda).map(guild -> guild.getChannelById(GuildMessageChannel.class, channel));
+    public Optional<GuildMessageChannel> channel(@NotNull JDA jda) {
+        return guild(jda).map(guild -> guild.getChannelById(GuildMessageChannel.class, channel));
     }
 
     @NotNull
-    public Optional<RestAction<Role>> getRole(@NotNull JDA jda) {
-        final Guild guild = getGuild(jda).orElse(null);
+    public Optional<RestAction<Role>> role(@NotNull JDA jda) {
+        final Guild guild = guild(jda).orElse(null);
         if (guild == null) return Optional.empty();
 
         // Return existing role
@@ -57,7 +57,7 @@ public class LimitedMessages {
         }
 
         // Create role
-        final GuildMessageChannel channelJda = getChannel(jda).orElse(null);
+        final GuildMessageChannel channelJda = channel(jda).orElse(null);
         if (channelJda == null) return Optional.empty();
         final RoleAction action = guild.createRole()
                 .setName("#" + channelJda.getName())
@@ -71,8 +71,8 @@ public class LimitedMessages {
     }
 
     @NotNull
-    public Optional<Map<Member, Integer>> getUsers(@NotNull JDA jda) {
-        return getGuild(jda).map(jdaGuild -> users.entrySet().stream()
+    public Optional<Map<Member, Integer>> users(@NotNull JDA jda) {
+        return guild(jda).map(jdaGuild -> users.entrySet().stream()
                 .map(entry -> {
                     final Member member = jdaGuild.retrieveMemberById(entry.getKey()).complete();
                     return member == null ? null : Map.entry(member, entry.getValue());
@@ -88,11 +88,9 @@ public class LimitedMessages {
         final int count = users.getOrDefault(id, 0);
 
         // Check if user has reached limit
-        if (checkUser(author) && count + 1 == limit) {
-            author.getUser().openPrivateChannel()
-                    .flatMap(privateChannel -> privateChannel.sendMessage(LazyEmoji.WARNING + " You have reached the message limit of `" + limit + "` in <#" + channel + ">!"))
-                    .queue(s -> {}, f -> {});
-        }
+        if (checkUser(author) && count + 1 == limit) author.getUser().openPrivateChannel()
+                .flatMap(privateChannel -> privateChannel.sendMessage(LazyEmoji.WARNING + " You have reached the message limit of `" + limit + "` in <#" + channel + ">!"))
+                .queue(s -> {}, f -> {});
 
         // Update user count
         users.put(id, count + 1);
@@ -100,10 +98,10 @@ public class LimitedMessages {
 
     public boolean checkUser(@NotNull Member member) {
         final JDA jda = member.getJDA();
-        final Guild guild = getGuild(jda).orElse(null);
+        final Guild guild = guild(jda).orElse(null);
         if (guild == null) return false;
         final List<Role> roles = member.getRoles();
-        final RestAction<Role> roleAction = getRole(jda).orElse(null);
+        final RestAction<Role> roleAction = role(jda).orElse(null);
 
         // Remove role
         if (users.getOrDefault(member.getId(), 0) + 1 < limit) {
@@ -121,6 +119,6 @@ public class LimitedMessages {
     }
 
     public void checkAllUsers(@NotNull JDA jda) {
-        getUsers(jda).ifPresent(members -> members.keySet().forEach(this::checkUser));
+        users(jda).ifPresent(members -> members.keySet().forEach(this::checkUser));
     }
 }

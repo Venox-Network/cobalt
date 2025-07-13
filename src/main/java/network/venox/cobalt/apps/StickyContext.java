@@ -8,15 +8,16 @@ import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.context.annotations.JDAMessageCommand;
 import com.freya02.botcommands.api.application.context.message.GuildMessageEvent;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.objects.CoStickyMessage;
-import network.venox.cobalt.mongo.Server;
+import network.venox.cobalt.mongo.StickyMessage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -34,24 +35,20 @@ public class StickyContext extends ApplicationCommand {
         final MessageChannelUnion channelUnion = event.getChannel();
         if (channelUnion == null) return;
         final TextChannel channel = channelUnion.asTextChannel();
-        final Guild guild = event.getGuild();
-        final Server server = bot.oldData.getGuild(guild);
         final Message message = event.getTarget();
 
-        CoStickyMessage stickyMessage = server.getStickyMessage(channel.getIdLong());
-        if (stickyMessage != null) {
-            // Edit existing sticky message
-            stickyMessage.delete();
-            stickyMessage.message = new LazyMessage(message);
-            stickyMessage.current = message.getIdLong();
-        } else {
-            // Set new sticky message
-            stickyMessage = new CoStickyMessage(bot, guild.getIdLong(), channel.getIdLong(), new LazyMessage(message), null);
-            server.stickyMessages.add(stickyMessage);
-        }
+        // Upsert and send/edit sticky message
+        bot.dataManager.mongo.getMagicCollection(StickyMessage.class)
+                .findOneAndUpsert(
+                        Filters.and(
+                                Filters.eq("_id", channel.getIdLong()),
+                                Filters.eq(StickyMessage.PROP_GUILD, event.getGuild().getIdLong())),
+                        Updates.combine(
+                                Updates.set(StickyMessage.PROP_MESSAGE, new LazyMessage(message)),
+                                Updates.set(StickyMessage.PROP_CURRENT, message.getIdLong())))
+                .send(bot, channel);
 
-        // Send & reply
-        stickyMessage.send();
+        // Reply
         event.reply(message.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();
     }
 }

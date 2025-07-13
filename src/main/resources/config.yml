@@ -15,18 +15,6 @@ owners:
     - 273538684526264320 # ChrizxzFTW
     - 533985117589471233 # Reece
 
-# The API key used for the YouTube API for statistic channels
-youtube-api-key: "PUT_YOUTUBE_API_KEY_HERE"
-
-# The API information for the Twitch API for statistic channels
-twitch:
-  # The Twitch client's ID
-  client-id: "PUT_TWITCH_CLIENT_ID_HERE"
-  # The Twitch client's secret
-  client-secret: "PUT_TWITCH_CLIENT_SECRET_HERE"
-  # The OAuth token for the Twitch client
-  access-token: "PUT_TWITCH_ACCESS_TOKEN_HERE"
-
 # Settings regarding the main guild for the bot (support server)
 guild:
   # The ID of the guild
@@ -47,17 +35,20 @@ guild:
 # Rotating status messages for the bot
 statuses:
   - "watching %servers% servers"
-  - "watching %users% users"
+  - "watching %users% total users"
+  - "watching %unique_users% unique users"
   - "watching over srnyx.com/discord"
   - "watching over discord.gg/commandgeek"
+  - "watching over discord.gg/skeppy"
   - "watching over venox.network"
+  - "watching over charged.venox.network"
+  - "watching over eventalerts.gg"
   - "watching over srnyx.com"
-  - "watching over chriz.cf"
-  - "watching over lasertag.venox.network"
+  - "watching over chrizxz.com"
+  - "playing on charged.venox.network"
+  - "playing on play.eventalerts.gg"
   - "listening to srnyx.com/playlist"
-  - "listening to chriz.cf/playlist"
-  - "playing on play.commandgeek.com"
-  - "playing on lasertag.venox.network"
+  - "listening to chrizxz.com/playlist"
 
 # A list of questions to be used when a user joins a server
 welcome-questions:
@@ -85,18 +76,3 @@ welcome-questions:
   - "What's your favorite video game?"
   - "What's your favorite video game console?"
   - "What's your favorite thing to do?"
-
-# A list of words to ignore when checking for similar QOTWs
-qotw-similarity-ignored:
-  - "if"
-  - "what"
-  - "are"
-  - "you"
-  - "why"
-  - "how"
-  - "the"
-  - "best"
-  - "is"
-  - "your"
-  - "favorite"
-  - "what's"

@@ -9,10 +9,12 @@ import com.freya02.botcommands.api.application.annotations.AppOption;
 import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.Updates;
+
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
-
-import net.suuft.libretranslate.Language;
 
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.components.TranslateMenu;
@@ -20,6 +22,8 @@ import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import space.dynomake.libretranslate.Language;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
@@ -43,6 +47,7 @@ public class LanguageCmd extends ApplicationCommand {
             description = "Set your primary language (for /translate)")
     public void language(@NotNull GlobalSlashEvent event,
                          @AppOption(description = "Your new primary language") @NotNull String language) {
+        // Get language
         final Language languageEnum;
         try {
             languageEnum = Language.valueOf(language.toUpperCase());
@@ -51,9 +56,19 @@ public class LanguageCmd extends ApplicationCommand {
             return;
         }
 
-        final CoUser user = bot.oldData.getUser(event.getUser());
-        event.reply(LazyEmoji.YES + " Your primary language is now `" + languageEnum + "`, previous: `" + user.language + "`").setEphemeral(true).queue();
-        user.language = languageEnum;
+        // Update
+        final CoUser previousUser = bot.dataManager.mongo.getMagicCollection(CoUser.class).findOneAndUpdate(
+                Filters.eq("_id", event.getUser().getIdLong()),
+                Updates.set("language", languageEnum),
+                new FindOneAndUpdateOptions().upsert(true));
+
+        // Reply
+        final StringBuilder reply = new StringBuilder(LazyEmoji.YES + " Your primary language is now `" + languageEnum + "`");
+        if (previousUser != null) {
+            final Language previous = previousUser.language;
+            if (previous != null) reply.append(" (previous: `").append(previous).append("`)");
+        }
+        event.reply(reply.toString()).setEphemeral(true).queue();
     }
 
     @Override @NotNull

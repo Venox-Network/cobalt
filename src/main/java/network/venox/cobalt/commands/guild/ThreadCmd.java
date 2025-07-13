@@ -4,11 +4,13 @@ import com.freya02.botcommands.api.annotations.CommandMarker;
 import com.freya02.botcommands.api.annotations.Dependency;
 import com.freya02.botcommands.api.annotations.UserPermissions;
 import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
 import com.freya02.botcommands.api.application.annotations.AppOption;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.ChannelTypes;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
@@ -16,22 +18,23 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.objects.CoThreadChannel;
+import network.venox.cobalt.mongo.AutoThread;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
+import xyz.srnyx.magicmongo.MagicCollection;
+
 import java.util.Set;
 
 
 @CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_THREADS})
 public class ThreadCmd extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "thread",
             subcommand = "enable",
             description = "Enabled auto-threading for a channel")
@@ -39,37 +42,35 @@ public class ThreadCmd extends ApplicationCommand {
                               @AppOption(description = "The channel to enable auto-threading for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel,
                               @AppOption(description = "The name each thread will have") @Nullable String name) {
         if (channel == null) channel = event.getGuildChannel();
-        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
+        final MagicCollection<AutoThread> collection = bot.dataManager.mongo.getMagicCollection(AutoThread.class);
 
         // Check if thread channel already exists
-        if (guild.getThreadChannel(channel.getIdLong()) != null) {
+        if (collection.countDocuments(Filters.eq("_id", channel.getIdLong())) > 0) {
             event.reply(LazyEmoji.NO + " Auto-threading for " + channel.getAsMention() + " is already enabled").setEphemeral(true).queue();
             return;
         }
 
         // Add thread channel
-        guild.threadChannels.add(new CoThreadChannel(event.getJDA(), guild.guildId, channel.getIdLong(), name, 1, null, null));
+        collection.insertOne(new AutoThread(channel, name));
         event.reply(LazyEmoji.YES + " Auto-threading for " + channel.getAsMention() + " has been **enabled**").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "thread",
             subcommand = "disable",
             description = "Disabled auto-threading for a channel")
     public void disableCommand(@NotNull GuildSlashEvent event,
                                @AppOption(description = "The channel to disable auto-threading for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
         if (channel == null) channel = event.getGuildChannel();
-        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
+        final AutoThread threadChannel = getThreadChannel(event, channel);
         if (threadChannel == null) return;
 
         // Remove thread channel
-        cobalt.oldData.getGuild(event.getGuild()).threadChannels.remove(threadChannel);
+        bot.dataManager.mongo.getMagicCollection(AutoThread.class).deleteOne(Filters.eq("_id", channel.getIdLong()));
         event.reply(LazyEmoji.YES + " Auto-threading for " + channel.getAsMention() + " has been **disabled**").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "thread",
             group = "ignored",
             subcommand = "list",
@@ -77,7 +78,7 @@ public class ThreadCmd extends ApplicationCommand {
     public void ignoredListCommand(@NotNull GuildSlashEvent event,
                                    @AppOption(description = "The channel to list the ignored phrases/roles for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
         if (channel == null) channel = event.getGuildChannel();
-        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
+        final AutoThread threadChannel = getThreadChannel(event, channel);
         if (threadChannel == null) return;
 
         // Get ignored phrases/roles
@@ -92,19 +93,18 @@ public class ThreadCmd extends ApplicationCommand {
         final StringBuilder builder = new StringBuilder();
         if (hasPhrases) {
             builder.append("**Ignored Phrases:** ");
-            ignoredPhrases.forEach(phrase -> builder.append("`").append(phrase).append("` "));
+            for (final String phrase : ignoredPhrases) builder.append("`").append(phrase).append("` ");
         }
         if (hasRoles) {
-            builder.append("\n**Ignored Roles:** ");
-            final Set<Role> ignoredRoles = threadChannel.getIgnoredRoles();
-            if (ignoredRoles != null) ignoredRoles.forEach(role -> builder.append(role.getAsMention()).append(" "));
+            if (hasPhrases) builder.append("\n");
+            builder.append("**Ignored Roles:** ");
+            for (long roleId : threadChannel.ignoredRoles) builder.append("<@&").append(roleId).append(">").append(" ");
         }
 
         event.reply(builder.toString()).setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "thread",
             group = "ignored",
             subcommand = "add",
@@ -114,27 +114,29 @@ public class ThreadCmd extends ApplicationCommand {
                                   @AppOption(description = "The phrase to add to the ignored list") @Nullable String phrase,
                                   @AppOption(description = "The role to add to the ignored list") @Nullable Role role) {
         if (phrase == null && role == null) {
-            event.reply(LazyEmoji.NO + " You must provide a phrase or role to add to the ignored list").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You must provide a phrase or role to add to the ignored list!").setEphemeral(true).queue();
             return;
         }
         if (channel == null) channel = event.getGuildChannel();
-        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
-        if (threadChannel == null) return;
+        final MagicCollection<AutoThread> collection = bot.dataManager.mongo.getMagicCollection(AutoThread.class);
 
         // Phrase
         if (phrase != null) {
-            threadChannel.ignoredPhrases.add(phrase.toLowerCase().trim());
+            collection.updateOne(
+                    Filters.eq("_id", channel.getIdLong()),
+                    Updates.addToSet(AutoThread.PROP_IGNORED_PHRASES, phrase.toLowerCase().trim()));
             event.reply(LazyEmoji.YES + " `" + phrase + "` has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
         }
 
         // Role
-        threadChannel.ignoredRoles.add(role.getIdLong());
+        collection.updateOne(
+                Filters.eq("_id", channel.getIdLong()),
+                Updates.addToSet(AutoThread.PROP_IGNORED_ROLES, role.getIdLong()));
         event.reply(LazyEmoji.YES + " " + role.getAsMention() + " has been added to the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
     }
 
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "thread",
             group = "ignored",
             subcommand = "remove",
@@ -144,32 +146,34 @@ public class ThreadCmd extends ApplicationCommand {
                                      @AppOption(description = "The phrase to remove from the ignored list") @Nullable String phrase,
                                      @AppOption(description = "The role to remove from the ignored list") @Nullable Role role) {
         if (phrase == null && role == null) {
-            event.reply(LazyEmoji.NO + " You must provide a phrase or role to remove from the ignored list").setEphemeral(true).queue();
+            event.reply(LazyEmoji.NO + " You must provide a phrase or role to remove from the ignored list!").setEphemeral(true).queue();
             return;
         }
         if (channel == null) channel = event.getGuildChannel();
-        final CoThreadChannel threadChannel = getThreadChannel(event, channel);
-        if (threadChannel == null) return;
+        final MagicCollection<AutoThread> collection = bot.dataManager.mongo.getMagicCollection(AutoThread.class);
 
         // Phrase
         if (phrase != null) {
-            threadChannel.ignoredPhrases.remove(phrase);
+            collection.updateOne(
+                    Filters.eq("_id", channel.getIdLong()),
+                    Updates.pull(AutoThread.PROP_IGNORED_PHRASES, phrase.toLowerCase().trim()));
             event.reply(LazyEmoji.YES + " `" + phrase + "` has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
         }
 
         // Role
-        threadChannel.ignoredRoles.remove(role.getIdLong());
+        collection.updateOne(
+                Filters.eq("_id", channel.getIdLong()),
+                Updates.pull(AutoThread.PROP_IGNORED_ROLES, role.getIdLong()));
         event.reply(LazyEmoji.YES + " " + role.getAsMention() + " has been removed from the ignored list for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
     }
 
     @Nullable
-    private CoThreadChannel getThreadChannel(@NotNull GuildSlashEvent event, @NotNull GuildChannel channel) {
-        final CoThreadChannel threadChannel = cobalt.oldData.getGuild(event.getGuild()).getThreadChannel(channel.getIdLong());
-        if (threadChannel == null) {
-            event.reply(LazyEmoji.NO + " Auto-threading for " + channel.getAsMention() + " is not enabled").setEphemeral(true).queue();
-            return null;
-        }
+    private AutoThread getThreadChannel(@NotNull GuildSlashEvent event, @NotNull GuildChannel channel) {
+        final AutoThread threadChannel = bot.dataManager.mongo.getMagicCollection(AutoThread.class)
+                .findOne("_id", channel.getIdLong())
+                .orElse(null);
+        if (threadChannel == null) event.reply(LazyEmoji.NO + " Auto-threading for " + channel.getAsMention() + " is not enabled").setEphemeral(true).queue();
         return threadChannel;
     }
 }

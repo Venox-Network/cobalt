@@ -10,8 +10,8 @@ import com.freya02.botcommands.api.application.context.message.GlobalMessageEven
 import net.dv8tion.jda.api.entities.Message;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.CoUtilities;
 
+import network.venox.cobalt.mongo.ReactChannel;
 import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
@@ -29,7 +29,7 @@ public class ReactContext extends ApplicationCommand {
     public void reactContext(@NotNull GlobalMessageEvent event) {
         if (!bot.config.checkIsOwner(event)) return;
         final Message message = event.getTarget();
-        final List<String> emojis = CoUtilities.dynamicReact(message);
+        final List<String> emojis = ReactChannel.dynamicReact(message);
         event.reply(LazyEmoji.YES + " Dynamically reacted to " + message.getJumpUrl() + " with these emojis:\n" + emojis.stream()
                         .reduce((a, b) -> a + " " + b)
                         .orElse("None"))

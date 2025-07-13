@@ -80,7 +80,6 @@ public class ServersCmd extends ApplicationCommand {
 
     @AutocompletionHandler(name = AC_SERVERS_USER) @NotNull
     public List<Command.Choice> acServersUser(@NotNull CommandAutoCompleteInteractionEvent event) {
-        if (!bot.isOwner(event.getUser().getIdLong())) return List.of();
-        return CoUtilities.acGuildMembers(event);
+        return bot.isOwner(event.getUser().getIdLong()) ? CoUtilities.acGuildMembers(event) : List.of();
     }
 }

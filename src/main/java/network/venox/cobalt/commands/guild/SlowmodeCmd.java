@@ -10,38 +10,43 @@ import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
 import com.freya02.botcommands.api.application.slash.annotations.LongRange;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.attribute.ISlowmodeChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.data.objects.CoSlowmode;
+import network.venox.cobalt.mongo.AutoSlowmode;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
+import xyz.srnyx.magicmongo.MagicCollection;
+
 
 @CommandMarker @UserPermissions(Permission.MANAGE_CHANNEL)
 public class SlowmodeCmd extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @Dependency private Cobalt bot;
 
     @JDASlashCommand(
             scope = CommandScope.GUILD,
             name = "slowmode",
             description = "Manage the dynamic slowmode of a channel")
     public void slowmodeCommand(@NotNull GuildSlashEvent event,
-                          @AppOption(description = "The channel to manage slowmode for") @Nullable TextChannel channel,
-                          @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer minimum,
-                          @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
+                                @AppOption(description = "The channel to manage slowmode for (default: current)") @Nullable TextChannel channel,
+                                @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer minimum,
+                                @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
         if (channel == null) channel = event.getChannel().asTextChannel();
-        final CoGuild guild = cobalt.oldData.getGuild(event.getGuild());
-        final CoSlowmode current = guild.getSlowmode(channel.getIdLong());
+        final MagicCollection<AutoSlowmode> collection = bot.dataManager.mongo.getMagicCollection(AutoSlowmode.class);
+        final AutoSlowmode current = collection.findOne("_id", channel.getIdLong()).orElse(null);
 
         // Remove slowmode if no minimum or maximum is specified
         if (current != null && minimum == null && maximum == null) {
-            guild.slowmodes.remove(current);
+            collection.deleteOne("_id", channel.getIdLong());
             event.reply(LazyEmoji.YES + " Removed dynamic slowmode for " + channel.getAsMention()).setEphemeral(true).queue();
             return;
         }
@@ -80,12 +85,11 @@ public class SlowmodeCmd extends ApplicationCommand {
         }
 
         // Update slowmode
-        if (current != null) {
-            current.minimum = minimumValue;
-            current.maximum = maximumValue;
-        } else {
-            guild.slowmodes.add(new CoSlowmode(event.getJDA(), guild.guildId, channel.getIdLong(), minimumValue, maximumValue));
-        }
+        collection.upsertOne(
+                Filters.eq("_id", channel.getIdLong()),
+                Updates.combine(
+                        Updates.set(AutoSlowmode.PROP_MINIMUM, minimumValue),
+                        Updates.set(AutoSlowmode.PROP_MAXIMUM, maximumValue)));
 
         // Reply
         event.reply(LazyEmoji.YES + " Set dynamic slowmode for " + channel.getAsMention() + " to `" + minimumValue + "-" + maximumValue + "` seconds").setEphemeral(true).queue();

@@ -1,5 +1,8 @@
 package network.venox.cobalt.listeners;
 
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -7,13 +10,17 @@ import net.dv8tion.jda.api.entities.Role;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.mongo.Server;
+
+import org.bson.conversions.Bson;
 
 import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.lazylibrary.events.GuildVoiceJoinEvent;
-import xyz.srnyx.lazylibrary.events.GuildVoiceLeaveEvent;
 
-import java.util.Set;
+import xyz.srnyx.magicmongo.MagicCollection;
+
+import java.util.Optional;
 
 
 public class GuildVoiceListener extends CoListener {
@@ -24,34 +31,29 @@ public class GuildVoiceListener extends CoListener {
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
-        final CoGuild coGuild = bot.oldData.getGuild(guild);
+        final MagicCollection<Server> collection = bot.dataManager.mongo.getMagicCollection(Server.class);
+        final Bson filter = Filters.eq("_id", guild.getIdLong());
+        final Server server = collection.findOne(filter).orElse(null);
+        if (server == null) return;
+        final Optional<Role> muteRole = server.muteRole(event.getJDA());
+        if (muteRole.isEmpty()) return;
         final Member member = event.getMember();
+        final GuildVoiceState voiceState = member.getVoiceState();
+        final boolean isVoiceMuted = voiceState != null && voiceState.isGuildMuted();
 
-        // Mute role
-        final Role muteRole = coGuild.getMuteRole();
-        if (muteRole == null) return;
-        // Mute
-        if (member.getRoles().contains(muteRole)) {
-            final GuildVoiceState voiceState = member.getVoiceState();
-            if (voiceState == null || voiceState.isGuildMuted()) return;
-            guild.mute(member, true).queue();
-            coGuild.mutedUsers.add(member.getIdLong());
+        // Has mute role (voice mute)
+        if (member.getRoles().contains(muteRole.get())) {
+            if (!isVoiceMuted) {
+                guild.mute(member, true).queue();
+                collection.updateOne(filter, Updates.addToSet(Server.PROP_MUTED_USERS, member.getIdLong()));
+            }
             return;
         }
-        // Unmute
-        if (coGuild.mutedUsers.contains(member.getIdLong())) {
-            guild.mute(member, false).queue();
-            coGuild.mutedUsers.remove(member.getIdLong());
-        }
-    }
 
-    @Override
-    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        // Voice roles
-        final Guild guild = event.getGuild();
-        final Set<Role> roles = bot.oldData.getGuild(guild).getVoiceRoles(event.getChannelLeft().getIdLong());
-        if (roles == null) return;
-        final Member member = event.getMember();
-        roles.forEach(role -> guild.removeRoleFromMember(member, role).queue());
+        // Doesn't have mute role (voice unmute)
+        if (isVoiceMuted && server.mutedUsers().contains(member.getIdLong())) {
+            guild.mute(member, false).queue();
+            collection.updateOne(filter, Updates.pull(Server.PROP_MUTED_USERS, member.getIdLong()));
+        }
     }
 }

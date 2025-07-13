@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 
 public class CoConfig {
@@ -25,7 +24,7 @@ public class CoConfig {
 
     @NotNull public final GuildNode guild;
     @Nullable public List<Activity> statuses;
-    @NotNull public final Set<String> welcomeQuestions;
+    @NotNull public final List<String> welcomeQuestions;
 
     public CoConfig(@NotNull Cobalt bot) {
         this.bot = bot;
@@ -33,14 +32,13 @@ public class CoConfig {
         welcomeQuestions = bot.settings.fileSettings.file.yaml.node("welcome-questions").childrenList().stream()
                 .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     public void loadStatuses() {
-        final String servers = String.valueOf(bot.dataManager.guildStats.size());
-        final String users = String.valueOf(bot.dataManager.guildStats.values().stream()
-                .mapToInt(DataManager.GuildStats::memberCount)
-                .sum());
+        final String guilds = String.valueOf(bot.jda.getGuilds().size());
+        final String totalMembers = String.valueOf(bot.dataManager.totalMembers);
+        final String uniqueMembers = String.valueOf(bot.dataManager.uniqueMembers);
         statuses = bot.settings.fileSettings.file.yaml.node("statuses").childrenList().stream()
                 .map(node -> {
                     // Get status
@@ -59,8 +57,9 @@ public class CoConfig {
 
                     // Get Activity
                     return Activity.of(type, status
-                            .replace("%servers%", servers)
-                            .replace("%users%", users));
+                            .replace("%servers%", guilds)
+                            .replace("%users%", totalMembers)
+                            .replace("%unique_users%", uniqueMembers));
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -92,11 +91,6 @@ public class CoConfig {
 
         @Override
         public Guild get() {
-            return getGuild();
-        }
-
-        @NotNull
-        public Guild getGuild() {
             return Objects.requireNonNull(bot.jda.getGuildById(id));
         }
 

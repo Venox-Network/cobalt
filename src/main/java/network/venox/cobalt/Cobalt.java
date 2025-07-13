@@ -22,8 +22,7 @@ public class Cobalt extends LazyLibrary {
     public Cobalt() {
         // TTS
         System.setProperty("freetts.voices", "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
-        final Path ttsPath = Path.of("tts");
-        final File[] files = ttsPath.toFile().listFiles();
+        final File[] files = Path.of("tts").toFile().listFiles();
         if (files != null) for (final File file : files) FileUtility.deleteFile(file.toPath(), true);
 
         // Register listeners
