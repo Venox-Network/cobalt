@@ -8,9 +8,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+
 import network.venox.cobalt.Cobalt;
 
 import org.bson.codecs.pojo.annotations.BsonId;
@@ -50,11 +49,6 @@ public class AutoThread {
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));
-    }
-
-    @NotNull
-    public Optional<TextChannel> channel(@NotNull JDA jda) {
-        return guild(jda).map(value -> value.getTextChannelById(channel));
     }
 
     @Nullable

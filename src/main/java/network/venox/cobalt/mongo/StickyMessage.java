@@ -52,17 +52,17 @@ public class StickyMessage {
     }
 
     @NotNull
-    public Optional<CompletableFuture<Message>> current(@NotNull Cobalt bot) {
-        final TextChannel textChannel = channel(bot.jda).orElse(null);
+    public Optional<CompletableFuture<Message>> current(@NotNull JDA jda) {
+        final TextChannel textChannel = channel(jda).orElse(null);
         if (textChannel == null) return Optional.empty();
-        if (current == null) return Optional.of(findCurrent(bot, textChannel));
+        if (current == null) return Optional.of(findCurrent(textChannel));
         return MiscUtility.handleException(() -> textChannel.retrieveMessageById(current).complete())
                 .map(CompletableFuture::completedFuture)
-                .or(() -> Optional.of(findCurrent(bot, textChannel)));
+                .or(() -> Optional.of(findCurrent(textChannel)));
     }
 
     @NotNull
-    private CompletableFuture<Message> findCurrent(@NotNull Cobalt bot, @NotNull TextChannel textChannel) {
+    private CompletableFuture<Message> findCurrent(@NotNull TextChannel textChannel) {
         // Search for the message in the channel's history (last 10 messages)
         // Checks: Author is the bot, content is the same, embeds are the same
         return textChannel.getIterableHistory()
@@ -76,7 +76,7 @@ public class StickyMessage {
 
     public void send(@NotNull Cobalt bot, @NotNull MessageChannel guildChannel) {
         // Delete current message
-        delete(bot);
+        delete(guildChannel.getJDA());
 
         // Schedule message to be sent
         final ScheduledFuture<?> future = bot.dataManager.stickyFutures.get(channel);
@@ -87,8 +87,8 @@ public class StickyMessage {
         }, 3, TimeUnit.SECONDS));
     }
 
-    public void delete(@NotNull Cobalt bot) {
-        current(bot).ifPresent(messageCompletableFuture -> messageCompletableFuture.thenAcceptAsync(msg -> msg.delete().queue()));
+    public void delete(@NotNull JDA jda) {
+        current(jda).ifPresent(messageCompletableFuture -> messageCompletableFuture.thenAcceptAsync(msg -> msg.delete().queue()));
     }
 
     public static class MongoMessage {

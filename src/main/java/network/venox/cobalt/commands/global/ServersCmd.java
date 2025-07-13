@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.commands.Command;
 
 import network.venox.cobalt.Cobalt;
-import network.venox.cobalt.CoUtilities;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,11 +24,9 @@ import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -80,6 +77,12 @@ public class ServersCmd extends ApplicationCommand {
 
     @AutocompletionHandler(name = AC_SERVERS_USER) @NotNull
     public List<Command.Choice> acServersUser(@NotNull CommandAutoCompleteInteractionEvent event) {
-        return bot.isOwner(event.getUser().getIdLong()) ? CoUtilities.acGuildMembers(event) : List.of();
+        if (!bot.isOwner(event.getUser().getIdLong())) return List.of();
+        final Guild guild = event.getGuild();
+        return guild == null ? List.of() : LazyUtilities.sortChoicesFuzzy(event, guild.getMembers().stream()
+                .filter(member -> !member.getUser().isBot())
+                .map(member -> new Command.Choice(member.getUser().getAsTag(), member.getIdLong()))
+                .sorted(Comparator.comparing(choice -> choice.getName().toLowerCase()))
+                .toList());
     }
 }

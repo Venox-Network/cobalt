@@ -21,8 +21,6 @@ import network.venox.cobalt.mongo.StickyMessage;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.LazyMessage;
-
 
 @CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
 public class StickyContext extends ApplicationCommand {
@@ -44,7 +42,7 @@ public class StickyContext extends ApplicationCommand {
                                 Filters.eq("_id", channel.getIdLong()),
                                 Filters.eq(StickyMessage.PROP_GUILD, event.getGuild().getIdLong())),
                         Updates.combine(
-                                Updates.set(StickyMessage.PROP_MESSAGE, new LazyMessage(message)),
+                                Updates.set(StickyMessage.PROP_MESSAGE, new StickyMessage.MongoMessage(message)),
                                 Updates.set(StickyMessage.PROP_CURRENT, message.getIdLong())))
                 .send(bot, channel);
 

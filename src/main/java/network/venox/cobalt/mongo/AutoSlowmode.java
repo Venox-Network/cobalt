@@ -3,8 +3,6 @@ package network.venox.cobalt.mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -34,16 +32,6 @@ public class AutoSlowmode {
     @BsonProperty(PROP_MINIMUM) public int minimum;
     @BsonProperty(PROP_MAXIMUM) public int maximum;
     @BsonProperty(PROP_LAST_CHECK) @Nullable public Date lastCheck;
-
-    @NotNull
-    public Optional<Guild> guild(@NotNull JDA jda) {
-        return Optional.ofNullable(jda.getGuildById(guild));
-    }
-
-    @NotNull
-    public Optional<TextChannel> channel(@NotNull JDA jda) {
-        return guild(jda).map(value -> value.getTextChannelById(channel));
-    }
 
     public void setSlowmode(@NotNull Cobalt bot, @NotNull TextChannel textChannel) {
         final long now = System.currentTimeMillis();

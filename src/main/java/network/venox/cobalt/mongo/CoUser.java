@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import space.dynomake.libretranslate.Language;
 
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -23,14 +22,4 @@ public class CoUser {
     @BsonProperty(PROP_AFK) public boolean afk;
     @BsonProperty(PROP_LANGUAGE) @Nullable public Language language;
     @BsonProperty(PROP_HIGHLIGHTS) @Nullable public Set<String> highlights;
-
-    @NotNull
-    public Language language() {
-        return Objects.requireNonNullElse(language, Language.ENGLISH);
-    }
-
-    @NotNull
-    public Set<String> highlights() {
-        return Objects.requireNonNullElse(highlights, Set.of());
-    }
 }

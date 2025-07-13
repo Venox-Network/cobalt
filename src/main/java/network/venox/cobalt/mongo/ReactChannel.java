@@ -1,9 +1,6 @@
 package network.venox.cobalt.mongo;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 
@@ -15,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 public class ReactChannel {
@@ -25,16 +21,6 @@ public class ReactChannel {
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_EMOJIS) @Nullable public List<String> emojis;
-
-    @NotNull
-    public Optional<Guild> guild(@NotNull JDA jda) {
-        return Optional.ofNullable(jda.getGuildById(guild));
-    }
-
-    @NotNull
-    public Optional<TextChannel> channel(@NotNull JDA jda) {
-        return guild(jda).map(value -> value.getTextChannelById(channel));
-    }
 
     @Nullable
     public List<EmojiUnion> emojis() {
