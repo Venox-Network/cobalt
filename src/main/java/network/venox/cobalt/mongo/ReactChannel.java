@@ -26,14 +26,6 @@ public class ReactChannel {
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_EMOJIS) @Nullable public List<String> emojis;
 
-    public ReactChannel() {}
-
-    public ReactChannel(long guild, long channel, @Nullable List<String> emojis) {
-        this.guild = guild;
-        this.channel = channel;
-        this.emojis = emojis;
-    }
-
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));

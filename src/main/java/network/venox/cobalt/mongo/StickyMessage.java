@@ -35,14 +35,6 @@ public class StickyMessage {
     @BsonProperty(PROP_MESSAGE) public LazyMessage message; //TODO
     @BsonProperty(PROP_CURRENT) @Nullable public Long current;
 
-    public StickyMessage() {}
-
-    public StickyMessage(@NotNull Message message) {
-        this.guild = message.getGuildIdLong();
-        this.channel = message.getChannelIdLong();
-        this.message = new LazyMessage(message);
-    }
-
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));
