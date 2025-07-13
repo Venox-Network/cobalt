@@ -20,6 +20,7 @@ import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import xyz.srnyx.magicmongo.MagicCollection;
 
@@ -120,28 +121,29 @@ public class MessageListener extends CoListener {
             }
 
             // Highlights
-            if (checkHighlights && otherCoUser.highlights != null) guild.retrieveMemberById(otherCoUser.id).queue(coMember -> {
-                // Check if they can see channel and history
-                if (!coMember.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
+            if (!checkHighlights || otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
 
-                // Check if in audio channel
-                final GuildVoiceState voiceState = coMember.getVoiceState();
-                if (voiceState != null && voiceState.inAudioChannel()) return;
-
-                // Check cooldown
-                final Map<Long, Long> cooldowns = bot.dataManager.highlightCooldowns.get(otherCoUser.id);
-                if (cooldowns != null) {
-                    final Long cooldown = cooldowns.get(guildId);
-                    if (cooldown != null) {
-                        if (cooldown - now > 0) return;
-                        cooldowns.remove(guildId);
-                    }
+            // Check cooldown
+            final Map<Long, Long> cooldowns = bot.dataManager.highlightCooldowns.get(otherCoUser.id);
+            if (cooldowns != null) {
+                final Long cooldown = cooldowns.get(guildId);
+                if (cooldown != null) {
+                    if (cooldown - now > 0) return;
+                    cooldowns.remove(guildId);
                 }
+            }
 
-                // Check highlights
-                for (final String highlight : otherCoUser.highlights) {
-                    final int index = contentLower.indexOf(highlight);
-                    if (index == -1) continue;
+            // Check highlights
+            for (final String highlight : otherCoUser.highlights) {
+                final int index = contentLower.indexOf(highlight);
+                if (index == -1) continue;
+                guild.retrieveMemberById(otherCoUser.id).queue(coMember -> {
+                    // Check if in audio channel
+                    final GuildVoiceState voiceState = coMember.getVoiceState();
+                    if (voiceState != null && voiceState.inAudioChannel()) return;
+
+                    // Check if they can see channel and history
+                    if (!coMember.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
 
                     // Add to cooldowns
                     bot.dataManager.highlightCooldowns
@@ -159,9 +161,9 @@ public class MessageListener extends CoListener {
                     coMember.getUser().openPrivateChannel()
                             .flatMap(privateChannel -> privateChannel.sendMessageEmbeds(embed.build(bot)))
                             .queue();
-                    break;
-                }
-            });
+                }, LazyUtilities.IGNORE_UNKNOWN_MEMBER);
+                break;
+            }
         }
     }
 }
