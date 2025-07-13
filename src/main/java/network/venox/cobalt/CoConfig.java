@@ -11,7 +11,6 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.config.LazyChannel;
-import xyz.srnyx.lazylibrary.config.LazyRole;
 
 import java.util.List;
 import java.util.Objects;
@@ -74,18 +73,10 @@ public class CoConfig {
 
     public class GuildNode implements Supplier<Guild> {
         public final long id;
-        @Nullable public final String invite;
-        @NotNull public final LazyRole botManager;
-        @NotNull public final LazyChannel<GuildMessageChannel> botManagerChat;
-        @NotNull public final LazyRole mod;
         @NotNull public final LazyChannel<GuildMessageChannel> log;
 
         public GuildNode(@NotNull ConfigurationNode node) {
             this.id = node.node("id").getLong();
-            this.invite = node.node("invite").getString();
-            this.botManager = new LazyRole(bot, this, node.node("bot-manager"));
-            this.botManagerChat = new LazyChannel<>(this, node.node("bot-manager-chat"));
-            this.mod = new LazyRole(bot, this, node.node("mod"));
             this.log = new LazyChannel<>(this, node.node("log"));
         }
 

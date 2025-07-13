@@ -19,16 +19,6 @@ owners:
 guild:
   # The ID of the guild
   id: 879734848946847774
-  # The invite URL for the guild
-  invite: "https://discord.gg/gAeMxAv9kp"
-  # Bot Manager role ID
-  bot-manager: 891405322105811004
-  # Bot Manager chat where QOTW alerts and other notifications will be sent
-  bot-manager-chat: 891404641277984788
-  # The role ID given to moderators
-  mod: 889244089801900102
-  # Global modmail forum channel for moderators
-  modmail: 1080663471491919952
   # Log channel for global actions (super punishments, etc...)
   log: 1008889846850408489
 
