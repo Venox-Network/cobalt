@@ -35,32 +35,34 @@ public class MessageListener extends CoListener {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User author = event.getAuthor();
-        if (author.isBot() || author.isSystem()) return;
+        if (author.isBot()) return;
         final ChannelType channelType = event.getChannel().getType();
         if (channelType == ChannelType.PRIVATE) return;
         final GuildMessageChannel channel = event.getGuildChannel();
         final long channelId = channel.getIdLong();
         final Message message = event.getMessage();
 
-        // Slowmode
-        if (channelType == ChannelType.TEXT) bot.dataManager.mongo.getMagicCollection(AutoSlowmode.class)
-                .findOne("_id", channel.getIdLong())
-                .ifPresent(slowmode -> slowmode.setSlowmode(bot, (TextChannel) channel));
-
         // React channel
         bot.dataManager.mongo.getMagicCollection(ReactChannel.class)
                 .findOne("_id", channelId)
                 .ifPresent(reactChannel -> reactChannel.addReactions(message));
 
-        // Auto-thread channel
-        bot.dataManager.mongo.getMagicCollection(AutoThread.class)
-                .findOne("_id", channelId)
-                .ifPresent(threadChannel -> threadChannel.createThread(bot, message));
-
         // Sticky message
         bot.dataManager.mongo.getMagicCollection(StickyMessage.class)
                 .findOne("_id", channelId)
                 .ifPresent(stickyMessage -> stickyMessage.send(bot, channel));
+
+        if (author.isSystem()) return;
+
+        // Slowmode
+        if (channelType == ChannelType.TEXT) bot.dataManager.mongo.getMagicCollection(AutoSlowmode.class)
+                .findOne("_id", channel.getIdLong())
+                .ifPresent(slowmode -> slowmode.setSlowmode(bot, (TextChannel) channel));
+
+        // Auto-thread channel
+        bot.dataManager.mongo.getMagicCollection(AutoThread.class)
+                .findOne("_id", channelId)
+                .ifPresent(threadChannel -> threadChannel.createThread(bot, message));
 
         // Limited messages
         bot.dataManager.mongo.getMagicCollection(LimitedMessages.class)
