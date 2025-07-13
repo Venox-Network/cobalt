@@ -22,10 +22,7 @@ import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -96,14 +93,17 @@ public class StickyMessage {
         @NotNull public static final String PROP_EMBEDS = "embeds";
 
         @BsonProperty(PROP_CONTENT) public String content;
-        @BsonProperty(PROP_EMBEDS) public List<Embed> embeds;
+        @BsonProperty(PROP_EMBEDS) @Nullable public List<Embed> embeds;
 
         public MongoMessage() {}
 
         public MongoMessage(@NotNull Message message) {
             content = message.getContentRaw();
-            embeds = new ArrayList<>();
-            for (final MessageEmbed messageEmbed : message.getEmbeds()) embeds.add(new Embed(messageEmbed));
+            final List<MessageEmbed> messageEmbeds = message.getEmbeds();
+            if (!messageEmbeds.isEmpty()) {
+                embeds = new ArrayList<>();
+                for (final MessageEmbed messageEmbed : messageEmbeds) embeds.add(new Embed(messageEmbed));
+            }
         }
 
         @NotNull
@@ -116,9 +116,10 @@ public class StickyMessage {
 
         @NotNull
         public List<MessageEmbed> getEmbeds() {
-            return embeds.stream()
-                    .map(Embed::build)
-                    .toList();
+            if (embeds == null) return Collections.emptyList();
+            final List<MessageEmbed> list = new ArrayList<>();
+            for (final Embed embed : embeds) list.add(embed.build());
+            return list;
         }
 
         public static class Embed {
