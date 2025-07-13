@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.internal.requests.CompletedRestAction;
 
 import network.venox.cobalt.Cobalt;
 
@@ -17,13 +19,10 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.javautilities.MiscUtility;
-
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,7 @@ public class StickyMessage {
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_MESSAGE) public MongoMessage message;
-    @BsonProperty(PROP_CURRENT) @Nullable public Long current;
+    @BsonProperty(PROP_CURRENT) public long current;
 
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
@@ -49,26 +48,10 @@ public class StickyMessage {
     }
 
     @NotNull
-    public Optional<CompletableFuture<Message>> current(@NotNull JDA jda) {
-        final TextChannel textChannel = channel(jda).orElse(null);
-        if (textChannel == null) return Optional.empty();
-        if (current == null) return Optional.of(findCurrent(textChannel));
-        return MiscUtility.handleException(() -> textChannel.retrieveMessageById(current).complete())
-                .map(CompletableFuture::completedFuture)
-                .or(() -> Optional.of(findCurrent(textChannel)));
-    }
-
-    @NotNull
-    private CompletableFuture<Message> findCurrent(@NotNull TextChannel textChannel) {
-        // Search for the message in the channel's history (last 10 messages)
-        // Checks: Author is the bot, content is the same, embeds are the same
-        return textChannel.getIterableHistory()
-                .takeAsync(10)
-                .thenApply(messages -> messages.stream()
-                        .filter(iterableMessage -> iterableMessage.getAuthor().equals(textChannel.getJDA().getSelfUser()) && iterableMessage.getContentRaw().equals(message.content))
-                        .filter(iterableMessage -> iterableMessage.getEmbeds().equals(message.getEmbeds()))
-                        .findFirst()
-                        .orElse(null));
+    public RestAction<Message> current(@NotNull JDA jda) {
+        return channel(jda)
+                .map(textChannel -> textChannel.retrieveMessageById(current).onErrorMap(t -> null))
+                .orElseGet(() -> new CompletedRestAction<>(jda, null));
     }
 
     public void send(@NotNull Cobalt bot, @NotNull MessageChannel guildChannel) {
@@ -85,7 +68,9 @@ public class StickyMessage {
     }
 
     public void delete(@NotNull JDA jda) {
-        current(jda).ifPresent(messageCompletableFuture -> messageCompletableFuture.thenAcceptAsync(msg -> msg.delete().queue()));
+        current(jda)
+                .flatMap(Objects::nonNull, Message::delete)
+                .queue();
     }
 
     public static class MongoMessage {
