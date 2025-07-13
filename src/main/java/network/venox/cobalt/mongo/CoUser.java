@@ -20,13 +20,9 @@ public class CoUser {
     public static final long HIGHLIGHT_TIME = 300000; // in milliseconds, 5 minutes
 
     @BsonId public long id;
-    @BsonProperty(PROP_AFK) @Nullable public Boolean afk;
+    @BsonProperty(PROP_AFK) public boolean afk;
     @BsonProperty(PROP_LANGUAGE) @Nullable public Language language;
     @BsonProperty(PROP_HIGHLIGHTS) @Nullable public Set<String> highlights;
-
-    public boolean afk() {
-        return afk != null && afk;
-    }
 
     @NotNull
     public Language language() {

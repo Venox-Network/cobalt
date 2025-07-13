@@ -75,7 +75,7 @@ public class MessageListener extends CoListener {
                         Filters.eq("_id", authorId),
                         Filters.eq(CoUser.PROP_AFK, true)),
                 Updates.unset(CoUser.PROP_AFK));
-        if (coUser != null && coUser.afk()) message.reply(":wave: **Welcome back,** you are no longer AFK!").queue();
+        if (coUser != null && coUser.afk) message.reply(":wave: **Welcome back,** you are no longer AFK!").queue();
 
         final Guild guild = event.getGuild();
         if (!guild.getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
@@ -111,7 +111,7 @@ public class MessageListener extends CoListener {
             // Check if mentioned
             if (mentions.stream().anyMatch(streamId -> streamId == otherCoUser.id)) {
                 // AFK alert
-                if (otherCoUser.afk()) message.reply(LazyEmoji.WARNING + " <@" + otherCoUser.id + "> is currently AFK!")
+                if (otherCoUser.afk) message.reply(LazyEmoji.WARNING + " <@" + otherCoUser.id + "> is currently AFK!")
                         .setAllowedMentions(Collections.emptyList())
                         .queue();
                 continue;

@@ -39,7 +39,7 @@ public class AfkCmd extends ApplicationCommand {
 
         // AFK
         if (!bot.dataManager.mongo.getMagicCollection(CoUser.class).findOne("_id", user.getIdLong())
-                .map(CoUser::afk)
+                .map(coUser -> coUser.afk)
                 .orElse(false)) {
             event.reply(LazyEmoji.YES + " " + entity + " is AFK").setEphemeral(true).queue();
             return;

@@ -86,7 +86,9 @@ public class SlowmodeCmd extends ApplicationCommand {
 
         // Update slowmode
         collection.upsertOne(
-                Filters.eq("_id", channel.getIdLong()),
+                Filters.and(
+                        Filters.eq("_id", channel.getIdLong()),
+                        Filters.eq(AutoSlowmode.PROP_GUILD, event.getGuild().getIdLong())),
                 Updates.combine(
                         Updates.set(AutoSlowmode.PROP_MINIMUM, minimumValue),
                         Updates.set(AutoSlowmode.PROP_MAXIMUM, maximumValue)));

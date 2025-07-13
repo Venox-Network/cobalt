@@ -35,15 +35,6 @@ public class AutoSlowmode {
     @BsonProperty(PROP_MAXIMUM) public int maximum;
     @BsonProperty(PROP_LAST_CHECK) @Nullable public Date lastCheck;
 
-    public AutoSlowmode() {}
-
-    public AutoSlowmode(long guild, long channel, int minimum, int maximum) {
-        this.guild = guild;
-        this.channel = channel;
-        this.minimum = minimum;
-        this.maximum = maximum;
-    }
-
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));
