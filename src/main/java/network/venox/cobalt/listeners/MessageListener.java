@@ -24,7 +24,9 @@ import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import xyz.srnyx.magicmongo.MagicCollection;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -155,7 +157,13 @@ public class MessageListener extends CoListener {
                             .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
                             .put(guildId, newCooldown);
 
-                    final LazyEmbed embed = embedFactory.newEmbed().setTitle(highlight, jumpUrl);
+                    final int highlightHash = highlight.hashCode();
+                    final LazyEmbed embed = embedFactory.newEmbed()
+                            .setColor(new Color( // Generate unique color based on highlight
+                                    (highlightHash & 0xFF0000) >> 16,
+                                    (highlightHash & 0x00FF00) >> 8,
+                                    highlightHash & 0x0000FF))
+                            .setTitle(highlight, jumpUrl);
 
                     // Highlighted message
                     embed.addField(authorName, StringUtility.shorten(content.substring(0, index) +
