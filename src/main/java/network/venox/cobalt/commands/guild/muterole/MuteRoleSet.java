@@ -57,7 +57,7 @@ public class MuteRoleSet extends ApplicationCommand {
         }
 
         // Check user hierarchy
-        if (!event.getMember().canInteract(event.getMember())) {
+        if (!event.getMember().canInteract(role)) {
             event.reply(LazyEmoji.NO + " You cannot set the mute role to " + role.getAsMention() + " due to hierarchy!").setEphemeral(true).queue();
             return;
         }
