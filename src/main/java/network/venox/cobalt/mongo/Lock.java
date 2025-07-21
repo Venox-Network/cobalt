@@ -1,0 +1,93 @@
+package network.venox.cobalt.mongo;
+
+import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
+
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.requests.RestAction;
+
+import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.commands.guild.locking.LockingCommon;
+import network.venox.cobalt.commands.guild.locking.LockingUnlock;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+
+public class Lock {
+    @NotNull public static final String PROP_ALLOWED_ROLES = "allowed_roles";
+    @NotNull public static final String PROP_PREVIOUS_PERMISSIONS = "previous_permissions";
+    @NotNull public static final String PROP_STICKY_MESSAGE_CONTENT = "sticky_message_content";
+    @NotNull public static final String PROP_STICKY_MESSAGE = "sticky_message";
+
+    @BsonId public long channel;
+    @BsonProperty(PROP_ALLOWED_ROLES) public Set<Long> allowedRoles;
+    /**
+     * [role_id, [allow, deny]]
+     */
+    @BsonProperty(PROP_PREVIOUS_PERMISSIONS) public Map<String, PreviousPermissions> previousPermissions;
+    @BsonProperty(PROP_STICKY_MESSAGE_CONTENT) @Nullable public String stickyMessageContent;
+    @BsonProperty(PROP_STICKY_MESSAGE) @Nullable public Long stickyMessage;
+
+    @NotNull
+    public RestAction<Message> replaceStickyMessage(@NotNull Cobalt bot, @NotNull GuildMessageChannel textChannel) {
+        deleteStickyMessage(textChannel).ifPresent(action -> action.queue(null, LazyUtilities.IGNORE_UNKNOWN_MESSAGE));
+        return sendStickyMessage(bot, textChannel);
+    }
+
+    @NotNull
+    public RestAction<Message> sendStickyMessage(@NotNull Cobalt bot, @NotNull GuildMessageChannel textChannel) {
+        return textChannel.sendMessage(LockingCommon.getMessage(allowedRoles, stickyMessageContent))
+                .setAllowedMentions(Set.of())
+                .onSuccess(msg -> {
+                    stickyMessage = msg.getIdLong();
+                    bot.mongo.getMagicCollection(Lock.class).updateOne(Filters.eq("_id", channel), Updates.set(PROP_STICKY_MESSAGE, stickyMessage));
+                });
+    }
+
+    /**
+     * Does not unset {@code sticky_message} in database because it's assumed {@link #replaceStickyMessage(Cobalt, GuildMessageChannel) the message is being replaced} or {@link LockingUnlock#unlock(GuildSlashEvent, TextChannel) the channel is being unlocked}
+     */
+    @NotNull
+    public Optional<RestAction<?>> deleteStickyMessage(@NotNull GuildMessageChannel textChannel) {
+        if (stickyMessage == null) return Optional.empty();
+        final long oldStickyMessage = stickyMessage;
+        stickyMessage = null;
+        return Optional.of(textChannel.retrieveMessageById(oldStickyMessage).flatMap(Message::delete));
+    }
+
+    public static class PreviousPermissions {
+        @NotNull private static final String ALLOWED = "allowed";
+        @NotNull private static final String DENIED = "denied";
+
+        @BsonProperty(ALLOWED) public Set<Permission> allowed;
+        @BsonProperty(DENIED) public Set<Permission> denied;
+
+        public PreviousPermissions() {}
+
+        public PreviousPermissions(@NotNull PermissionOverride override) {
+            allowed = filter(override.getAllowed());
+            denied = filter(override.getDenied());
+        }
+
+        @NotNull
+        private static Set<Permission> filter(@NotNull Set<Permission> permissions) {
+            permissions.retainAll(LockingCommon.PERMISSIONS);
+            return permissions;
+        }
+    }
+}

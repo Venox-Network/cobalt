@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import org.spongepowered.configurate.ConfigurationNode;
 
@@ -22,7 +21,6 @@ public class CoConfig {
     @NotNull private final Cobalt bot;
 
     @NotNull public final GuildNode guild;
-    @Nullable public List<Activity> statuses;
     @NotNull public final List<String> welcomeQuestions;
 
     public CoConfig(@NotNull Cobalt bot) {
@@ -32,13 +30,12 @@ public class CoConfig {
                 .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
                 .toList();
-    }
 
-    public void loadStatuses() {
+        // statuses
         final String guilds = String.valueOf(bot.jda.getGuilds().size());
-        final String totalMembers = String.valueOf(bot.dataManager.totalMembers);
-        final String uniqueMembers = String.valueOf(bot.dataManager.uniqueMembers);
-        statuses = bot.settings.fileSettings.file.yaml.node("statuses").childrenList().stream()
+        final String totalMembers = String.valueOf(bot.totalMembers);
+        final String uniqueMembers = String.valueOf(bot.uniqueMembers);
+        bot.settings.activities(bot.settings.fileSettings.file.yaml.node("statuses").childrenList().stream()
                 .map(node -> {
                     // Get status
                     final String status = node.getString();
@@ -61,7 +58,7 @@ public class CoConfig {
                             .replace("%unique_users%", uniqueMembers));
                 })
                 .filter(Objects::nonNull)
-                .toList();
+                .toList());
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

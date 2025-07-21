@@ -1,0 +1,68 @@
+package network.venox.cobalt.commands.global.highlight;
+
+import com.freya02.botcommands.api.annotations.CommandMarker;
+import com.freya02.botcommands.api.annotations.Dependency;
+import com.freya02.botcommands.api.application.ApplicationCommand;
+import com.freya02.botcommands.api.application.CommandScope;
+import com.freya02.botcommands.api.application.annotations.AppOption;
+import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
+import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+
+import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.mongo.CoUser;
+
+import org.jetbrains.annotations.NotNull;
+
+import xyz.srnyx.lazylibrary.LazyEmoji;
+
+import xyz.srnyx.magicmongo.MagicCollection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+
+@CommandMarker
+public class HighlightAdd extends ApplicationCommand {
+    @Dependency private Cobalt bot;
+
+    @JDASlashCommand(
+            scope = CommandScope.GLOBAL,
+            name = "highlight",
+            subcommand = "add",
+            description = "Add a new highlight")
+    public void addCommand(@NotNull GlobalSlashEvent event,
+                           @AppOption(description = "The word(s) to highlight. Use spaces to separate multiple") @NotNull String words) {
+        final MagicCollection<CoUser> collection = bot.mongo.getMagicCollection(CoUser.class);
+        final Set<String> highlights = collection
+                .findOne("_id", event.getUser().getIdLong())
+                .map(user -> user.highlights)
+                .orElse(Set.of());
+
+        // Get words
+        final Set<String> wordSet = Arrays.stream(words.split(" "))
+                .map(String::toLowerCase)
+                .filter(word -> !highlights.contains(word))
+                .collect(Collectors.toSet());
+        if (wordSet.isEmpty()) {
+            event.reply(LazyEmoji.NO + " You already have all of those highlights!").setEphemeral(true).queue();
+            return;
+        }
+
+        // Check highlight count
+        if (highlights.size() + wordSet.size() > 10) {
+            event.reply(LazyEmoji.NO + " You can't have more than **10** highlights!").setEphemeral(true).queue();
+            return;
+        }
+
+        // Add words to highlights
+        collection.updateOne(
+                Filters.eq("_id", event.getUser().getIdLong()),
+                Updates.addEachToSet(CoUser.PROP_HIGHLIGHTS, new ArrayList<>(wordSet)));
+        event.reply(LazyEmoji.YES + " Added `" + String.join("`, `", wordSet) + "` to your highlights").setEphemeral(true).queue();
+    }
+}

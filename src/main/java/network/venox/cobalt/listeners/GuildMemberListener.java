@@ -16,7 +16,7 @@ public class GuildMemberListener extends CoListener {
 
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        bot.dataManager.mongo.getMagicCollection(Server.class)
+        bot.mongo.getMagicCollection(Server.class)
                 .findOne("_id", event.getGuild().getIdLong())
                 .ifPresent(server -> server.sendWelcomeMessage(bot, event.getUser()));
     }

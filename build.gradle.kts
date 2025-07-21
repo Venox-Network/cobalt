@@ -9,8 +9,6 @@ plugins {
     id("com.gradleup.shadow") version "8.3.8"
 }
 
-repositories.mavenLocal()
-
 magicMongo("ef0c2370bd")
 setupLazyLibrary("976f3062f3", "5.6.1", "network.venox", "2.0.0", "A Discord bot for Venox Network")
 

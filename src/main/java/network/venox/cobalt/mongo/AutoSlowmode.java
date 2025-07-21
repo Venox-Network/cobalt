@@ -51,7 +51,7 @@ public class AutoSlowmode {
         }
 
         // Update lastCheck
-        bot.dataManager.mongo.getMagicCollection(AutoSlowmode.class).updateOne(
+        bot.mongo.getMagicCollection(AutoSlowmode.class).updateOne(
                 Filters.eq("_id", channel),
                 Updates.set(PROP_LAST_CHECK, new Date()));
 

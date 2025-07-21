@@ -21,11 +21,16 @@ import java.util.*;
 
 public class Server {
     @NotNull public static final String PROP_WELCOME_CHANNEL = "welcome_channel";
+    @NotNull public static final String PROP_LOCK_PRESETS = "lock_presets";
     @NotNull public static final String PROP_MUTE_ROLE = "mute_role";
     @NotNull public static final String PROP_MUTED_USERS = "muted_users";
 
     @BsonId public long guild;
     @BsonProperty(PROP_WELCOME_CHANNEL) @Nullable public Long welcomeChannel;
+    /**
+     * [preset name, role IDs]
+     */
+    @BsonProperty(PROP_LOCK_PRESETS) @Nullable public Map<String, Set<Long>> lockPresets;
     @BsonProperty(PROP_MUTE_ROLE) @Nullable public Long muteRole;
     @BsonProperty(PROP_MUTED_USERS) @Nullable public Set<Long> mutedUsers;
 

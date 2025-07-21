@@ -20,6 +20,7 @@ import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import xyz.srnyx.magicmongo.MagicCollection;
@@ -27,6 +28,8 @@ import xyz.srnyx.magicmongo.MagicCollection;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -41,40 +44,64 @@ public class MessageListener extends CoListener {
         if (author.isBot()) return;
         final ChannelType channelType = event.getChannel().getType();
         if (channelType == ChannelType.PRIVATE) return;
+        final boolean isTextChannel = channelType == ChannelType.TEXT;
         final GuildMessageChannel channel = event.getGuildChannel();
         final long channelId = channel.getIdLong();
         final Message message = event.getMessage();
 
+        // Send lock sticky message if no chatting for 5 minutes
+        boolean isLocked = false;
+        if (isTextChannel) {
+            // End existing scheduler
+            final ScheduledFuture<?> scheduler = bot.lockFutures.get(channelId);
+            if (scheduler != null) {
+                scheduler.cancel(false);
+                bot.lockFutures.remove(channelId);
+            }
+            // Start new scheduler
+            final Lock lock = bot.mongo.getMagicCollection(Lock.class)
+                    .findOne("_id", channelId)
+                    .orElse(null);
+            isLocked = lock != null;
+            if (isLocked) bot.lockFutures.put(channelId, LazyUtilities.IO_SCHEDULER.schedule(() -> {
+                try {
+                    lock.replaceStickyMessage(bot, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
+                } catch (final Exception e) {
+                    LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
+                }
+            }, 5, TimeUnit.MINUTES));
+        }
+
         // React channel
-        bot.dataManager.mongo.getMagicCollection(ReactChannel.class)
+        bot.mongo.getMagicCollection(ReactChannel.class)
                 .findOne("_id", channelId)
                 .ifPresent(reactChannel -> reactChannel.addReactions(message));
 
         // Sticky message
-        bot.dataManager.mongo.getMagicCollection(StickyMessage.class)
+        if (!isLocked) bot.mongo.getMagicCollection(StickyMessage.class)
                 .findOne("_id", channelId)
                 .ifPresent(stickyMessage -> stickyMessage.send(bot, channel));
 
         if (author.isSystem()) return;
 
         // Slowmode
-        if (channelType == ChannelType.TEXT) bot.dataManager.mongo.getMagicCollection(AutoSlowmode.class)
+        if (isTextChannel) bot.mongo.getMagicCollection(AutoSlowmode.class)
                 .findOne("_id", channel.getIdLong())
                 .ifPresent(slowmode -> slowmode.setSlowmode(bot, (TextChannel) channel));
 
         // Auto-thread channel
-        bot.dataManager.mongo.getMagicCollection(AutoThread.class)
+        if (!isLocked) bot.mongo.getMagicCollection(AutoThread.class)
                 .findOne("_id", channelId)
                 .ifPresent(threadChannel -> threadChannel.createThread(bot, message));
 
         // Limited messages
-        bot.dataManager.mongo.getMagicCollection(LimitedMessages.class)
+        bot.mongo.getMagicCollection(LimitedMessages.class)
                 .findOne("_id", channelId)
                 .ifPresent(limitedMessages -> limitedMessages.processMessage(message));
 
         // AFK (disable)
         final long authorId = author.getIdLong();
-        final MagicCollection<CoUser> userCollection = bot.dataManager.mongo.getMagicCollection(CoUser.class);
+        final MagicCollection<CoUser> userCollection = bot.mongo.getMagicCollection(CoUser.class);
         final CoUser coUser = userCollection.findOneAndUpdate(
                 Filters.and(
                         Filters.eq("_id", authorId),
@@ -87,7 +114,7 @@ public class MessageListener extends CoListener {
         final long guildId = guild.getIdLong();
         final long now = System.currentTimeMillis();
         final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
-        bot.dataManager.highlightCooldowns
+        bot.highlightCooldowns
                 .computeIfAbsent(authorId, v -> new HashMap<>())
                 .put(guildId, newCooldown);
 
@@ -131,7 +158,7 @@ public class MessageListener extends CoListener {
             if (!checkHighlights || otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
 
             // Check cooldown
-            final Map<Long, Long> cooldowns = bot.dataManager.highlightCooldowns.get(otherCoUser.id);
+            final Map<Long, Long> cooldowns = bot.highlightCooldowns.get(otherCoUser.id);
             if (cooldowns != null) {
                 final Long cooldown = cooldowns.get(guildId);
                 if (cooldown != null) {
@@ -153,7 +180,7 @@ public class MessageListener extends CoListener {
                     if (!coMember.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
 
                     // Add to cooldowns
-                    bot.dataManager.highlightCooldowns
+                    bot.highlightCooldowns
                             .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
                             .put(guildId, newCooldown);
 

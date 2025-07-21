@@ -91,7 +91,7 @@ public class AutoThread {
 
         // Create thread
         message.createThreadChannel(name(message)).queue();
-        bot.dataManager.mongo.getMagicCollection(AutoThread.class).updateOne(
+        bot.mongo.getMagicCollection(AutoThread.class).updateOne(
                 Filters.eq("_id", channel),
                 Updates.inc(PROP_COUNT, 1));
     }

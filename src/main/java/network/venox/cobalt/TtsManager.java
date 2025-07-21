@@ -40,11 +40,11 @@ import java.util.List;
 
 
 public class TtsManager {
-    @NotNull private static final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-    @NotNull private static final LocalAudioSendHandler sendHandler = new LocalAudioSendHandler(playerManager.createPlayer());
+    @NotNull private static final AudioPlayerManager PLAYER_MANAGER = new DefaultAudioPlayerManager();
+    @NotNull private static final LocalAudioSendHandler SEND_HANDLER = new LocalAudioSendHandler(PLAYER_MANAGER.createPlayer());
     static {
-        AudioSourceManagers.registerLocalSource(playerManager);
-        sendHandler.player.addListener(event -> {
+        AudioSourceManagers.registerLocalSource(PLAYER_MANAGER);
+        SEND_HANDLER.player.addListener(event -> {
             if (event instanceof TrackEndEvent endEvent) FileUtility.deleteFile(Path.of(endEvent.track.getInfo().uri), true);
         });
     }
@@ -85,7 +85,7 @@ public class TtsManager {
         }
         
         // Check if already speaking
-        if (sendHandler.player.getPlayingTrack() != null) {
+        if (SEND_HANDLER.player.getPlayingTrack() != null) {
             event.reply(LazyEmoji.NO + " I'm already speaking!").setEphemeral(true).queue();
             return;
         }
@@ -114,10 +114,10 @@ public class TtsManager {
         final AudioManager manager = guild.getAudioManager();
         manager.openAudioConnection(channel);
         manager.setSelfDeafened(true);
-        manager.setSendingHandler(sendHandler);
+        manager.setSendingHandler(SEND_HANDLER);
 
         // Play audio file
-        playerManager.loadItem("tts/" + event.getIdLong() + ".wav", new LocalAudioLoadResultHandler(sendHandler.player));
+        PLAYER_MANAGER.loadItem("tts/" + event.getIdLong() + ".wav", new LocalAudioLoadResultHandler(SEND_HANDLER.player));
     }
 
     public static class LocalAudioSendHandler implements AudioSendHandler {

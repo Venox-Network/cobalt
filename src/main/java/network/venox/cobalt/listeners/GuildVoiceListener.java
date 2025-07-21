@@ -31,7 +31,7 @@ public class GuildVoiceListener extends CoListener {
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
-        final MagicCollection<Server> collection = bot.dataManager.mongo.getMagicCollection(Server.class);
+        final MagicCollection<Server> collection = bot.mongo.getMagicCollection(Server.class);
         final Bson filter = Filters.eq("_id", guild.getIdLong());
         final Server server = collection.findOne(filter).orElse(null);
         if (server == null) return;
