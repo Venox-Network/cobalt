@@ -157,8 +157,8 @@ public class LockingLock extends ApplicationCommand {
                                     // Edit message, update permissions, and send sticky message
                                     done.editMessage(LazyEmoji.YES + " Locked channel to " + LockingCommon.getRolesString(roles))
                                             .setComponents()
-                                            .flatMap(v -> lock.replaceStickyMessage(bot, textChannel))
                                             .flatMap(v -> RestAction.allOf(actions))
+                                            .flatMap(v -> lock.replaceStickyMessage(bot, textChannel))
                                             .queue();
                                 })
                                         .setConstraints(constraints)
