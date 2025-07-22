@@ -7,7 +7,6 @@ import com.freya02.botcommands.api.application.ApplicationCommand;
 import com.freya02.botcommands.api.application.annotations.AppOption;
 import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
 import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.application.slash.autocomplete.annotations.AutocompletionHandler;
 import com.freya02.botcommands.api.components.Components;
 import com.freya02.botcommands.api.components.InteractionConstraints;
 
@@ -21,12 +20,12 @@ import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
 
+import net.dv8tion.jda.api.requests.RestAction;
 import network.venox.cobalt.Cobalt;
 import network.venox.cobalt.mongo.Lock;
 import network.venox.cobalt.mongo.Server;
@@ -92,16 +91,17 @@ public class LockingLock extends ApplicationCommand {
                                 .build()),
                         ActionRow.of(
                                 Components.successButton(done -> {
+                                    final List<RestAction<?>> actions = new ArrayList<>();
+
                                     // Get existing previous permissions from existing lock
                                     // We want to use the most original previous permissions
-                                    final Optional<Map<String, Lock.PreviousPermissions>> existing = lockCollection.findOne(lockFilter).map(value -> value.previousPermissions);
+                                    final Map<String, Lock.PreviousPermissions> existing = lockCollection.findOne(lockFilter).map(value -> value.previousPermissions).orElseGet(HashMap::new);
                                     final boolean noExisting = existing.isEmpty();
 
                                     final TextChannel textChannel = done.getChannel().asTextChannel();
                                     final Guild guild = textChannel.getGuild();
                                     final IPermissionContainer container = textChannel.getPermissionContainer();
                                     final IPermissionContainerManager<?, ?> manager = container.getManager();
-                                    final Map<String, Lock.PreviousPermissions> previousPermissions = existing.orElseGet(HashMap::new);
 
                                     // Grant role permissions
                                     for (final long roleId : roles) {
@@ -112,16 +112,16 @@ public class LockingLock extends ApplicationCommand {
                                         final PermissionOverride override = container.getPermissionOverride(role);
                                         if (override != null) {
                                             // Get previous permissions
-                                            if (noExisting) previousPermissions.put(String.valueOf(roleId), new Lock.PreviousPermissions(override));
+                                            if (noExisting) existing.put(String.valueOf(roleId), new Lock.PreviousPermissions(override));
                                             // Grant permissions
                                             final Set<Permission> toGrant = new HashSet<>();
                                             final Set<Permission> denied = override.getDenied();
                                             for (final Permission permission : LockingCommon.PERMISSIONS) if (!denied.contains(permission)) toGrant.add(permission);
-                                            override.getManager().grant(toGrant).queue();
+                                            actions.add(override.getManager().grant(toGrant));
                                             continue;
                                         }
                                         // Grant permissions
-                                        manager.putRolePermissionOverride(roleId, LockingCommon.PERMISSIONS, null).queue();
+                                        actions.add(manager.putRolePermissionOverride(roleId, LockingCommon.PERMISSIONS, null));
                                     }
 
                                     final Role everyone = guild.getPublicRole();
@@ -136,28 +136,29 @@ public class LockingLock extends ApplicationCommand {
                                         for (final Permission permission : override.getAllowed()) if (LockingCommon.PERMISSIONS.contains(permission)) toClear.add(permission);
                                         // Clear permissions
                                         if (toClear.isEmpty()) continue;
-                                        if (noExisting) previousPermissions.put(override.getId(), new Lock.PreviousPermissions(override));
-                                        override.getManager().clear(toClear).queue();
+                                        if (noExisting) existing.put(override.getId(), new Lock.PreviousPermissions(override));
+                                        actions.add(override.getManager().clear(toClear));
                                     }
 
                                     // Deny everyone permissions and get previous everyone permissions
                                     final PermissionOverride everyoneOverride = Objects.requireNonNull(container.getPermissionOverride(everyone));
                                     // Get previous permissions
-                                    if (noExisting) previousPermissions.put(everyone.getId(), new Lock.PreviousPermissions(everyoneOverride));
+                                    if (noExisting) existing.put(everyone.getId(), new Lock.PreviousPermissions(everyoneOverride));
                                     // Deny permissions
-                                    everyoneOverride.getManager().deny(LockingCommon.PERMISSIONS).queue();
+                                    actions.add(everyoneOverride.getManager().deny(LockingCommon.PERMISSIONS));
 
                                     // Save to database
                                     final UpdateBuilder builder = new UpdateBuilder(
                                             Updates.set(Lock.PROP_ALLOWED_ROLES, roles),
                                             Updates.set(Lock.PROP_STICKY_MESSAGE_CONTENT, content));
-                                    if (noExisting) builder.add(Updates.set(Lock.PROP_PREVIOUS_PERMISSIONS, previousPermissions));
+                                    if (noExisting) builder.add(Updates.set(Lock.PROP_PREVIOUS_PERMISSIONS, existing));
                                     final Lock lock = lockCollection.findOneAndUpsert(lockFilter, builder.build());
 
                                     // Edit message, update permissions, and send sticky message
                                     done.editMessage(LazyEmoji.YES + " Locked channel to " + LockingCommon.getRolesString(roles))
                                             .setComponents()
                                             .flatMap(v -> lock.replaceStickyMessage(bot, textChannel))
+                                            .flatMap(v -> RestAction.allOf(actions))
                                             .queue();
                                 })
                                         .setConstraints(constraints)
