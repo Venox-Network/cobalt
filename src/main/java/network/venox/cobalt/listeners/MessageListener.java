@@ -69,7 +69,7 @@ public class MessageListener extends CoListener {
                 } catch (final Exception e) {
                     LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
                 }
-            }, 5, TimeUnit.MINUTES));
+            }, 1, TimeUnit.MINUTES));
         }
 
         // React channel
