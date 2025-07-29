@@ -19,9 +19,7 @@ import xyz.srnyx.magicmongo.SingleMongo;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
@@ -30,17 +28,6 @@ public class Cobalt extends LazyLibrary {
     public CoConfig config;
     public MagicDatabase mongo;
     /**
-     * [channel ID, future]
-     */
-    @NotNull public final Map<Long, ScheduledFuture<?>> stickyFutures = new HashMap<>();
-    /**
-     * [channel ID, future]
-     */
-    @NotNull public final Map<Long, ScheduledFuture<?>> lockFutures = new HashMap<>();
-    /**
-     * [user ID, [guild ID, next highlight time]]
-     */
-    @NotNull public final Map<Long, Map<Long, Long>> highlightCooldowns = new HashMap<>();
     /**
      * Total member count across all guilds
      */

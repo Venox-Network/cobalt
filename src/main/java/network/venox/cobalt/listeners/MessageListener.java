@@ -53,17 +53,17 @@ public class MessageListener extends CoListener {
         boolean isLocked = false;
         if (isTextChannel) {
             // End existing scheduler
-            final ScheduledFuture<?> scheduler = bot.lockFutures.get(channelId);
+            final ScheduledFuture<?> scheduler = Lock.LOCK_FUTURES.get(channelId);
             if (scheduler != null) {
                 scheduler.cancel(false);
-                bot.lockFutures.remove(channelId);
+                Lock.LOCK_FUTURES.remove(channelId);
             }
             // Start new scheduler
             final Lock lock = bot.mongo.getMagicCollection(Lock.class)
                     .findOne("_id", channelId)
                     .orElse(null);
             isLocked = lock != null;
-            if (isLocked) bot.lockFutures.put(channelId, LazyUtilities.IO_SCHEDULER.schedule(() -> {
+            if (isLocked) Lock.LOCK_FUTURES.put(channelId, LazyUtilities.IO_SCHEDULER.schedule(() -> {
                 try {
                     lock.replaceStickyMessage(bot, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
                 } catch (final Exception e) {
@@ -85,9 +85,16 @@ public class MessageListener extends CoListener {
         if (author.isSystem()) return;
 
         // Slowmode
+        final long authorId = author.getIdLong();
+        final long now = System.currentTimeMillis();
         if (isTextChannel) bot.mongo.getMagicCollection(AutoSlowmode.class)
                 .findOne("_id", channel.getIdLong())
-                .ifPresent(slowmode -> slowmode.setSlowmode(bot, (TextChannel) channel));
+                .ifPresent(slowmode -> {
+                    AutoSlowmode.ACTIVE_USERS
+                            .computeIfAbsent(channelId, v -> new HashMap<>())
+                            .put(authorId, now);
+                    slowmode.setSlowmode(bot, (TextChannel) channel);
+                });
 
         // Auto-thread channel
         if (!isLocked) bot.mongo.getMagicCollection(AutoThread.class)
@@ -100,7 +107,6 @@ public class MessageListener extends CoListener {
                 .ifPresent(limitedMessages -> limitedMessages.processMessage(message));
 
         // AFK (disable)
-        final long authorId = author.getIdLong();
         final MagicCollection<CoUser> userCollection = bot.mongo.getMagicCollection(CoUser.class);
         final CoUser coUser = userCollection.findOneAndUpdate(
                 Filters.and(
@@ -112,9 +118,8 @@ public class MessageListener extends CoListener {
         // Update highlights cooldown
         final Guild guild = event.getGuild();
         final long guildId = guild.getIdLong();
-        final long now = System.currentTimeMillis();
         final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
-        bot.highlightCooldowns
+        CoUser.HIGHLIGHT_COOLDOWNS
                 .computeIfAbsent(authorId, v -> new HashMap<>())
                 .put(guildId, newCooldown);
 
@@ -158,7 +163,7 @@ public class MessageListener extends CoListener {
             if (!checkHighlights || otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
 
             // Check cooldown
-            final Map<Long, Long> cooldowns = bot.highlightCooldowns.get(otherCoUser.id);
+            final Map<Long, Long> cooldowns = CoUser.HIGHLIGHT_COOLDOWNS.get(otherCoUser.id);
             if (cooldowns != null) {
                 final Long cooldown = cooldowns.get(guildId);
                 if (cooldown != null) {
@@ -180,7 +185,7 @@ public class MessageListener extends CoListener {
                     if (!coMember.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
 
                     // Add to cooldowns
-                    bot.highlightCooldowns
+                    CoUser.HIGHLIGHT_COOLDOWNS
                             .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
                             .put(guildId, newCooldown);
 

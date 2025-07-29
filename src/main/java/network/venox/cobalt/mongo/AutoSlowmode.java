@@ -3,8 +3,6 @@ package network.venox.cobalt.mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import network.venox.cobalt.Cobalt;
@@ -17,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
-import java.time.OffsetDateTime;
 import java.util.*;
 
 
@@ -27,6 +24,11 @@ public class AutoSlowmode {
     @NotNull public static final String PROP_MAXIMUM = "maximum";
     @NotNull public static final String PROP_LAST_CHECK = "last_check";
 
+    /**
+     * [channel ID, [user ID, last active time]]
+     */
+    @NotNull public static final Map<Long, Map<Long, Long>> ACTIVE_USERS = new HashMap<>();
+
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_MINIMUM) public int minimum;
@@ -35,28 +37,25 @@ public class AutoSlowmode {
 
     public void setSlowmode(@NotNull Cobalt bot, @NotNull TextChannel textChannel) {
         final long now = System.currentTimeMillis();
+        final long fifteenSecondsAgo = now - 15000;
 
         // Check if slowmode has been set recently
-        if (lastCheck != null && lastCheck.after(new Date(now - 15000))) return;
-
-        // Get the users in chat sent since last check or 15 seconds ago
-        int total = 0;
-        final Set<Long> users = new HashSet<>();
-        final OffsetDateTime time = OffsetDateTime.now().minusSeconds(lastCheck == null ? 15 : ((now - lastCheck.getTime()) / 1000));
-        for (final Message message : textChannel.getIterableHistory()) {
-            total++;
-            if (total > maximum || message.getTimeCreated().isBefore(time)) break;
-            final User author = message.getAuthor();
-            if (!author.isBot()) users.add(author.getIdLong());
-        }
+        if (lastCheck != null && lastCheck.getTime() > fifteenSecondsAgo) return;
 
         // Update lastCheck
         bot.mongo.getMagicCollection(AutoSlowmode.class).updateOne(
                 Filters.eq("_id", channel),
-                Updates.set(PROP_LAST_CHECK, new Date()));
+                Updates.set(PROP_LAST_CHECK, new Date(now)));
+
+        // Get the users active in the last 15 seconds
+        final Map<Long, Long> activeUsers = ACTIVE_USERS.get(channel);
+        if (activeUsers == null) return;
+        activeUsers.entrySet().removeIf(entry -> entry.getValue() < fifteenSecondsAgo);
 
         // Calculate and set slowmode
-        Mapper.toInt(Math.max(minimum, Math.min(maximum, users.size())))
-                .ifPresent(slowmode -> textChannel.getManager().setSlowmode(slowmode).queue());
+        Mapper.toInt(Math.max(minimum, Math.min(activeUsers.size(), maximum)))
+                .ifPresent(slowmode -> {
+                    if (slowmode != textChannel.getSlowmode()) textChannel.getManager().setSlowmode(slowmode).queue();
+                });
     }
 }

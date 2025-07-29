@@ -33,6 +33,11 @@ public class StickyMessage {
     @NotNull public static final String PROP_MESSAGE = "message";
     @NotNull public static final String PROP_CURRENT = "current";
 
+    /**
+     * [channel ID, future]
+     */
+    @NotNull private static final Map<Long, ScheduledFuture<?>> STICKY_FUTURES = new HashMap<>();
+
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_MESSAGE) public MongoMessage message;
@@ -53,14 +58,14 @@ public class StickyMessage {
         delete(messageChannel);
 
         // Schedule message to be sent
-        final ScheduledFuture<?> future = bot.stickyFutures.get(channel);
+        final ScheduledFuture<?> future = STICKY_FUTURES.get(channel);
         if (future != null) future.cancel(true);
-        bot.stickyFutures.put(channel, LazyUtilities.IO_SCHEDULER.schedule(() -> {
+        STICKY_FUTURES.put(channel, LazyUtilities.IO_SCHEDULER.schedule(() -> {
             messageChannel.sendMessage(message.toBuilder().build())
                     .queue(msg -> bot.mongo.getMagicCollection(StickyMessage.class).updateOne(
                             Filters.eq("_id", channel),
                             Updates.set(PROP_CURRENT, msg.getIdLong())));
-            bot.stickyFutures.remove(channel);
+            STICKY_FUTURES.remove(channel);
         }, 1, TimeUnit.MINUTES));
     }
 

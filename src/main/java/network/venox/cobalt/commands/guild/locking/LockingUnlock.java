@@ -87,7 +87,7 @@ public class LockingUnlock extends ApplicationCommand {
         }
 
         // Delete sticky message
-        final ScheduledFuture<?> scheduler = bot.lockFutures.remove(channel.getIdLong());
+        final ScheduledFuture<?> scheduler = Lock.LOCK_FUTURES.remove(channel.getIdLong());
         if (scheduler != null) scheduler.cancel(false);
         lock.deleteStickyMessage(channel).ifPresent(action -> action.queue(null, LazyUtilities.IGNORE_UNKNOWN_MESSAGE));
 

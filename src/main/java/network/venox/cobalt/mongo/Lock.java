@@ -23,9 +23,11 @@ import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 
 
 public class Lock {
@@ -33,6 +35,11 @@ public class Lock {
     @NotNull public static final String PROP_PREVIOUS_PERMISSIONS = "previous_permissions";
     @NotNull public static final String PROP_STICKY_MESSAGE_CONTENT = "sticky_message_content";
     @NotNull public static final String PROP_STICKY_MESSAGE = "sticky_message";
+
+    /**
+     * [channel ID, future]
+     */
+    @NotNull public static final Map<Long, ScheduledFuture<?>> LOCK_FUTURES = new HashMap<>();
 
     @BsonId public long channel;
     @BsonProperty(PROP_ALLOWED_ROLES) public Set<Long> allowedRoles;
