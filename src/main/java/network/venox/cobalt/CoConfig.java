@@ -30,35 +30,6 @@ public class CoConfig {
                 .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
                 .toList();
-
-        // statuses
-        final String guilds = String.valueOf(bot.jda.getGuilds().size());
-        final String totalMembers = String.valueOf(bot.totalMembers);
-        final String uniqueMembers = String.valueOf(bot.uniqueMembers);
-        bot.settings.activities(bot.settings.fileSettings.file.yaml.node("statuses").childrenList().stream()
-                .map(node -> {
-                    // Get status
-                    final String status = node.getString();
-                    if (status == null) return null;
-
-                    // Get type
-                    Activity.ActivityType type = Activity.ActivityType.CUSTOM_STATUS;
-                    if (status.startsWith("watching")) {
-                        type = Activity.ActivityType.WATCHING;
-                    } else if (status.startsWith("listening")) {
-                        type = Activity.ActivityType.LISTENING;
-                    } else if (status.startsWith("playing")) {
-                        type = Activity.ActivityType.PLAYING;
-                    }
-
-                    // Get Activity
-                    return Activity.of(type, status
-                            .replace("%servers%", guilds)
-                            .replace("%users%", totalMembers)
-                            .replace("%unique_users%", uniqueMembers));
-                })
-                .filter(Objects::nonNull)
-                .toList());
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
