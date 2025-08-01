@@ -102,15 +102,27 @@ public class Translate extends ApplicationCommand {
 
     @NotNull
     private static MessageEditData getMessage(@NotNull String message, @NotNull Language language) {
-        String translatedMessage = Translator.translate(language, message);
-        if (translatedMessage.length() > 2000) translatedMessage = Translator.translate(Language.ENGLISH, language, "*Translation too long!*");
-        return new MessageEditBuilder()
-                .setContent(translatedMessage)
+        final MessageEditBuilder builder = new MessageEditBuilder()
                 .setActionRow(Components.stringSelectionMenu(MENU_TRANSLATE_LANGUAGE, message)
                         .oneUse()
                         .setPlaceholder("Select a language")
                         .addOptions(LANGUAGE_OPTIONS)
-                        .setDefaultValues(language.name()).build())
+                        .setDefaultValues(language.name()).build());
+
+        // Translate message
+        String translatedMessage;
+        try {
+            translatedMessage = Translator.translate(language, message);
+        } catch (final Exception e) {
+            return builder
+                    .setContent(LazyEmoji.NO + " **Translation failed!** Please try again later...")
+                    .build();
+        }
+
+        // Reply
+        if (translatedMessage.length() > 2000) translatedMessage = Translator.translate(Language.ENGLISH, language, "*Translation too long!*");
+        return builder
+                .setContent(translatedMessage)
                 .build();
     }
 }
