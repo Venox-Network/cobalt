@@ -16,6 +16,7 @@ import network.venox.cobalt.mongo.*;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
@@ -63,7 +64,7 @@ public class MessageListener extends CoListener {
                     .findOne("_id", channelId)
                     .orElse(null);
             isLocked = lock != null;
-            if (isLocked) Lock.LOCK_FUTURES.put(channelId, LazyUtilities.IO_SCHEDULER.schedule(() -> {
+            if (isLocked) Lock.LOCK_FUTURES.put(channelId, MiscUtility.IO_SCHEDULER.schedule(() -> {
                 try {
                     lock.replaceStickyMessage(bot, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
                 } catch (final Exception e) {

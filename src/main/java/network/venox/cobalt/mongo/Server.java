@@ -14,7 +14,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.utility.LazyUtilities;
+import xyz.srnyx.javautilities.MiscUtility;
 
 import java.util.*;
 
@@ -55,6 +55,6 @@ public class Server {
     }
 
     public void sendWelcomeMessage(@NotNull Cobalt bot, @NotNull User user) {
-        welcomeChannel(bot.jda).ifPresent(textChannel -> textChannel.sendMessage(":wave: **Welcome " + user.getAsMention() + "!** " + bot.config.welcomeQuestions.get(LazyUtilities.RANDOM.nextInt(bot.config.welcomeQuestions.size()))).queue());
+        welcomeChannel(bot.jda).ifPresent(textChannel -> textChannel.sendMessage(":wave: **Welcome " + user.getAsMention() + "!** " + bot.config.welcomeQuestions.get(MiscUtility.RANDOM.nextInt(bot.config.welcomeQuestions.size()))).queue());
     }
 }

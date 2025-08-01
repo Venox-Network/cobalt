@@ -20,6 +20,8 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.MiscUtility;
+
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import java.time.OffsetDateTime;
@@ -60,7 +62,7 @@ public class StickyMessage {
         // Schedule message to be sent
         final ScheduledFuture<?> future = STICKY_FUTURES.get(channel);
         if (future != null) future.cancel(true);
-        STICKY_FUTURES.put(channel, LazyUtilities.IO_SCHEDULER.schedule(() -> {
+        STICKY_FUTURES.put(channel, MiscUtility.IO_SCHEDULER.schedule(() -> {
             messageChannel.sendMessage(message.toBuilder().build())
                     .queue(msg -> bot.mongo.getMagicCollection(StickyMessage.class).updateOne(
                             Filters.eq("_id", channel),
