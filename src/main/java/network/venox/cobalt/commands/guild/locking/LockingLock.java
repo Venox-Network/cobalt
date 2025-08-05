@@ -140,12 +140,11 @@ public class LockingLock extends ApplicationCommand {
                                         actions.add(override.getManager().clear(toClear));
                                     }
 
-                                    // Deny everyone permissions and get previous everyone permissions
-                                    final PermissionOverride everyoneOverride = Objects.requireNonNull(container.getPermissionOverride(everyone));
+                                    final PermissionOverride everyoneOverride = container.getPermissionOverride(everyone);
                                     // Get previous permissions
-                                    if (noExisting) existing.put(everyone.getId(), new Lock.PreviousPermissions(everyoneOverride));
-                                    // Deny permissions
-                                    actions.add(everyoneOverride.getManager().deny(LockingCommon.PERMISSIONS));
+                                    if (noExisting && everyoneOverride != null) existing.put(everyone.getId(), new Lock.PreviousPermissions(everyoneOverride));
+                                    // Deny everyone permissions
+                                    actions.add(container.upsertPermissionOverride(everyone).deny(LockingCommon.PERMISSIONS));
 
                                     // Save to database
                                     final UpdateBuilder builder = new UpdateBuilder(
@@ -157,8 +156,8 @@ public class LockingLock extends ApplicationCommand {
                                     // Edit message, update permissions, and send sticky message
                                     done.editMessage(LazyEmoji.YES + " Locked channel to " + LockingCommon.getRolesString(roles))
                                             .setComponents()
-                                            .flatMap(v -> RestAction.allOf(actions))
-                                            .flatMap(v -> lock.replaceStickyMessage(bot, textChannel))
+                                            .flatMap(_ -> RestAction.allOf(actions))
+                                            .flatMap(_ -> lock.replaceStickyMessage(bot, textChannel))
                                             .queue();
                                 })
                                         .setConstraints(constraints)
