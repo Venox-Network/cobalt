@@ -88,14 +88,17 @@ public class MessageListener extends CoListener {
         // Slowmode
         final long authorId = author.getIdLong();
         final long now = System.currentTimeMillis();
-        if (isTextChannel) bot.mongo.getMagicCollection(AutoSlowmode.class)
-                .findOne("_id", channel.getIdLong())
-                .ifPresent(slowmode -> {
-                    AutoSlowmode.ACTIVE_USERS
-                            .computeIfAbsent(channelId, v -> new HashMap<>())
-                            .put(authorId, now);
-                    slowmode.setSlowmode(bot, (TextChannel) channel);
-                });
+        if (isTextChannel) {
+            final TextChannel textChannel = (TextChannel) channel;
+            if (textChannel.getSlowmode() != 0) bot.mongo.getMagicCollection(AutoSlowmode.class)
+                    .findOne("_id", channel.getIdLong())
+                    .ifPresent(slowmode -> {
+                        AutoSlowmode.ACTIVE_USERS
+                                .computeIfAbsent(channelId, v -> new HashMap<>())
+                                .put(authorId, now);
+                        slowmode.setSlowmode(bot, textChannel);
+                    });
+        }
 
         // Auto-thread channel
         if (!isLocked) bot.mongo.getMagicCollection(AutoThread.class)
