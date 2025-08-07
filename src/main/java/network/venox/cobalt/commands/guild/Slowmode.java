@@ -38,8 +38,8 @@ public class Slowmode extends ApplicationCommand {
             description = "Manage the dynamic slowmode of a channel")
     public void slowmodeCommand(@NotNull GuildSlashEvent event,
                                 @AppOption(description = "The channel to manage slowmode for (default: current)") @Nullable TextChannel channel,
-                                @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer minimum,
-                                @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 0, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
+                                @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 1, to = ISlowmodeChannel.MAX_SLOWMODE - 1) @Nullable Integer minimum,
+                                @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 2, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
         if (channel == null) channel = event.getChannel().asTextChannel();
         final MagicCollection<AutoSlowmode> collection = bot.mongo.getMagicCollection(AutoSlowmode.class);
         final AutoSlowmode current = collection.findOne("_id", channel.getIdLong()).orElse(null);
@@ -52,7 +52,7 @@ public class Slowmode extends ApplicationCommand {
         }
 
         // Get minimum
-        int minimumValue = 0;
+        int minimumValue = 1;
         if (minimum == null) {
             if (current != null) minimumValue = current.minimum;
         } else {
