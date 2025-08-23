@@ -10,7 +10,7 @@ plugins {
 }
 
 magicMongo("ef0c2370bd")
-setupLazyLibrary("c875725746", "5.6.1", "network.venox", "2.0.0", "A Discord bot for Venox Network")
+setupLazyLibrary("f96c14230b", "5.6.1", "network.venox", "2.0.0", "A Discord bot for Venox Network")
 
 repository("https://maven.dynomake.space/releases/") // space.dynomake:libretranslate-java
 dependencies {
