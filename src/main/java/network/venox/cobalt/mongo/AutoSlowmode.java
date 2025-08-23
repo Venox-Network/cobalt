@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
+import java.time.Duration;
 import java.util.*;
 
 
@@ -24,6 +25,8 @@ public class AutoSlowmode {
     @NotNull public static final String PROP_MAXIMUM = "maximum";
     @NotNull public static final String PROP_LAST_CHECK = "last_check";
 
+    @NotNull
+    private static final Duration DELAY = Duration.ofMinutes(1);
     /**
      * [channel ID, [user ID, last active time]]
      */
@@ -37,20 +40,20 @@ public class AutoSlowmode {
 
     public void setSlowmode(@NotNull Cobalt bot, @NotNull TextChannel textChannel) {
         final long now = System.currentTimeMillis();
-        final long fifteenSecondsAgo = now - 15000;
+        final long delayAgo = now - DELAY.toMillis();
 
         // Check if slowmode has been set recently
-        if (lastCheck != null && lastCheck.getTime() > fifteenSecondsAgo) return;
+        if (lastCheck != null && lastCheck.getTime() > delayAgo) return;
 
         // Update lastCheck
         bot.mongo.getMagicCollection(AutoSlowmode.class).updateOne(
                 Filters.eq("_id", channel),
                 Updates.set(PROP_LAST_CHECK, new Date(now)));
 
-        // Get the users active in the last 15 seconds
+        // Get the users active in the last DELAY
         final Map<Long, Long> activeUsers = ACTIVE_USERS.get(channel);
         if (activeUsers == null) return;
-        activeUsers.entrySet().removeIf(entry -> entry.getValue() < fifteenSecondsAgo);
+        activeUsers.entrySet().removeIf(entry -> entry.getValue() < delayAgo);
 
         // Calculate and set slowmode
         Mapper.toInt(Math.max(minimum, Math.min(activeUsers.size(), maximum)))
