@@ -7,9 +7,14 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import network.venox.cobalt.CoListener;
 import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.mongo.Corner;
+import network.venox.cobalt.mongo.CornerCreator;
 import network.venox.cobalt.mongo.Server;
 
 import org.bson.conversions.Bson;
@@ -17,19 +22,69 @@ import org.bson.conversions.Bson;
 import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.lazylibrary.events.GuildVoiceJoinEvent;
+import xyz.srnyx.lazylibrary.events.GuildVoiceLeaveEvent;
 
 import xyz.srnyx.magicmongo.MagicCollection;
 
+import java.util.List;
 import java.util.Optional;
 
 
 public class GuildVoiceListener extends CoListener {
+    @NotNull private static final ErrorHandler IGNORE_UNKNOWN_CHANNEL = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL);
+
     public GuildVoiceListener(@NotNull Cobalt cobalt) {
         super(cobalt);
     }
 
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
+        final long channelId = event.getChannelJoined().getIdLong();
+
+        // CornerCreator
+        final CornerCreator cornerCreator = bot.mongo.getMagicCollection(CornerCreator.class)
+                .findOne(Filters.eq("_id", channelId))
+                .orElse(null);
+        if (cornerCreator != null) {
+            cornerCreator.createCorner(bot, event.getMember(), event.getChannelJoined());
+            return;
+        }
+
+        // Mute role
+        muteRole(event);
+    }
+
+    @Override
+    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
+        final AudioChannelUnion channel = event.getChannelLeft();
+        final Bson idFilter = Filters.eq("_id", channel.getIdLong());
+        final MagicCollection<Corner> collection = bot.mongo.getMagicCollection(Corner.class);
+
+        // Get Corner
+        final Corner corner = collection
+                .findOne(idFilter)
+                .orElse(null);
+        if (corner == null) return;
+
+        // Last person in VC, delete corner
+        final List<Member> members = channel.getMembers();
+        if (members.isEmpty()) {
+            collection.deleteOne(idFilter);
+            channel.delete().queue(null, IGNORE_UNKNOWN_CHANNEL);
+            return;
+        }
+
+        // Transfer ownership if owner left
+        final Member owner = event.getMember();
+        if (corner.owner != owner.getIdLong()) return;
+        channel.getPermissionContainer().getManager().removePermissionOverride(owner).queue();
+        final Member newOwner = members.getFirst();
+        corner.owner = newOwner.getIdLong();
+        collection.updateOne(idFilter, Updates.set(Corner.PROP_OWNER, corner.owner));
+        corner.ownerPermissions(channel, newOwner).queue();
+    }
+
+    private void muteRole(@NotNull GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
         final MagicCollection<Server> collection = bot.mongo.getMagicCollection(Server.class);
         final Bson filter = Filters.eq("_id", guild.getIdLong());
