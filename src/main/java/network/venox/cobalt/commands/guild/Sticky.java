@@ -1,22 +1,22 @@
 package network.venox.cobalt.commands.guild;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.StickyMessage;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,18 +32,23 @@ import xyz.srnyx.magicmongo.MagicCollection;
 import java.util.Optional;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
+@Command
 public class Sticky extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public Sticky(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "sticky",
             description = "Sticky a message to keep it as the last message in the current channel")
     public void stickyCommand(@NotNull GuildSlashEvent event,
-                              @AppOption(description = "The message to sticky. If empty, sticky will be removed") @Nullable String message) {
+                              @SlashOption(description = "The message to sticky. If empty, sticky will be removed") @Nullable String message) {
         final TextChannel channel = event.getChannel().asTextChannel();
-        final MagicCollection<StickyMessage> collection = bot.mongo.getMagicCollection(StickyMessage.class);
+        final MagicCollection<StickyMessage> collection = mongo.database.getMagicCollection(StickyMessage.class);
 
         // Delete existing sticky message
         if (message == null) {
@@ -56,7 +61,7 @@ public class Sticky extends ApplicationCommand {
         // Get messageId
         final Optional<Long> messageId = Mapper.toLong(message);
         if (messageId.isEmpty()) {
-            event.replyEmbeds(LazyEmbed.invalidArgument("message", message).build(bot)).setEphemeral(true).queue();
+            event.replyEmbeds(LazyEmbed.invalidArgument("message", message).build()).setEphemeral(true).queue();
             return;
         }
 
@@ -72,7 +77,7 @@ public class Sticky extends ApplicationCommand {
                                     Updates.combine(
                                             Updates.set(StickyMessage.PROP_MESSAGE, new StickyMessage.MongoMessage(sentMessage)),
                                             Updates.set(StickyMessage.PROP_CURRENT, sentMessage.getIdLong())))
-                            .send(bot, messageChannel);
+                            .send(mongo, messageChannel);
                     return event.reply(LazyEmoji.YES + " " + sentMessage.getJumpUrl() + " has been set as " + messageChannel.getAsMention() + "'s sticky message").setEphemeral(true);
                 })
                 .queue();

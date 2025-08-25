@@ -1,19 +1,18 @@
 package network.venox.cobalt.commands.guild.thread.ignored;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.ChannelTypes;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.AutoThread;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,27 +24,32 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import java.util.Set;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_THREADS})
+@Command
 public class ThreadIgnoredList extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public ThreadIgnoredList(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_THREADS})
     @JDASlashCommand(
             name = "thread",
             group = "ignored",
             subcommand = "list",
             description = "List the ignored phrases/roles for an auto-thread channel")
-    public void ignoredListCommand(@NotNull GuildSlashEvent event,
-                                   @AppOption(description = "The channel to list the ignored phrases/roles for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
+    public void threadIgnoredList(@NotNull GuildSlashEvent event,
+                                  @SlashOption(description = "The channel to list the ignored phrases/roles for") @ChannelTypes({ChannelType.TEXT, ChannelType.NEWS}) @Nullable GuildChannel channel) {
         if (channel == null) channel = event.getGuildChannel();
 
         // Check permissions
         if (!event.getMember().hasPermission(channel, Permission.MANAGE_CHANNEL, Permission.MANAGE_THREADS)) {
-            event.replyEmbeds(LazyEmbed.noPermission().build(bot)).setEphemeral(true).queue();
+            event.replyEmbeds(LazyEmbed.noPermission().build()).setEphemeral(true).queue();
             return;
         }
 
         // Get AutoThread
-        final AutoThread threadChannel = bot.mongo.getMagicCollection(AutoThread.class)
+        final AutoThread threadChannel = mongo.database.getMagicCollection(AutoThread.class)
                 .findOne("_id", channel.getIdLong())
                 .orElse(null);
         if (threadChannel == null) {

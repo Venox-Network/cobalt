@@ -1,20 +1,19 @@
 package network.venox.cobalt.commands.guild.muterole;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Server;
 
 import org.bson.conversions.Bson;
@@ -27,17 +26,22 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import xyz.srnyx.magicmongo.MagicCollection;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_ROLES, Permission.MODERATE_MEMBERS})
+@Command
 public class MuteRoleSet extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public MuteRoleSet(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @UserPermissions({Permission.MANAGE_ROLES, Permission.MODERATE_MEMBERS})
     @JDASlashCommand(
             name = "muterole",
             subcommand = "set",
             description = "Set the mute role for the guild")
     public void setCommand(@NotNull GuildSlashEvent event,
-                           @AppOption(description = "The role to set as the mute role") @Nullable Role role) {
-        final MagicCollection<Server> collection = bot.mongo.getMagicCollection(Server.class);
+                           @SlashOption(description = "The role to set as the mute role") @Nullable Role role) {
+        final MagicCollection<Server> collection = mongo.database.getMagicCollection(Server.class);
         final Bson filter = Filters.eq("_id", event.getGuild().getIdLong());
 
         // Remove mute role

@@ -1,15 +1,16 @@
 package network.venox.cobalt.commands.guild.muterole;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Server;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,16 +18,22 @@ import org.jetbrains.annotations.NotNull;
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_ROLES, Permission.MODERATE_MEMBERS})
+@Command
 public class MuteRoleGet extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public MuteRoleGet(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
+    @UserPermissions({Permission.MANAGE_ROLES, Permission.MODERATE_MEMBERS})
     @JDASlashCommand(
             name = "muterole",
             subcommand = "get",
             description = "Get the mute role for the guild")
     public void getCommand(@NotNull GuildSlashEvent event) {
-        final Long muteRole = bot.mongo.getMagicCollection(Server.class)
+        final Long muteRole = mongo.database.getMagicCollection(Server.class)
                 .findOne("_id", event.getGuild().getIdLong())
                 .map(server -> server.muteRole)
                 .orElse(null);

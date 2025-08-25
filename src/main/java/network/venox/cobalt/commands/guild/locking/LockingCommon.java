@@ -1,9 +1,9 @@
 package network.venox.cobalt.commands.guild.locking;
 
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.autocomplete.annotations.AutocompletionHandler;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.autocomplete.annotations.AutocompleteHandler;
+import io.github.freya022.botcommands.api.core.annotations.Handler;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Server;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,15 +22,20 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import java.util.*;
 
 
+@Handler
 public class LockingCommon extends ApplicationCommand {
     @NotNull public static final String AC_PRESET = "LockingLock.ac.preset";
     @NotNull public static final Set<Permission> PERMISSIONS = Set.of(Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION, Permission.CREATE_PUBLIC_THREADS, Permission.CREATE_PRIVATE_THREADS, Permission.MESSAGE_SEND_IN_THREADS);
 
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
-    @AutocompletionHandler(name = AC_PRESET) @NotNull
+    public LockingCommon(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @AutocompleteHandler(AC_PRESET) @NotNull
     public List<String> onAutoCompleteServer(@NotNull CommandAutoCompleteInteractionEvent event) {
-        return bot.mongo.getMagicCollection(Server.class).findOne("_id", Objects.requireNonNull(event.getGuild()).getIdLong())
+        return mongo.database.getMagicCollection(Server.class).findOne("_id", Objects.requireNonNull(event.getGuild()).getIdLong())
                 .map(server -> server.lockPresets)
                 .map(lockPresets -> (List<String>) new ArrayList<>(lockPresets.keySet()))
                 .orElse(Collections.emptyList());

@@ -1,12 +1,12 @@
 package network.venox.cobalt.mongo;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 
+import network.venox.cobalt.MongoProvider;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
@@ -38,7 +38,7 @@ public class AutoSlowmode {
     @BsonProperty(PROP_MAXIMUM) public int maximum;
     @BsonProperty(PROP_LAST_CHECK) @Nullable public Date lastCheck;
 
-    public void setSlowmode(@NotNull Cobalt bot, @NotNull TextChannel textChannel) {
+    public void setSlowmode(@NotNull MongoProvider mongo, @NotNull TextChannel textChannel) {
         final long now = System.currentTimeMillis();
         final long delayAgo = now - DELAY.toMillis();
 
@@ -46,7 +46,7 @@ public class AutoSlowmode {
         if (lastCheck != null && lastCheck.getTime() > delayAgo) return;
 
         // Update lastCheck
-        bot.mongo.getMagicCollection(AutoSlowmode.class).updateOne(
+        mongo.database.getMagicCollection(AutoSlowmode.class).updateOne(
                 Filters.eq("_id", channel),
                 Updates.set(PROP_LAST_CHECK, new Date(now)));
 

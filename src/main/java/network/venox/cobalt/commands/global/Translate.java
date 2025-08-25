@@ -1,24 +1,25 @@
 package network.venox.cobalt.commands.global;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.context.annotations.JDAMessageCommand;
-import com.freya02.botcommands.api.application.context.message.GlobalMessageEvent;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.components.Components;
-import com.freya02.botcommands.api.components.annotations.JDASelectionMenuListener;
-import com.freya02.botcommands.api.components.event.StringSelectionEvent;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
+import io.github.freya022.botcommands.api.commands.application.context.message.GlobalMessageEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
+import io.github.freya022.botcommands.api.components.SelectMenus;
+import io.github.freya022.botcommands.api.components.annotations.ComponentData;
+import io.github.freya022.botcommands.api.components.annotations.JDASelectMenuListener;
+import io.github.freya022.botcommands.api.components.event.StringSelectEvent;
 
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@CommandMarker
+@Command
 public class Translate extends ApplicationCommand {
     @NotNull private static final String MENU_TRANSLATE_LANGUAGE = "TranslateMenu.translateLanguage";
     @NotNull public static final List<Language> LANGUAGES = List.of(
@@ -57,16 +58,22 @@ public class Translate extends ApplicationCommand {
             })
             .toList();
 
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
+    @NotNull private final SelectMenus selectMenus;
 
+    public Translate(@NotNull MongoProvider mongo, @NotNull SelectMenus selectMenus) {
+        this.mongo = mongo;
+        this.selectMenus = selectMenus;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GLOBAL)
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "translate",
             description = "Translate a message to another language")
     public void translateCommand(@NotNull GlobalSlashEvent event,
-                                 @AppOption(description = "The message to translate") @NotNull String message) {
+                                 @SlashOption(description = "The message to translate") @NotNull String message) {
         event.deferReply(true).queue();
-        event.getHook().editOriginal(getMessage(message, bot.mongo.getMagicCollection(CoUser.class)
+        event.getHook().editOriginal(getMessage(message, mongo.database.getMagicCollection(CoUser.class)
                 .findOne("_id", event.getUser().getIdLong())
                 .map(user -> user.language)
                 .orElse(Language.ENGLISH))).queue();
@@ -84,7 +91,7 @@ public class Translate extends ApplicationCommand {
         event.deferReply(true).queue();
 
         // Get user's language
-        final Language language = bot.mongo.getMagicCollection(CoUser.class).findOne("_id", event.getUser().getIdLong())
+        final Language language = mongo.database.getMagicCollection(CoUser.class).findOne("_id", event.getUser().getIdLong())
                 .map(coUser -> coUser.language)
                 .orElse(Language.ENGLISH);
 
@@ -92,19 +99,20 @@ public class Translate extends ApplicationCommand {
         event.getHook().editOriginal(getMessage(message, language)).queue();
     }
 
-    @JDASelectionMenuListener(name = MENU_TRANSLATE_LANGUAGE)
-    public void menuTranslateLanguage(@NotNull StringSelectionEvent event,
-                                      @AppOption String message) {
+    @JDASelectMenuListener(MENU_TRANSLATE_LANGUAGE)
+    public void menuTranslateLanguage(@NotNull StringSelectEvent event,
+                                      @ComponentData String message) {
         event.deferEdit()
                 .flatMap(hook -> hook.editOriginal(getMessage(message, Language.valueOf(event.getValues().getFirst()))))
                 .queue();
     }
 
     @NotNull
-    private static MessageEditData getMessage(@NotNull String message, @NotNull Language language) {
+    private MessageEditData getMessage(@NotNull String message, @NotNull Language language) {
         final MessageEditBuilder builder = new MessageEditBuilder()
-                .setActionRow(Components.stringSelectionMenu(MENU_TRANSLATE_LANGUAGE, message)
-                        .oneUse()
+                .setActionRow(selectMenus.stringSelectMenu().persistent()
+                        .bindTo(MENU_TRANSLATE_LANGUAGE, message)
+                        .singleUse(true)
                         .setPlaceholder("Select a language")
                         .addOptions(LANGUAGE_OPTIONS)
                         .setDefaultValues(language.name()).build());

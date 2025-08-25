@@ -1,33 +1,36 @@
 package network.venox.cobalt.apps.message;
-
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.context.annotations.JDAMessageCommand;
-import com.freya02.botcommands.api.application.context.message.GuildMessageEvent;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
+import io.github.freya022.botcommands.api.commands.application.context.message.GuildMessageEvent;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 
 import org.jetbrains.annotations.NotNull;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
-public class Sticky extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+@Command
+public class StickyApp extends ApplicationCommand {
+    @NotNull private final MongoProvider mongo;
+
+    public StickyApp(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
 
     @JDAMessageCommand(
             scope = CommandScope.GUILD,
             name = "Sticky message")
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
     public void stickyContext(@NotNull GuildMessageEvent event) {
         final MessageChannelUnion channelUnion = event.getChannel();
         if (channelUnion == null) return;
@@ -35,7 +38,7 @@ public class Sticky extends ApplicationCommand {
         final Message message = event.getTarget();
 
         // Upsert and send/edit sticky message
-        bot.mongo.getMagicCollection(network.venox.cobalt.mongo.StickyMessage.class)
+        mongo.database.getMagicCollection(network.venox.cobalt.mongo.StickyMessage.class)
                 .findOneAndUpsert(
                         Filters.and(
                                 Filters.eq("_id", channel.getIdLong()),
@@ -43,7 +46,7 @@ public class Sticky extends ApplicationCommand {
                         Updates.combine(
                                 Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_MESSAGE, new network.venox.cobalt.mongo.StickyMessage.MongoMessage(message)),
                                 Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_CURRENT, message.getIdLong())))
-                .send(bot, channel);
+                .send(mongo, channel);
 
         // Reply
         event.reply(message.getJumpUrl() + " has been set as " + channel.getAsMention() + "'s sticky message").setEphemeral(true).queue();

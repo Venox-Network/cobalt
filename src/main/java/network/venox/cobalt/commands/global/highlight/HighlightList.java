@@ -1,13 +1,13 @@
 package network.venox.cobalt.commands.global.highlight;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,17 +17,21 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import java.util.Set;
 
 
-@CommandMarker
+@Command
 public class HighlightList extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public HighlightList(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GLOBAL)
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "highlight",
             subcommand = "list",
             description = "List all of your existing highlights")
     public void listCommand(@NotNull GlobalSlashEvent event) {
-        final Set<String> highlights = bot.mongo.getMagicCollection(CoUser.class)
+        final Set<String> highlights = mongo.database.getMagicCollection(CoUser.class)
                 .findOne("_id", event.getUser().getIdLong())
                 .map(user -> user.highlights)
                 .orElse(Set.of());

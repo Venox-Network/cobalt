@@ -1,18 +1,18 @@
 package network.venox.cobalt.commands.guild;
 
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-
-import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -22,14 +22,14 @@ import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 import java.time.OffsetDateTime;
 
 
+@Command
 public class InviteInfo extends ApplicationCommand {
-    @Dependency private Cobalt bot;
-
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
     @JDASlashCommand(
             name = "inviteinfo",
             description = "Get information about a specific invite")
     public void inviteInfo(@NotNull GuildSlashEvent event,
-                           @AppOption(description = "The invite code") @NotNull String code) {
+                           @SlashOption(description = "The invite code") @NotNull String code) {
         event.deferReply().queue();
         final InteractionHook hook = event.getHook();
         try {

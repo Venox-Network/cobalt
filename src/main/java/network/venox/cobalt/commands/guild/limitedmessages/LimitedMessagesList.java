@@ -1,38 +1,43 @@
 package network.venox.cobalt.commands.guild.limitedmessages;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.LimitedMessages;
-import org.jetbrains.annotations.NotNull;
 
+import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
 import java.util.List;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE})
+@Command
 public class LimitedMessagesList extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public LimitedMessagesList(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE})
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "limitedmessages",
             subcommand = "list",
             description = "List all channels with limited messages")
-    public void listLimitedMessagesCommand(@NotNull GuildSlashEvent event) {
-        final List<LimitedMessages> limitedMessages = bot.mongo.getMagicCollection(network.venox.cobalt.mongo.LimitedMessages.class).findMany(Filters.eq(network.venox.cobalt.mongo.LimitedMessages.PROP_GUILD, event.getGuild().getIdLong()));
+    public void limitedMessagesList(@NotNull GuildSlashEvent event) {
+        final List<LimitedMessages> limitedMessages = mongo.database.getMagicCollection(network.venox.cobalt.mongo.LimitedMessages.class).findMany(Filters.eq(network.venox.cobalt.mongo.LimitedMessages.PROP_GUILD, event.getGuild().getIdLong()));
 
         // Check if empty
         if (limitedMessages.isEmpty()) {

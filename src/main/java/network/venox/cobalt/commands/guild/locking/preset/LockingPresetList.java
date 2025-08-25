@@ -1,19 +1,17 @@
 package network.venox.cobalt.commands.guild.locking.preset;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
 
 import net.dv8tion.jda.api.Permission;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.commands.guild.locking.LockingCommon;
 import network.venox.cobalt.mongo.Server;
 
@@ -28,20 +26,24 @@ import java.util.Optional;
 import java.util.Set;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.MANAGE_SERVER, Permission.MANAGE_ROLES})
+@Command
 public class LockingPresetList extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public LockingPresetList(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.MANAGE_SERVER, Permission.MANAGE_ROLES})
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "locking",
             group = "preset",
             subcommand = "list",
             description = "ADMIN | List all locking presets or the roles of a preset")
     public void lockingPresetList(@NotNull GuildSlashEvent event,
-                                  @AppOption(description = "The preset to get the roles of", autocomplete = LockingCommon.AC_PRESET) @Nullable String preset) {
+                                  @SlashOption(description = "The preset to get the roles of", autocomplete = LockingCommon.AC_PRESET) @Nullable String preset) {
         // Get server
-        final Optional<Server> server = bot.mongo.getMagicCollection(Server.class).findOne(Filters.and(
+        final Optional<Server> server = mongo.database.getMagicCollection(Server.class).findOne(Filters.and(
                 Filters.eq("_id", event.getGuild().getIdLong()),
                 Filters.exists(Server.PROP_LOCK_PRESETS),
                 Filters.ne(Server.PROP_LOCK_PRESETS, Map.of())));

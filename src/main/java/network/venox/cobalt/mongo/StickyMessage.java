@@ -1,5 +1,4 @@
 package network.venox.cobalt.mongo;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
@@ -12,7 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -55,7 +54,7 @@ public class StickyMessage {
         return guild(jda).map(guild -> guild.getTextChannelById(channel));
     }
 
-    public void send(@NotNull Cobalt bot, @NotNull MessageChannel messageChannel) {
+    public void send(@NotNull MongoProvider mongo, @NotNull MessageChannel messageChannel) {
         // Delete current message
         delete(messageChannel);
 
@@ -64,7 +63,7 @@ public class StickyMessage {
         if (future != null) future.cancel(true);
         STICKY_FUTURES.put(channel, MiscUtility.IO_SCHEDULER.schedule(() -> {
             messageChannel.sendMessage(message.toBuilder().build())
-                    .queue(msg -> bot.mongo.getMagicCollection(StickyMessage.class).updateOne(
+                    .queue(msg -> mongo.database.getMagicCollection(StickyMessage.class).updateOne(
                             Filters.eq("_id", channel),
                             Updates.set(PROP_CURRENT, msg.getIdLong())));
             STICKY_FUTURES.remove(channel);

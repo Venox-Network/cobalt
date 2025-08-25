@@ -1,20 +1,19 @@
 package network.venox.cobalt.commands.global.highlight;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.application.slash.autocomplete.annotations.AutocompletionHandler;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.autocomplete.annotations.AutocompleteHandler;
+
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -29,20 +28,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-@CommandMarker
+@Command
 public class HighlightRemove extends ApplicationCommand {
     @NotNull private static final String AC_REMOVE_WORDS = "HighlightCmd.removeCommand.word";
 
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
+
+    public HighlightRemove(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
 
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "highlight",
             subcommand = "remove",
             description = "Remove (an) existing highlight(s)")
     public void removeCommand(@NotNull GlobalSlashEvent event,
-                              @AppOption(description = "The word to remove from your highlights. Use spaces to separate multiple", autocomplete = AC_REMOVE_WORDS) @NotNull String words) {
-        final MagicCollection<CoUser> collection = bot.mongo.getMagicCollection(CoUser.class);
+                              @SlashOption(description = "The word to remove from your highlights. Use spaces to separate multiple", autocomplete = AC_REMOVE_WORDS) @NotNull String words) {
+        final MagicCollection<CoUser> collection = mongo.database.getMagicCollection(CoUser.class);
         final Set<String> highlights = collection
                 .findOne("_id", event.getUser().getIdLong())
                 .map(user -> user.highlights)
@@ -65,9 +67,9 @@ public class HighlightRemove extends ApplicationCommand {
         event.reply(LazyEmoji.YES + " Removed `" + String.join("`, `", wordSet) + "` from your highlights").setEphemeral(true).queue();
     }
 
-    @AutocompletionHandler(name = AC_REMOVE_WORDS) @NotNull
+    @AutocompleteHandler(AC_REMOVE_WORDS) @NotNull
     public Set<String> removeAutoComplete(@NotNull CommandAutoCompleteInteractionEvent event) {
-        return bot.mongo.getMagicCollection(CoUser.class)
+        return mongo.database.getMagicCollection(CoUser.class)
                 .findOne("_id", event.getUser().getIdLong())
                 .map(user -> user.highlights)
                 .orElse(Set.of());

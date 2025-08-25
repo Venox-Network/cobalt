@@ -1,18 +1,18 @@
 package network.venox.cobalt.commands.global;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.CoConfig;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,18 +20,22 @@ import org.jetbrains.annotations.Nullable;
 import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
-@CommandMarker
+@Command
 public class Say extends ApplicationCommand {
-    @Dependency private Cobalt cobalt;
+    @NotNull private final CoConfig config;
 
+    public Say(@NotNull CoConfig config) {
+        this.config = config;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GLOBAL)
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "say",
             description = "Make the bot say something")
     public void onCommand(@NotNull GlobalSlashEvent event,
-                          @AppOption(description = "The message to say") @NotNull String message,
-                          @AppOption(description = "The channel to say the message in") @Nullable TextChannel channel) {
-        if (!cobalt.config.checkIsOwner(event)) return;
+                          @SlashOption(description = "The message to say") @NotNull String message,
+                          @SlashOption(description = "The channel to say the message in") @Nullable TextChannel channel) {
+        if (!config.checkIsOwner(event)) return;
         final TextChannel currentChannel = event.getChannel().asTextChannel();
         if (channel == null) channel = currentChannel;
 
@@ -41,7 +45,7 @@ public class Say extends ApplicationCommand {
             action.queue(sentMessage -> event.reply(LazyEmoji.YES + " " + sentMessage.getJumpUrl()).setEphemeral(true).queue());
             return;
         }
-        action.flatMap(sentMessage -> event.deferReply(true))
+        action.flatMap(_ -> event.deferReply(true))
                 .flatMap(InteractionHook::deleteOriginal)
                 .queue();
     }

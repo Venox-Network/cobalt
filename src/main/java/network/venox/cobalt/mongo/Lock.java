@@ -1,9 +1,8 @@
 package network.venox.cobalt.mongo;
-
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -12,7 +11,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.commands.guild.locking.LockingCommon;
 import network.venox.cobalt.commands.guild.locking.LockingUnlock;
 import org.bson.codecs.pojo.annotations.BsonId;
@@ -51,23 +50,23 @@ public class Lock {
     @BsonProperty(PROP_STICKY_MESSAGE) @Nullable public Long stickyMessage;
 
     @NotNull
-    public RestAction<Message> replaceStickyMessage(@NotNull Cobalt bot, @NotNull GuildMessageChannel textChannel) {
+    public RestAction<Message> replaceStickyMessage(@NotNull MongoProvider mongo, @NotNull GuildMessageChannel textChannel) {
         deleteStickyMessage(textChannel).ifPresent(action -> action.queue(null, LazyUtilities.IGNORE_UNKNOWN_MESSAGE));
-        return sendStickyMessage(bot, textChannel);
+        return sendStickyMessage(mongo, textChannel);
     }
 
     @NotNull
-    public RestAction<Message> sendStickyMessage(@NotNull Cobalt bot, @NotNull GuildMessageChannel textChannel) {
+    public RestAction<Message> sendStickyMessage(@NotNull MongoProvider mongo, @NotNull GuildMessageChannel textChannel) {
         return textChannel.sendMessage(LockingCommon.getMessage(allowedRoles, stickyMessageContent))
                 .setAllowedMentions(Set.of())
                 .onSuccess(msg -> {
                     stickyMessage = msg.getIdLong();
-                    bot.mongo.getMagicCollection(Lock.class).updateOne(Filters.eq("_id", channel), Updates.set(PROP_STICKY_MESSAGE, stickyMessage));
+                    mongo.database.getMagicCollection(Lock.class).updateOne(Filters.eq("_id", channel), Updates.set(PROP_STICKY_MESSAGE, stickyMessage));
                 });
     }
 
     /**
-     * Does not unset {@code sticky_message} in database because it's assumed {@link #replaceStickyMessage(Cobalt, GuildMessageChannel) the message is being replaced} or {@link LockingUnlock#unlock(GuildSlashEvent, TextChannel) the channel is being unlocked}
+     * Does not unset {@code sticky_message} in database because it's assumed {@link #replaceStickyMessage(MongoProvider, GuildMessageChannel) the message is being replaced} or {@link LockingUnlock#unlock(GuildSlashEvent, TextChannel) the channel is being unlocked}
      */
     @NotNull
     public Optional<RestAction<?>> deleteStickyMessage(@NotNull GuildMessageChannel textChannel) {

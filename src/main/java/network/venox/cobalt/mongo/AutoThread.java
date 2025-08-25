@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -77,7 +77,7 @@ public class AutoThread {
         return StringUtility.shorten(threadName, 100);
     }
 
-    public void createThread(@NotNull Cobalt bot, @NotNull Message message) {
+    public void createThread(@NotNull MongoProvider mongo, @NotNull Message message) {
         // Check ignoredPhrases
         final String content = message.getContentRaw().toLowerCase().trim();
         for (final String ignoredPhrase : ignoredPhrases) if (content.contains(ignoredPhrase)) return;
@@ -85,13 +85,13 @@ public class AutoThread {
         // Check ignoredRoles
         if (!ignoredRoles.isEmpty()) {
             final Member member = message.getMember();
-            final Set<Role> ignoredRolesSet = ignoredRoles(bot.jda);
+            final Set<Role> ignoredRolesSet = ignoredRoles(message.getJDA());
             if (member == null || ignoredRolesSet == null || !Collections.disjoint(ignoredRolesSet, member.getRoles())) return;
         }
 
         // Create thread
         message.createThreadChannel(name(message)).queue();
-        bot.mongo.getMagicCollection(AutoThread.class).updateOne(
+        mongo.database.getMagicCollection(AutoThread.class).updateOne(
                 Filters.eq("_id", channel),
                 Updates.inc(PROP_COUNT, 1));
     }

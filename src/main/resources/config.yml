@@ -24,9 +24,7 @@ guild:
 
 # Rotating status messages for the bot
 statuses:
-  - "watching %servers% servers"
-  - "watching %users% total users"
-  - "watching %unique_users% unique users"
+  - "watching %users% across %servers% servers"
   - "watching over srnyx.com/discord"
   - "watching over discord.gg/commandgeek"
   - "watching over discord.gg/skeppy"

@@ -1,17 +1,19 @@
 package network.venox.cobalt.commands.guild.locking;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.components.Components;
-import com.freya02.botcommands.api.components.InteractionConstraints;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
+import io.github.freya022.botcommands.api.components.Buttons;
+import io.github.freya022.botcommands.api.components.SelectMenus;
+import io.github.freya022.botcommands.api.components.data.InteractionConstraints;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,9 +26,9 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
-
 import net.dv8tion.jda.api.requests.RestAction;
-import network.venox.cobalt.Cobalt;
+
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Lock;
 import network.venox.cobalt.mongo.Server;
 
@@ -44,25 +46,35 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-@CommandMarker @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS})
+@Command
 public class LockingLock extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
+    @NotNull private final Buttons buttons;
+    @NotNull private final SelectMenus selectMenus;
 
+    public LockingLock(@NotNull MongoProvider mongo, @NotNull Buttons buttons, @NotNull SelectMenus selectMenus) {
+        this.mongo = mongo;
+        this.buttons = buttons;
+        this.selectMenus = selectMenus;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
+    @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS})
     @JDASlashCommand(
             name = "locking",
             subcommand = "lock",
             description = "ADMIN | Lock the channel to specific roles")
     public void lock(@NotNull GuildSlashEvent event,
-                     @AppOption(description = "Optional preset of roles", autocomplete = LockingCommon.AC_PRESET) @Nullable String preset,
-                     @AppOption(description = "Custom content for the sticky message") @Nullable String content,
-                     @AppOption(description = "The channel to lock") @Nullable TextChannel channel) {
+                     @SlashOption(description = "Optional preset of roles", autocomplete = LockingCommon.AC_PRESET) @Nullable String preset,
+                     @SlashOption(description = "Custom content for the sticky message") @Nullable String content,
+                     @SlashOption(description = "The channel to lock") @Nullable TextChannel channel) {
         channel = LockingCommon.initialize(event, channel);
         if (channel == null) return;
-        final MagicCollection<Lock> lockCollection = bot.mongo.getMagicCollection(Lock.class);
+        final MagicCollection<Lock> lockCollection = mongo.database.getMagicCollection(Lock.class);
         final Bson lockFilter = Filters.eq("_id", channel.getIdLong());
 
         // Get roles
-        final Set<Long> roles = bot.mongo.getMagicCollection(Server.class).findOne("_id", event.getGuild().getIdLong())
+        final Set<Long> roles = mongo.database.getMagicCollection(Server.class).findOne("_id", event.getGuild().getIdLong())
                 .map(server -> server.lockPresets)
                 .map(lockPresets -> lockPresets.get(preset))
                 .map(presetRoles -> (Set<Long>) new HashSet<>(presetRoles))
@@ -75,14 +87,14 @@ public class LockingLock extends ApplicationCommand {
         event.reply(LockingCommon.getMessage(roles, content))
                 .setAllowedMentions(Collections.emptySet())
                 .setComponents(
-                        ActionRow.of(Components.entitySelectionMenu(EntitySelectMenu.SelectTarget.ROLE, menu -> {
+                        ActionRow.of(selectMenus.entitySelectMenu(EntitySelectMenu.SelectTarget.ROLE).ephemeral().bindTo(menu -> {
                             roles.clear();
                             roles.addAll(menu.getValues().stream()
                                     .map(ISnowflake::getIdLong)
                                     .collect(Collectors.toSet()));
                             menu.editMessage(LockingCommon.getMessage(roles, content)).queue();
                         })
-                                .setConstraints(constraints)
+                                .constraints(constraints)
                                 .setPlaceholder("Add roles")
                                 .setMaxValues(SelectMenu.OPTIONS_MAX_AMOUNT)
                                 .setDefaultValues(roles.stream()
@@ -90,7 +102,7 @@ public class LockingLock extends ApplicationCommand {
                                         .collect(Collectors.toSet()))
                                 .build()),
                         ActionRow.of(
-                                Components.successButton(done -> {
+                                buttons.success("Done, lock channel", LazyEmoji.YES_CLEAR.emoji).ephemeral().bindTo(done -> {
                                     final List<RestAction<?>> actions = new ArrayList<>();
 
                                     // Get existing previous permissions from existing lock
@@ -157,14 +169,16 @@ public class LockingLock extends ApplicationCommand {
                                     done.editMessage(LazyEmoji.YES + " Locked channel to " + LockingCommon.getRolesString(roles))
                                             .setComponents()
                                             .flatMap(_ -> RestAction.allOf(actions))
-                                            .flatMap(_ -> lock.replaceStickyMessage(bot, textChannel))
+                                            .flatMap(_ -> lock.replaceStickyMessage(mongo, textChannel))
                                             .queue();
                                 })
-                                        .setConstraints(constraints)
-                                        .build(LazyEmoji.YES_CLEAR.getButtonContent("Done, lock channel")),
-                                Components.dangerButton(cancel -> cancel.editMessage(LazyEmoji.YES + " Cancelled channel locking!").setComponents().queue())
-                                        .setConstraints(constraints)
-                                        .build(LazyEmoji.NO_CLEAR_DARK.getButtonContent("Cancel, don't lock channel"))))
+                                        .constraints(constraints)
+                                        .build(),
+                                buttons.danger("Cancel, don't lock channel", LazyEmoji.NO_CLEAR_DARK.emoji)
+                                        .ephemeral()
+                                        .constraints(constraints)
+                                        .bindTo(cancel -> cancel.editMessage(LazyEmoji.YES + " Cancelled channel locking!").setComponents().queue())
+                                        .build()))
                 .queue();
     }
 }

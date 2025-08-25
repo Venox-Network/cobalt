@@ -3,13 +3,15 @@ package network.venox.cobalt.listeners;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.core.annotations.BEventListener;
+import io.github.freya022.botcommands.api.core.service.annotations.BService;
+
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
-import network.venox.cobalt.CoListener;
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Server;
 
 import org.bson.conversions.Bson;
@@ -23,15 +25,12 @@ import xyz.srnyx.magicmongo.MagicCollection;
 import java.util.Optional;
 
 
-public class GuildVoiceListener extends CoListener {
-    public GuildVoiceListener(@NotNull Cobalt cobalt) {
-        super(cobalt);
-    }
-
-    @Override
+@BService
+public record GuildVoiceListener(@NotNull MongoProvider mongo) {
+    @BEventListener
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
-        final MagicCollection<Server> collection = bot.mongo.getMagicCollection(Server.class);
+        final MagicCollection<Server> collection = mongo.database.getMagicCollection(Server.class);
         final Bson filter = Filters.eq("_id", guild.getIdLong());
         final Server server = collection.findOne(filter).orElse(null);
         if (server == null) return;

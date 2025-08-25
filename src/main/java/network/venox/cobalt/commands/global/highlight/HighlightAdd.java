@@ -1,17 +1,15 @@
 package network.venox.cobalt.commands.global.highlight;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
-import network.venox.cobalt.Cobalt;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,18 +24,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-@CommandMarker
+@Command
 public class HighlightAdd extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
+
+    public HighlightAdd(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
 
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "highlight",
             subcommand = "add",
             description = "Add a new highlight")
     public void addCommand(@NotNull GlobalSlashEvent event,
-                           @AppOption(description = "The word(s) to highlight. Use spaces to separate multiple") @NotNull String words) {
-        final MagicCollection<CoUser> collection = bot.mongo.getMagicCollection(CoUser.class);
+                           @SlashOption(description = "The word(s) to highlight. Use spaces to separate multiple") @NotNull String words) {
+        final MagicCollection<CoUser> collection = mongo.database.getMagicCollection(CoUser.class);
         final Set<String> highlights = collection
                 .findOne("_id", event.getUser().getIdLong())
                 .map(user -> user.highlights)

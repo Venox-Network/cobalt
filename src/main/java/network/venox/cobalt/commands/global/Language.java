@@ -1,22 +1,21 @@
 package network.venox.cobalt.commands.global;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandPath;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.commands.CommandPath;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
+
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.CoUser;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +26,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import java.util.List;
 
 
-@CommandMarker
+@io.github.freya022.botcommands.api.commands.annotations.Command
 public class Language extends ApplicationCommand {
     @NotNull private static final List<Command.Choice> LANGUAGE_CHOICES = Translate.LANGUAGES.stream()
             .map(language -> {
@@ -36,14 +35,18 @@ public class Language extends ApplicationCommand {
             })
             .toList();
 
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public Language(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GLOBAL)
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "language",
             description = "Set your primary language (for /translate)")
     public void language(@NotNull GlobalSlashEvent event,
-                         @AppOption(description = "Your new primary language") @NotNull String language) {
+                         @SlashOption(description = "Your new primary language") @NotNull String language) {
         // Get language
         final space.dynomake.libretranslate.Language languageEnum;
         try {
@@ -54,7 +57,7 @@ public class Language extends ApplicationCommand {
         }
 
         // Update
-        final CoUser previousUser = bot.mongo.getMagicCollection(CoUser.class).findOneAndUpdate(
+        final CoUser previousUser = mongo.database.getMagicCollection(CoUser.class).findOneAndUpdate(
                 Filters.eq("_id", event.getUser().getIdLong()),
                 Updates.set("language", languageEnum),
                 new FindOneAndUpdateOptions().upsert(true));
@@ -69,7 +72,7 @@ public class Language extends ApplicationCommand {
     }
 
     @Override @NotNull
-    public List<Command.Choice> getOptionChoices(@Nullable Guild guild, @NotNull CommandPath commandPath, int optionIndex) {
+    public List<Command.Choice> getOptionChoices(@Nullable Guild guild, @NotNull CommandPath commandPath, @NotNull String optionName) {
         return LANGUAGE_CHOICES;
     }
 }

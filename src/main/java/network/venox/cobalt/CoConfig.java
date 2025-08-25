@@ -1,5 +1,7 @@
 package network.venox.cobalt;
 
+import io.github.freya022.botcommands.api.core.service.annotations.BService;
+
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
+import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.config.LazyChannel;
 
 import java.util.List;
@@ -17,16 +20,19 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 
+@BService
 public class CoConfig {
     @NotNull private final Cobalt bot;
+    @NotNull private final LazyLibrary library;
 
     @NotNull public final GuildNode guild;
     @NotNull public final List<String> welcomeQuestions;
 
-    public CoConfig(@NotNull Cobalt bot) {
+    public CoConfig(@NotNull Cobalt bot, @NotNull LazyLibrary library) {
         this.bot = bot;
-        guild = new GuildNode(bot.settings.fileSettings.file.yaml.node("guild"));
-        welcomeQuestions = bot.settings.fileSettings.file.yaml.node("welcome-questions").childrenList().stream()
+        this.library = library;
+        guild = new GuildNode(library.fileSettings.file.yaml.node("guild"));
+        welcomeQuestions = library.fileSettings.file.yaml.node("welcome-questions").childrenList().stream()
                 .map(ConfigurationNode::getString)
                 .filter(Objects::nonNull)
                 .toList();
@@ -34,8 +40,8 @@ public class CoConfig {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean checkIsOwner(@NotNull GenericCommandInteractionEvent event) {
-        final boolean isOwner = bot.isOwner(event.getUser().getIdLong());
-        if (!isOwner) event.replyEmbeds(LazyEmbed.noPermission().build(bot)).setEphemeral(true).queue();
+        final boolean isOwner = library.isOwner(event.getUser().getIdLong());
+        if (!isOwner) event.replyEmbeds(LazyEmbed.noPermission().build()).setEphemeral(true).queue();
         return isOwner;
     }
 

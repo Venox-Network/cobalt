@@ -1,35 +1,33 @@
 package network.venox.cobalt.commands.global;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GlobalSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.components.Components;
-import com.freya02.botcommands.api.components.annotations.JDAButtonListener;
-import com.freya02.botcommands.api.components.annotations.JDASelectionMenuListener;
-import com.freya02.botcommands.api.components.event.ButtonEvent;
-import com.freya02.botcommands.api.components.event.StringSelectionEvent;
-import com.freya02.botcommands.api.modals.Modals;
-import com.freya02.botcommands.api.modals.annotations.ModalHandler;
-import com.freya02.botcommands.api.modals.annotations.ModalInput;
-import com.freya02.botcommands.api.utils.ButtonContent;
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
+import io.github.freya022.botcommands.api.components.Buttons;
+import io.github.freya022.botcommands.api.components.SelectMenus;
+import io.github.freya022.botcommands.api.components.annotations.JDAButtonListener;
+import io.github.freya022.botcommands.api.components.annotations.JDASelectMenuListener;
+import io.github.freya022.botcommands.api.components.event.ButtonEvent;
+import io.github.freya022.botcommands.api.components.event.StringSelectEvent;
+import io.github.freya022.botcommands.api.modals.ModalEvent;
+import io.github.freya022.botcommands.api.modals.Modals;
+import io.github.freya022.botcommands.api.modals.annotations.ModalHandler;
+import io.github.freya022.botcommands.api.modals.annotations.ModalInput;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.data.DataObject;
-
-import network.venox.cobalt.Cobalt;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +36,7 @@ import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.LazyLibrary;
 
 import java.awt.*;
 import java.time.Instant;
@@ -50,7 +49,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
-@CommandMarker
+@Command
 public class Embed extends ApplicationCommand {
     @NotNull private static final String BUTTON_EXPORT = "EmbedCmd.button.export";
     @NotNull private static final String BUTTON_SEND = "EmbedCmd.button.send";
@@ -63,22 +62,39 @@ public class Embed extends ApplicationCommand {
     @NotNull private static final String MODAL_MEDIA = "EmbedCmd.modal.media";
     @NotNull private static final String MODAL_FOOTER = "EmbedCmd.modal.footer";
 
-    @Dependency private Cobalt cobalt;
+    @NotNull private final LazyLibrary library;
+    @NotNull private final Buttons buttons;
+    @NotNull private final SelectMenus selectMenus;
+    @NotNull private final Modals modals;
 
+    public Embed(@NotNull LazyLibrary library, @NotNull Buttons buttons, @NotNull SelectMenus selectMenus, @NotNull Modals modals) {
+        this.library = library;
+        this.buttons = buttons;
+        this.selectMenus = selectMenus;
+        this.modals = modals;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GLOBAL)
     @JDASlashCommand(
-            scope = CommandScope.GLOBAL,
             name = "embed",
             description = "Create an embed")
     public void embedCommand(@NotNull GlobalSlashEvent event,
-                             @AppOption(description = "The JSON to use for the embed") @Nullable String json) {
+                             @SlashOption(description = "The JSON to use for the embed") @Nullable String json) {
         // Get Buttons
-        final List<Button> buttons = new ArrayList<>();
-        buttons.add(Components.primaryButton(BUTTON_EXPORT).build(new ButtonContent("Export JSON", LazyEmoji.UP_CLEAR_DARK.emoji)));
-        if (!event.getChannel().getType().equals(ChannelType.PRIVATE) && cobalt.isOwner(event.getUser().getIdLong())) buttons.add(Components.successButton(BUTTON_SEND).build(new ButtonContent("Send", LazyEmoji.CHAT_CLEAR.emoji)));
+        final List<Button> actionRow = new ArrayList<>();
+        actionRow.add(buttons.primary("Export JSON", LazyEmoji.UP_CLEAR_DARK.emoji).persistent()
+                .bindTo(BUTTON_EXPORT)
+                .build());
+        if (!event.getChannel().getType().equals(ChannelType.PRIVATE) && library.isOwner(event.getUser().getIdLong())) {
+            actionRow.add(buttons.success("Send", LazyEmoji.CHAT_CLEAR.emoji).persistent()
+                    .bindTo(BUTTON_SEND)
+                    .build());
+        }
 
         // Reply
-        event.replyEmbeds((json == null ? new LazyEmbed().setTitle("N/A") : new LazyEmbed(json)).build(cobalt))
-                .addActionRow(Components.stringSelectionMenu(MENU_FIELD)
+        event.replyEmbeds((json == null ? new LazyEmbed().setTitle("N/A") : new LazyEmbed(json)).build())
+                .addActionRow(selectMenus.stringSelectMenu().persistent()
+                        .bindTo(MENU_FIELD)
                         .addOption("Color", "color", Emoji.fromUnicode("\uD83C\uDFA8"))
                         .addOption("Author", "author", "Author name / Author URL / Author icon URL", Emoji.fromUnicode("✍"))
                         .addOption("Title", "title", "Title text / Title URL")
@@ -86,12 +102,12 @@ public class Embed extends ApplicationCommand {
                         .addOption("Field", "field", "Add a new field (Name / Value / Inline)", Emoji.fromUnicode("\uD83D\uDCCB"))
                         .addOption("Media", "media", "Thumbnail / Image", Emoji.fromUnicode("\uD83D\uDDBC"))
                         .addOption("Footer", "footer", "Footer text / Footer icon URL / Timestamp", Emoji.fromUnicode("\uD83E\uDDB6")).build())
-                .addActionRow(buttons)
+                .addActionRow(actionRow)
                 .setEphemeral(true)
                 .queue();
     }
 
-    @JDAButtonListener(name = BUTTON_EXPORT)
+    @JDAButtonListener(BUTTON_EXPORT)
     public void buttonExport(@NotNull ButtonEvent event) {
         final MessageEmbed embed = event.getMessage().getEmbeds().getFirst();
         final DataObject data = embed.toData();
@@ -104,47 +120,52 @@ public class Embed extends ApplicationCommand {
         event.reply("```json\n" + data + "\n```").setEphemeral(true).queue();
     }
 
-    @JDAButtonListener(name = BUTTON_SEND)
+    @JDAButtonListener(BUTTON_SEND)
     public void buttonSend(@NotNull ButtonEvent event) {
-        if (!cobalt.isOwner(event.getUser().getIdLong())) {
+        if (!library.isOwner(event.getUser().getIdLong())) {
             event.deferEdit().queue();
             return;
         }
         event.getChannel().sendMessageEmbeds(event.getMessage().getEmbeds().getFirst()).queue();
     }
 
-    @JDASelectionMenuListener(name = MENU_FIELD)
-    public void menuField(@NotNull StringSelectionEvent event) {
+    @JDASelectMenuListener(MENU_FIELD)
+    public void menuField(@NotNull StringSelectEvent event) {
         final MessageEmbed embed = event.getMessage().getEmbeds().getFirst();
 
         final Modal modal = switch (event.getValues().getFirst()) {
             case "color" -> {
                 final Color color = embed.getColor();
-                yield Modals.create("Color", MODAL_COLOR)
-                        .setTimeout(10, TimeUnit.MINUTES, () -> {})
+                yield modals.create("Color")
+                        .bindTo(MODAL_COLOR)
+                        .timeout(10, TimeUnit.MINUTES, () -> {})
                         .addActionRow(createTextInput("color", "Color", TextInputStyle.SHORT, false, 7, "Hexadecimal color code",  color == null ? null : String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue())).build())
                         .build();
             }
             case "author" -> {
                 final MessageEmbed.AuthorInfo author = embed.getAuthor();
-                yield Modals.create("Author", MODAL_AUTHOR)
-                        .setTimeout(10, TimeUnit.MINUTES, () -> {})
+                yield modals.create("Author")
+                        .bindTo(MODAL_AUTHOR)
+                        .timeout(10, TimeUnit.MINUTES, () -> {})
                         .addActionRow(createTextInput("authorName", "Author name", TextInputStyle.SHORT, false, MessageEmbed.AUTHOR_MAX_LENGTH, null, author == null ? null : author.getName()).build())
                         .addActionRow(createTextInput("authorUrl", "Author URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getUrl()).build())
                         .addActionRow(createTextInput("authorIconUrl", "Author icon URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getIconUrl()).build())
                         .build();
             }
-            case "title" -> Modals.create("Title", MODAL_TITLE)
-                    .setTimeout(10, TimeUnit.MINUTES, () -> {})
+            case "title" -> modals.create("Title")
+                    .bindTo(MODAL_TITLE)
+                    .timeout(10, TimeUnit.MINUTES, () -> {})
                     .addActionRow(createTextInput("titleText", "Title text", TextInputStyle.SHORT, false, MessageEmbed.TITLE_MAX_LENGTH, null, embed.getTitle()).build())
                     .addActionRow(createTextInput("titleUrl", "Title URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", embed.getUrl()).build())
                     .build();
-            case "description" -> Modals.create("Description", MODAL_DESCRIPTION)
-                    .setTimeout(10, TimeUnit.MINUTES, () -> {})
+            case "description" -> modals.create("Description")
+                    .bindTo(MODAL_DESCRIPTION)
+                    .timeout(10, TimeUnit.MINUTES, () -> {})
                     .addActionRow(createTextInput("description", "Description", TextInputStyle.PARAGRAPH, false, 4000, null, embed.getDescription()).build())
                     .build();
-            case "field" -> Modals.create("Field", MODAL_FIELD)
-                    .setTimeout(10, TimeUnit.MINUTES, () -> {})
+            case "field" -> modals.create("Field")
+                        .bindTo(MODAL_FIELD)
+                    .timeout(10, TimeUnit.MINUTES, () -> {})
                     .addActionRow(createTextInput("fieldName", "Name", TextInputStyle.SHORT, true, MessageEmbed.TITLE_MAX_LENGTH, null, null).build())
                     .addActionRow(createTextInput("fieldValue", "Value", TextInputStyle.PARAGRAPH, true, MessageEmbed.VALUE_MAX_LENGTH, null, null).build())
                     .addActionRow(createTextInput("fieldInline", "Inline", TextInputStyle.SHORT, false, 5, "true/false", "false").build())
@@ -152,8 +173,9 @@ public class Embed extends ApplicationCommand {
             case "media" -> {
                 final MessageEmbed.Thumbnail thumbnail = embed.getThumbnail();
                 final MessageEmbed.ImageInfo image = embed.getImage();
-                yield Modals.create("Media", MODAL_MEDIA)
-                        .setTimeout(10, TimeUnit.MINUTES, () -> {})
+                yield modals.create("Media")
+                        .bindTo(MODAL_MEDIA)
+                        .timeout(10, TimeUnit.MINUTES, () -> {})
                         .addActionRow(createTextInput("thumbnail", "Thumbnail", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", thumbnail == null ? null : thumbnail.getUrl()).build())
                         .addActionRow(createTextInput("image", "Image", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", image == null ? null : image.getUrl()).build())
                         .build();
@@ -161,8 +183,9 @@ public class Embed extends ApplicationCommand {
             case "footer" -> {
                 final MessageEmbed.Footer footer = embed.getFooter();
                 final TemporalAccessor timestamp = embed.getTimestamp();
-                yield Modals.create("Footer", MODAL_FOOTER)
-                        .setTimeout(10, TimeUnit.MINUTES, () -> {})
+                yield modals.create("Footer")
+                        .bindTo(MODAL_FOOTER)
+                        .timeout(10, TimeUnit.MINUTES, () -> {})
                         .addActionRow(createTextInput("footerText", "Footer text", TextInputStyle.SHORT, false, MessageEmbed.TEXT_MAX_LENGTH, null, footer == null ? null : footer.getText()).build())
                         .addActionRow(createTextInput("footerIconUrl", "Footer icon", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", footer == null ? null : footer.getIconUrl()).build())
                         .addActionRow(createTextInput("timestamp", "Timestamp", TextInputStyle.SHORT, false, 10, "Epoch time or 'now'", timestamp == null ? null : String.valueOf(Instant.from(timestamp).toEpochMilli())).build())
@@ -174,9 +197,9 @@ public class Embed extends ApplicationCommand {
         if (modal != null) event.replyModal(modal).queue();
     }
 
-    @ModalHandler(name = MODAL_COLOR)
-    public void modalColor(@NotNull ModalInteractionEvent event,
-                           @ModalInput(name = "color") @NotNull String color) {
+    @ModalHandler(MODAL_COLOR)
+    public void modalColor(@NotNull ModalEvent event,
+                           @ModalInput("color") @NotNull String color) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -198,11 +221,11 @@ public class Embed extends ApplicationCommand {
         editEmbed(event, builder);
     }
 
-    @ModalHandler(name = MODAL_AUTHOR)
-    public void modalAuthor(@NotNull ModalInteractionEvent event,
-                            @ModalInput(name = "authorName") @NotNull String authorName,
-                            @ModalInput(name = "authorUrl") @NotNull String authorUrl,
-                            @ModalInput(name = "authorIconUrl") @NotNull String authorIconUrl) {
+    @ModalHandler(MODAL_AUTHOR)
+    public void modalAuthor(@NotNull ModalEvent event,
+                            @ModalInput("authorName") @NotNull String authorName,
+                            @ModalInput("authorUrl") @NotNull String authorUrl,
+                            @ModalInput("authorIconUrl") @NotNull String authorIconUrl) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -220,10 +243,10 @@ public class Embed extends ApplicationCommand {
         editEmbed(event, builder);
     }
 
-    @ModalHandler(name = MODAL_TITLE)
-    public void modalTitle(@NotNull ModalInteractionEvent event,
-                           @ModalInput(name = "titleText") @NotNull String titleText,
-                           @ModalInput(name = "titleUrl") @NotNull String titleUrl) {
+    @ModalHandler(MODAL_TITLE)
+    public void modalTitle(@NotNull ModalEvent event,
+                           @ModalInput("titleText") @NotNull String titleText,
+                           @ModalInput("titleUrl") @NotNull String titleUrl) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -241,28 +264,28 @@ public class Embed extends ApplicationCommand {
         editEmbed(event, builder);
     }
 
-    @ModalHandler(name = MODAL_DESCRIPTION)
-    public void modalDescription(@NotNull ModalInteractionEvent event,
-                                 @ModalInput(name = "description") @NotNull String description) {
+    @ModalHandler(MODAL_DESCRIPTION)
+    public void modalDescription(@NotNull ModalEvent event,
+                                 @ModalInput("description") @NotNull String description) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message != null) editEmbed(event, new EmbedBuilder(message.getEmbeds().getFirst()).setDescription(description));
     }
 
-    @ModalHandler(name = MODAL_FIELD)
-    public void modalField(@NotNull ModalInteractionEvent event,
-                           @ModalInput(name = "fieldName") @NotNull String fieldName,
-                           @ModalInput(name = "fieldValue") @NotNull String fieldValue,
-                           @ModalInput(name = "fieldInline") @NotNull String fieldInline) {
+    @ModalHandler(MODAL_FIELD)
+    public void modalField(@NotNull ModalEvent event,
+                           @ModalInput("fieldName") @NotNull String fieldName,
+                           @ModalInput("fieldValue") @NotNull String fieldValue,
+                           @ModalInput("fieldInline") @NotNull String fieldInline) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message != null) editEmbed(event, new EmbedBuilder(message.getEmbeds().getFirst()).addField(fieldName, fieldValue, Boolean.parseBoolean(fieldInline)));
     }
 
-    @ModalHandler(name = MODAL_MEDIA)
-    public void modalMedia(@NotNull ModalInteractionEvent event,
-                           @ModalInput(name = "thumbnail") @NotNull String thumbnail,
-                           @ModalInput(name = "image") @NotNull String image) {
+    @ModalHandler(MODAL_MEDIA)
+    public void modalMedia(@NotNull ModalEvent event,
+                           @ModalInput("thumbnail") @NotNull String thumbnail,
+                           @ModalInput("image") @NotNull String image) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -288,11 +311,11 @@ public class Embed extends ApplicationCommand {
         editEmbed(event, builder);
     }
 
-    @ModalHandler(name = MODAL_FOOTER)
-    public void modalFooter(@NotNull ModalInteractionEvent event,
-                            @ModalInput(name = "footerText") @NotNull String footerText,
-                            @ModalInput(name = "footerIconUrl") @NotNull String footerIconUrl,
-                            @ModalInput(name = "timestamp") @NotNull String timestamp) {
+    @ModalHandler(MODAL_FOOTER)
+    public void modalFooter(@NotNull ModalEvent event,
+                            @ModalInput("footerText") @NotNull String footerText,
+                            @ModalInput("footerIconUrl") @NotNull String footerIconUrl,
+                            @ModalInput("timestamp") @NotNull String timestamp) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -332,7 +355,7 @@ public class Embed extends ApplicationCommand {
 
     @NotNull
     private TextInput.Builder createTextInput(@NotNull String inputName, @NotNull String label, @NotNull TextInputStyle style, boolean required, int maxLength, @Nullable String placeholder, @Nullable String value) {
-        return Modals.createTextInput(inputName, label, style)
+        return modals.createTextInput(inputName, label, style)
                 .setRequired(required)
                 .setMaxLength(maxLength)
                 .setPlaceholder(placeholder)
@@ -344,11 +367,11 @@ public class Embed extends ApplicationCommand {
         return input.isEmpty() || input.equalsIgnoreCase("null") ? null : input;
     }
 
-    private void error(@NotNull ModalInteractionEvent event, @NotNull String parameter, @Nullable String value) {
+    private void error(@NotNull ModalEvent event, @NotNull String parameter, @Nullable String value) {
         event.getHook().editOriginal(LazyEmoji.NO + " **Invalid " + parameter + "**: `" + value + "`").queue();
     }
 
-    private void editEmbed(@NotNull ModalInteractionEvent event, @NotNull EmbedBuilder builder) {
+    private void editEmbed(@NotNull ModalEvent event, @NotNull EmbedBuilder builder) {
         try {
             event.getHook().editOriginal("").setEmbeds(builder.build()).queue();
         } catch (final IllegalStateException e) {

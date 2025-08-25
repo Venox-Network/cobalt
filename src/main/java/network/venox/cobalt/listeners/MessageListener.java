@@ -3,6 +3,9 @@ package network.venox.cobalt.listeners;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.core.annotations.BEventListener;
+import io.github.freya022.botcommands.api.core.service.annotations.BService;
+
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -10,8 +13,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import network.venox.cobalt.CoListener;
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.*;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +23,6 @@ import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyEmoji;
-import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import xyz.srnyx.magicmongo.MagicCollection;
@@ -34,12 +35,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
-public class MessageListener extends CoListener {
-    public MessageListener(@NotNull Cobalt cobalt) {
-        super(cobalt);
-    }
-
-    @Override
+@BService
+public record MessageListener(@NotNull MongoProvider mongo) {
+    @BEventListener
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User author = event.getAuthor();
         if (author.isBot()) return;
@@ -60,28 +58,28 @@ public class MessageListener extends CoListener {
                 Lock.LOCK_FUTURES.remove(channelId);
             }
             // Start new scheduler
-            final Lock lock = bot.mongo.getMagicCollection(Lock.class)
+            final Lock lock = mongo.database.getMagicCollection(Lock.class)
                     .findOne("_id", channelId)
                     .orElse(null);
             isLocked = lock != null;
             if (isLocked) Lock.LOCK_FUTURES.put(channelId, MiscUtility.IO_SCHEDULER.schedule(() -> {
                 try {
-                    lock.replaceStickyMessage(bot, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
+                    lock.replaceStickyMessage(mongo, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
                 } catch (final Exception e) {
-                    LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
+//                    LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
                 }
             }, 1, TimeUnit.MINUTES));
         }
 
         // React channel
-        bot.mongo.getMagicCollection(ReactChannel.class)
+        mongo.database.getMagicCollection(ReactChannel.class)
                 .findOne("_id", channelId)
                 .ifPresent(reactChannel -> reactChannel.addReactions(message));
 
         // Sticky message
-        if (!isLocked) bot.mongo.getMagicCollection(StickyMessage.class)
+        if (!isLocked) mongo.database.getMagicCollection(StickyMessage.class)
                 .findOne("_id", channelId)
-                .ifPresent(stickyMessage -> stickyMessage.send(bot, channel));
+                .ifPresent(stickyMessage -> stickyMessage.send(mongo, channel));
 
         if (author.isSystem()) return;
 
@@ -90,28 +88,28 @@ public class MessageListener extends CoListener {
         final long now = System.currentTimeMillis();
         if (isTextChannel) {
             final TextChannel textChannel = (TextChannel) channel;
-            if (textChannel.getSlowmode() != 0) bot.mongo.getMagicCollection(AutoSlowmode.class)
+            if (textChannel.getSlowmode() != 0) mongo.database.getMagicCollection(AutoSlowmode.class)
                     .findOne("_id", channel.getIdLong())
                     .ifPresent(slowmode -> {
                         AutoSlowmode.ACTIVE_USERS
                                 .computeIfAbsent(channelId, v -> new HashMap<>())
                                 .put(authorId, now);
-                        slowmode.setSlowmode(bot, textChannel);
+                        slowmode.setSlowmode(mongo, textChannel);
                     });
         }
 
         // Auto-thread channel
-        if (!isLocked) bot.mongo.getMagicCollection(AutoThread.class)
+        if (!isLocked) mongo.database.getMagicCollection(AutoThread.class)
                 .findOne("_id", channelId)
-                .ifPresent(threadChannel -> threadChannel.createThread(bot, message));
+                .ifPresent(threadChannel -> threadChannel.createThread(mongo, message));
 
         // Limited messages
-        bot.mongo.getMagicCollection(LimitedMessages.class)
+        mongo.database.getMagicCollection(LimitedMessages.class)
                 .findOne("_id", channelId)
                 .ifPresent(limitedMessages -> limitedMessages.processMessage(message));
 
         // AFK (disable)
-        final MagicCollection<CoUser> userCollection = bot.mongo.getMagicCollection(CoUser.class);
+        final MagicCollection<CoUser> userCollection = mongo.database.getMagicCollection(CoUser.class);
         final CoUser coUser = userCollection.findOneAndUpdate(
                 Filters.and(
                         Filters.eq("_id", authorId),
@@ -208,7 +206,7 @@ public class MessageListener extends CoListener {
 
                     // Send embed in DMs
                     coMember.getUser().openPrivateChannel()
-                            .flatMap(privateChannel -> privateChannel.sendMessageEmbeds(embed.build(bot)))
+                            .flatMap(privateChannel -> privateChannel.sendMessageEmbeds(embed.build()))
                             .queue();
                 }, LazyUtilities.IGNORE_UNKNOWN_MEMBER);
                 break;

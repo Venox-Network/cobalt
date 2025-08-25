@@ -1,23 +1,23 @@
 package network.venox.cobalt.commands.guild;
 
-import com.freya02.botcommands.api.annotations.CommandMarker;
-import com.freya02.botcommands.api.annotations.Dependency;
-import com.freya02.botcommands.api.annotations.UserPermissions;
-import com.freya02.botcommands.api.application.ApplicationCommand;
-import com.freya02.botcommands.api.application.CommandScope;
-import com.freya02.botcommands.api.application.annotations.AppOption;
-import com.freya02.botcommands.api.application.slash.GuildSlashEvent;
-import com.freya02.botcommands.api.application.slash.annotations.JDASlashCommand;
-import com.freya02.botcommands.api.application.slash.annotations.LongRange;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+import io.github.freya022.botcommands.api.commands.annotations.Command;
+import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
+import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
+import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.LongRange;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
+import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.attribute.ISlowmodeChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.AutoSlowmode;
 
 import org.jetbrains.annotations.NotNull;
@@ -28,20 +28,25 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 import xyz.srnyx.magicmongo.MagicCollection;
 
 
-@CommandMarker @UserPermissions(Permission.MANAGE_CHANNEL)
+@Command
 public class Slowmode extends ApplicationCommand {
-    @Dependency private Cobalt bot;
+    @NotNull private final MongoProvider mongo;
 
+    public Slowmode(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @TopLevelSlashCommandData(scope = CommandScope.GUILD)
+    @UserPermissions(Permission.MANAGE_CHANNEL)
     @JDASlashCommand(
-            scope = CommandScope.GUILD,
             name = "slowmode",
             description = "Manage the dynamic slowmode of a channel")
     public void slowmodeCommand(@NotNull GuildSlashEvent event,
-                                @AppOption(description = "The channel to manage slowmode for (default: current)") @Nullable TextChannel channel,
-                                @AppOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 1, to = ISlowmodeChannel.MAX_SLOWMODE - 1) @Nullable Integer minimum,
-                                @AppOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 2, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
+                                @SlashOption(description = "The channel to manage slowmode for (default: current)") @Nullable TextChannel channel,
+                                @SlashOption(description = "The minimum slowmode (in seconds)") @LongRange(from = 1, to = ISlowmodeChannel.MAX_SLOWMODE - 1) @Nullable Integer minimum,
+                                @SlashOption(description = "The maximum slowmode (in seconds)") @LongRange(from = 2, to = ISlowmodeChannel.MAX_SLOWMODE) @Nullable Integer maximum) {
         if (channel == null) channel = event.getChannel().asTextChannel();
-        final MagicCollection<AutoSlowmode> collection = bot.mongo.getMagicCollection(AutoSlowmode.class);
+        final MagicCollection<AutoSlowmode> collection = mongo.database.getMagicCollection(AutoSlowmode.class);
         final AutoSlowmode current = collection.findOne("_id", channel.getIdLong()).orElse(null);
 
         // Remove slowmode if no minimum or maximum is specified

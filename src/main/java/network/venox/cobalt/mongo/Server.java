@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import network.venox.cobalt.Cobalt;
+import network.venox.cobalt.CoConfig;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
@@ -54,7 +54,7 @@ public class Server {
         return Objects.requireNonNullElse(mutedUsers, Collections.emptySet());
     }
 
-    public void sendWelcomeMessage(@NotNull Cobalt bot, @NotNull User user) {
-        welcomeChannel(bot.jda).ifPresent(textChannel -> textChannel.sendMessage(":wave: **Welcome " + user.getAsMention() + "!** " + bot.config.welcomeQuestions.get(MiscUtility.RANDOM.nextInt(bot.config.welcomeQuestions.size()))).queue());
+    public void sendWelcomeMessage(@NotNull CoConfig config, @NotNull User user) {
+        welcomeChannel(user.getJDA()).ifPresent(textChannel -> textChannel.sendMessage(":wave: **Welcome " + user.getAsMention() + "!** " + config.welcomeQuestions.get(MiscUtility.RANDOM.nextInt(config.welcomeQuestions.size()))).queue());
     }
 }
