@@ -18,7 +18,6 @@ import xyz.srnyx.javautilities.FileUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyLibrary;
-import xyz.srnyx.lazylibrary.services.Bot;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -26,7 +25,7 @@ import java.util.*;
 
 
 @BService
-public class Cobalt implements Bot {
+public class Cobalt {
     public JDA jda;
 
     public Cobalt() {
@@ -34,11 +33,6 @@ public class Cobalt implements Bot {
         System.setProperty("freetts.voices", "com.sun.speech.freetts.en.us.cmu_us_kal.KevinVoiceDirectory");
         final File[] files = Path.of("tts").toFile().listFiles();
         if (files != null) for (final File file : files) FileUtility.deleteFile(file.toPath(), true);
-    }
-
-    @Override @NotNull
-    public JDA getJDA() {
-        return jda;
     }
 
     @BEventListener
@@ -88,11 +82,10 @@ public class Cobalt implements Bot {
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.GUILD_MESSAGE_TYPING,
                         GatewayIntent.GUILD_VOICE_STATES)
-                .searchPaths("network.venox.cobalt")
-                .activities(new ArrayList<>())
                 .embedDefault(LazyEmbed.Key.COLOR, 28864)
                 .embedDefault(LazyEmbed.Key.FOOTER_TEXT, "Cobalt")
                 .embedDefault(LazyEmbed.Key.FOOTER_ICON, "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png")
-                .build(Cobalt.class);
+                .activities(new ArrayList<>())
+                .startBot(Cobalt.class);
     }
 }
