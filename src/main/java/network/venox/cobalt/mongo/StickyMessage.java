@@ -1,4 +1,5 @@
 package network.venox.cobalt.mongo;
+
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
@@ -42,7 +43,7 @@ public class StickyMessage {
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_MESSAGE) public MongoMessage message;
-    @BsonProperty(PROP_CURRENT) public long current;
+    @BsonProperty(PROP_CURRENT) @Nullable public Long current;
 
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
@@ -57,6 +58,9 @@ public class StickyMessage {
     public void send(@NotNull MongoProvider mongo, @NotNull MessageChannel messageChannel) {
         // Delete current message
         delete(messageChannel);
+        if (current != null) mongo.database.getMagicCollection(StickyMessage.class).updateOne(
+                Filters.eq("_id", channel),
+                Updates.unset(PROP_CURRENT));
 
         // Schedule message to be sent
         final ScheduledFuture<?> future = STICKY_FUTURES.get(channel);
@@ -71,7 +75,7 @@ public class StickyMessage {
     }
 
     public void delete(@NotNull MessageChannel textChannel) {
-        textChannel.retrieveMessageById(current)
+        if (current != null) textChannel.retrieveMessageById(current)
                 .flatMap(Message::delete)
                 .queue(null, LazyUtilities.IGNORE_UNKNOWN_MESSAGE);
     }
