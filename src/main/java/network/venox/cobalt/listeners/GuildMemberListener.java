@@ -13,7 +13,15 @@ import org.jetbrains.annotations.NotNull;
 
 
 @BService
-public record GuildMemberListener(@NotNull CoConfig config, @NotNull MongoProvider mongo) {
+public final class GuildMemberListener {
+    private final @NotNull CoConfig config;
+    private final @NotNull MongoProvider mongo;
+
+    public GuildMemberListener(@NotNull CoConfig config, @NotNull MongoProvider mongo) {
+        this.config = config;
+        this.mongo = mongo;
+    }
+
     @BEventListener
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         mongo.database.getMagicCollection(Server.class)

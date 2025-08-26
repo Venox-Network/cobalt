@@ -3,9 +3,6 @@ package network.venox.cobalt.listeners;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
-import io.github.freya022.botcommands.api.core.annotations.BEventListener;
-import io.github.freya022.botcommands.api.core.service.annotations.BService;
-
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -18,6 +15,7 @@ import org.bson.conversions.Bson;
 
 import org.jetbrains.annotations.NotNull;
 
+import xyz.srnyx.lazylibrary.LazyListener;
 import xyz.srnyx.lazylibrary.events.GuildVoiceJoinEvent;
 
 import xyz.srnyx.magicmongo.MagicCollection;
@@ -25,9 +23,14 @@ import xyz.srnyx.magicmongo.MagicCollection;
 import java.util.Optional;
 
 
-@BService
-public record GuildVoiceListener(@NotNull MongoProvider mongo) {
-    @BEventListener
+public final class GuildVoiceListener extends LazyListener {
+    private final @NotNull MongoProvider mongo;
+
+    public GuildVoiceListener(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
+    @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
         final Guild guild = event.getGuild();
         final MagicCollection<Server> collection = mongo.database.getMagicCollection(Server.class);

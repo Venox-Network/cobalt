@@ -23,6 +23,7 @@ import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import xyz.srnyx.magicmongo.MagicCollection;
@@ -36,7 +37,13 @@ import java.util.stream.Collectors;
 
 
 @BService
-public record MessageListener(@NotNull MongoProvider mongo) {
+public final class MessageListener {
+    private final @NotNull MongoProvider mongo;
+
+    public MessageListener(@NotNull MongoProvider mongo) {
+        this.mongo = mongo;
+    }
+
     @BEventListener
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User author = event.getAuthor();
@@ -66,7 +73,7 @@ public record MessageListener(@NotNull MongoProvider mongo) {
                 try {
                     lock.replaceStickyMessage(mongo, channel).queue(null, LazyUtilities.IGNORE_MAX_MESSAGE_PINS);
                 } catch (final Exception e) {
-//                    LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
+                    LazyLibrary.LOGGER.error("Failed to send lock sticky message", e);
                 }
             }, 1, TimeUnit.MINUTES));
         }
@@ -122,7 +129,7 @@ public record MessageListener(@NotNull MongoProvider mongo) {
         final long guildId = guild.getIdLong();
         final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
         CoUser.HIGHLIGHT_COOLDOWNS
-                .computeIfAbsent(authorId, v -> new HashMap<>())
+                .computeIfAbsent(authorId, _ -> new HashMap<>())
                 .put(guildId, newCooldown);
 
         // Highlights stuff

@@ -36,8 +36,9 @@ public class Cobalt {
     }
 
     @BEventListener
-    public void onReady(@NotNull ReadyEvent event, @NotNull LazyLibrary library) {
+    public void onReady(@NotNull ReadyEvent event, @NotNull LazyLibrary library, @NotNull MongoProvider mongo) {
         jda = event.getJDA();
+        jda.addEventListener(new GuildVoiceListener(mongo));
 
         // Load statuses
         int users = 0;
