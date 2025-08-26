@@ -15,7 +15,7 @@ magicMongo("ef0c2370bd")
 lazyLibrary("botcommands-v3-SNAPSHOT")
 setupJda("5.6.1", "network.venox", "2.0.0", "A Discord bot for Venox Network")
 
-repository("https://maven.dynomake.space/releases/") // space.dynomake:libretranslate-java
+repository("https://maven.dynomake.it/releases/") // space.dynomake:libretranslate-java
 dependencies {
     implementation("space.dynomake", "libretranslate-java", "1.0.9") // Translate
     implementation("com.github.walkyst", "lavaplayer-fork", "1.4.3") // TTS
