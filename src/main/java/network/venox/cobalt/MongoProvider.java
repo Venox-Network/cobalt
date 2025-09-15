@@ -24,6 +24,8 @@ public class MongoProvider {
         database = new SingleMongo(url).database.loadMagicCollections(Map.of(
                 "auto_slowmodes", AutoSlowmode.class,
                 "auto_threads", AutoThread.class,
+                "corners", Corner.class,
+                "corner_creators", CornerCreator.class,
                 "users", CoUser.class,
                 "limited_messages", LimitedMessages.class,
                 "locks", Lock.class,

@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 @BService
 public final class MessageListener {
-    private final @NotNull MongoProvider mongo;
+    @NotNull private final MongoProvider mongo;
 
     public MessageListener(@NotNull MongoProvider mongo) {
         this.mongo = mongo;

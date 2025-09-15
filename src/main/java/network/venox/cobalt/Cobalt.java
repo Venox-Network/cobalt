@@ -1,5 +1,7 @@
 package network.venox.cobalt;
 
+import io.github.freya022.botcommands.api.components.Buttons;
+import io.github.freya022.botcommands.api.components.SelectMenus;
 import io.github.freya022.botcommands.api.core.annotations.BEventListener;
 import io.github.freya022.botcommands.api.core.service.annotations.BService;
 
@@ -36,9 +38,9 @@ public class Cobalt {
     }
 
     @BEventListener
-    public void onReady(@NotNull ReadyEvent event, @NotNull LazyLibrary library, @NotNull MongoProvider mongo) {
+    public void onReady(@NotNull ReadyEvent event, @NotNull LazyLibrary library, @NotNull MongoProvider mongo, @NotNull Buttons buttons, @NotNull SelectMenus menus) {
         jda = event.getJDA();
-        jda.addEventListener(new GuildVoiceListener(mongo));
+        jda.addEventListener(new GuildVoiceListener(mongo, buttons, menus));
 
         // Load statuses
         int users = 0;

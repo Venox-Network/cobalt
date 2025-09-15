@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 
 @BService
 public final class GuildMemberListener {
-    private final @NotNull CoConfig config;
-    private final @NotNull MongoProvider mongo;
+    @NotNull private final CoConfig config;
+    @NotNull private final MongoProvider mongo;
 
     public GuildMemberListener(@NotNull CoConfig config, @NotNull MongoProvider mongo) {
         this.config = config;

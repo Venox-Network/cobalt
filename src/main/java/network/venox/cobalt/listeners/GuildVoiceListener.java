@@ -3,6 +3,9 @@ package network.venox.cobalt.listeners;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.components.Buttons;
+import io.github.freya022.botcommands.api.components.SelectMenus;
+
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,7 +24,6 @@ import org.bson.conversions.Bson;
 import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.lazylibrary.LazyListener;
-import xyz.srnyx.lazylibrary.LazyListener;
 import xyz.srnyx.lazylibrary.events.GuildVoiceJoinEvent;
 import xyz.srnyx.lazylibrary.events.GuildVoiceLeaveEvent;
 
@@ -34,10 +36,14 @@ import java.util.Optional;
 public class GuildVoiceListener extends LazyListener {
     @NotNull private static final ErrorHandler IGNORE_UNKNOWN_CHANNEL = new ErrorHandler().ignore(ErrorResponse.UNKNOWN_CHANNEL);
 
-    private final @NotNull MongoProvider mongo;
+    @NotNull private final MongoProvider mongo;
+    @NotNull private final Buttons buttons;
+    @NotNull private final SelectMenus menus;
 
-    public GuildVoiceListener(@NotNull MongoProvider mongo) {
+    public GuildVoiceListener(@NotNull MongoProvider mongo, @NotNull Buttons buttons, @NotNull SelectMenus menus) {
         this.mongo = mongo;
+        this.buttons = buttons;
+        this.menus = menus;
     }
 
     @Override
@@ -45,11 +51,11 @@ public class GuildVoiceListener extends LazyListener {
         final long channelId = event.getChannelJoined().getIdLong();
 
         // CornerCreator
-        final CornerCreator cornerCreator = bot.mongo.getMagicCollection(CornerCreator.class)
+        final CornerCreator cornerCreator = mongo.database.getMagicCollection(CornerCreator.class)
                 .findOne(Filters.eq("_id", channelId))
                 .orElse(null);
         if (cornerCreator != null) {
-            cornerCreator.createCorner(bot, event.getMember(), event.getChannelJoined());
+            cornerCreator.createCorner(mongo, buttons, menus, event.getMember(), event.getChannelJoined());
             return;
         }
 
@@ -61,7 +67,7 @@ public class GuildVoiceListener extends LazyListener {
     public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
         final AudioChannelUnion channel = event.getChannelLeft();
         final Bson idFilter = Filters.eq("_id", channel.getIdLong());
-        final MagicCollection<Corner> collection = bot.mongo.getMagicCollection(Corner.class);
+        final MagicCollection<Corner> collection = mongo.database.getMagicCollection(Corner.class);
 
         // Get Corner
         final Corner corner = collection
