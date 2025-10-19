@@ -13,20 +13,22 @@ import io.github.freya022.botcommands.api.components.annotations.JDAButtonListen
 import io.github.freya022.botcommands.api.components.annotations.JDASelectMenuListener;
 import io.github.freya022.botcommands.api.components.event.ButtonEvent;
 import io.github.freya022.botcommands.api.components.event.StringSelectEvent;
+import io.github.freya022.botcommands.api.modals.Modal;
 import io.github.freya022.botcommands.api.modals.ModalEvent;
 import io.github.freya022.botcommands.api.modals.Modals;
 import io.github.freya022.botcommands.api.modals.annotations.ModalHandler;
 import io.github.freya022.botcommands.api.modals.annotations.ModalInput;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
 import org.jetbrains.annotations.NotNull;
@@ -93,16 +95,17 @@ public class Embed extends ApplicationCommand {
 
         // Reply
         event.replyEmbeds((json == null ? new LazyEmbed().setTitle("N/A") : new LazyEmbed(json)).build())
-                .addActionRow(selectMenus.stringSelectMenu().persistent()
-                        .bindTo(MENU_FIELD)
-                        .addOption("Color", "color", Emoji.fromUnicode("\uD83C\uDFA8"))
-                        .addOption("Author", "author", "Author name / Author URL / Author icon URL", Emoji.fromUnicode("✍"))
-                        .addOption("Title", "title", "Title text / Title URL")
-                        .addOption("Description", "description", Emoji.fromUnicode("\uD83D\uDCC4"))
-                        .addOption("Field", "field", "Add a new field (Name / Value / Inline)", Emoji.fromUnicode("\uD83D\uDCCB"))
-                        .addOption("Media", "media", "Thumbnail / Image", Emoji.fromUnicode("\uD83D\uDDBC"))
-                        .addOption("Footer", "footer", "Footer text / Footer icon URL / Timestamp", Emoji.fromUnicode("\uD83E\uDDB6")).build())
-                .addActionRow(actionRow)
+                .addComponents(
+                        ActionRow.of(selectMenus.stringSelectMenu().persistent()
+                                .bindTo(MENU_FIELD)
+                                .addOption("Color", "color", Emoji.fromUnicode("\uD83C\uDFA8"))
+                                .addOption("Author", "author", "Author name / Author URL / Author icon URL", Emoji.fromUnicode("✍"))
+                                .addOption("Title", "title", "Title text / Title URL")
+                                .addOption("Description", "description", Emoji.fromUnicode("\uD83D\uDCC4"))
+                                .addOption("Field", "field", "Add a new field (Name / Value / Inline)", Emoji.fromUnicode("\uD83D\uDCCB"))
+                                .addOption("Media", "media", "Thumbnail / Image", Emoji.fromUnicode("\uD83D\uDDBC"))
+                                .addOption("Footer", "footer", "Footer text / Footer icon URL / Timestamp", Emoji.fromUnicode("\uD83E\uDDB6")).build()),
+                        ActionRow.of(actionRow))
                 .setEphemeral(true)
                 .queue();
     }
@@ -139,7 +142,7 @@ public class Embed extends ApplicationCommand {
                 yield modals.create("Color")
                         .bindTo(MODAL_COLOR)
                         .timeout(10, TimeUnit.MINUTES, () -> {})
-                        .addActionRow(createTextInput("color", "Color", TextInputStyle.SHORT, false, 7, "Hexadecimal color code",  color == null ? null : String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue())).build())
+                        .addComponents(createTextInput("color", "Color", TextInputStyle.SHORT, false, 7, "Hexadecimal color code",  color == null ? null : String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue())))
                         .build();
             }
             case "author" -> {
@@ -147,28 +150,31 @@ public class Embed extends ApplicationCommand {
                 yield modals.create("Author")
                         .bindTo(MODAL_AUTHOR)
                         .timeout(10, TimeUnit.MINUTES, () -> {})
-                        .addActionRow(createTextInput("authorName", "Author name", TextInputStyle.SHORT, false, MessageEmbed.AUTHOR_MAX_LENGTH, null, author == null ? null : author.getName()).build())
-                        .addActionRow(createTextInput("authorUrl", "Author URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getUrl()).build())
-                        .addActionRow(createTextInput("authorIconUrl", "Author icon URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getIconUrl()).build())
+                        .addComponents(
+                                createTextInput("authorName", "Author name", TextInputStyle.SHORT, false, MessageEmbed.AUTHOR_MAX_LENGTH, null, author == null ? null : author.getName()),
+                                createTextInput("authorUrl", "Author URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getUrl()),
+                                createTextInput("authorIconUrl", "Author icon URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", author == null ? null : author.getIconUrl()))
                         .build();
             }
             case "title" -> modals.create("Title")
                     .bindTo(MODAL_TITLE)
                     .timeout(10, TimeUnit.MINUTES, () -> {})
-                    .addActionRow(createTextInput("titleText", "Title text", TextInputStyle.SHORT, false, MessageEmbed.TITLE_MAX_LENGTH, null, embed.getTitle()).build())
-                    .addActionRow(createTextInput("titleUrl", "Title URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", embed.getUrl()).build())
+                    .addComponents(
+                            createTextInput("titleText", "Title text", TextInputStyle.SHORT, false, MessageEmbed.TITLE_MAX_LENGTH, null, embed.getTitle()),
+                            createTextInput("titleUrl", "Title URL", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", embed.getUrl()))
                     .build();
             case "description" -> modals.create("Description")
                     .bindTo(MODAL_DESCRIPTION)
                     .timeout(10, TimeUnit.MINUTES, () -> {})
-                    .addActionRow(createTextInput("description", "Description", TextInputStyle.PARAGRAPH, false, 4000, null, embed.getDescription()).build())
+                    .addComponents(createTextInput("description", "Description", TextInputStyle.PARAGRAPH, false, 4000, null, embed.getDescription()))
                     .build();
             case "field" -> modals.create("Field")
                         .bindTo(MODAL_FIELD)
                     .timeout(10, TimeUnit.MINUTES, () -> {})
-                    .addActionRow(createTextInput("fieldName", "Name", TextInputStyle.SHORT, true, MessageEmbed.TITLE_MAX_LENGTH, null, null).build())
-                    .addActionRow(createTextInput("fieldValue", "Value", TextInputStyle.PARAGRAPH, true, MessageEmbed.VALUE_MAX_LENGTH, null, null).build())
-                    .addActionRow(createTextInput("fieldInline", "Inline", TextInputStyle.SHORT, false, 5, "true/false", "false").build())
+                    .addComponents(
+                            createTextInput("fieldName", "Name", TextInputStyle.SHORT, true, MessageEmbed.TITLE_MAX_LENGTH, null, null),
+                            createTextInput("fieldValue", "Value", TextInputStyle.PARAGRAPH, true, MessageEmbed.VALUE_MAX_LENGTH, null, null),
+                            createTextInput("fieldInline", "Inline", TextInputStyle.SHORT, false, 5, "true/false", "false"))
                     .build();
             case "media" -> {
                 final MessageEmbed.Thumbnail thumbnail = embed.getThumbnail();
@@ -176,8 +182,9 @@ public class Embed extends ApplicationCommand {
                 yield modals.create("Media")
                         .bindTo(MODAL_MEDIA)
                         .timeout(10, TimeUnit.MINUTES, () -> {})
-                        .addActionRow(createTextInput("thumbnail", "Thumbnail", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", thumbnail == null ? null : thumbnail.getUrl()).build())
-                        .addActionRow(createTextInput("image", "Image", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", image == null ? null : image.getUrl()).build())
+                        .addComponents(
+                                createTextInput("thumbnail", "Thumbnail", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", thumbnail == null ? null : thumbnail.getUrl()),
+                                createTextInput("image", "Image", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", image == null ? null : image.getUrl()))
                         .build();
             }
             case "footer" -> {
@@ -186,9 +193,10 @@ public class Embed extends ApplicationCommand {
                 yield modals.create("Footer")
                         .bindTo(MODAL_FOOTER)
                         .timeout(10, TimeUnit.MINUTES, () -> {})
-                        .addActionRow(createTextInput("footerText", "Footer text", TextInputStyle.SHORT, false, MessageEmbed.TEXT_MAX_LENGTH, null, footer == null ? null : footer.getText()).build())
-                        .addActionRow(createTextInput("footerIconUrl", "Footer icon", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", footer == null ? null : footer.getIconUrl()).build())
-                        .addActionRow(createTextInput("timestamp", "Timestamp", TextInputStyle.SHORT, false, 10, "Epoch time or 'now'", timestamp == null ? null : String.valueOf(Instant.from(timestamp).toEpochMilli())).build())
+                        .addComponents(
+                                createTextInput("footerText", "Footer text", TextInputStyle.SHORT, false, MessageEmbed.TEXT_MAX_LENGTH, null, footer == null ? null : footer.getText()),
+                                createTextInput("footerIconUrl", "Footer icon", TextInputStyle.SHORT, false, MessageEmbed.URL_MAX_LENGTH, "http:// or https://", footer == null ? null : footer.getIconUrl()),
+                                createTextInput("timestamp", "Timestamp", TextInputStyle.SHORT, false, 10, "Epoch time or 'now'", timestamp == null ? null : String.valueOf(Instant.from(timestamp).toEpochMilli())))
                         .build();
             }
             default -> null;
@@ -354,12 +362,13 @@ public class Embed extends ApplicationCommand {
     }
 
     @NotNull
-    private TextInput.Builder createTextInput(@NotNull String inputName, @NotNull String label, @NotNull TextInputStyle style, boolean required, int maxLength, @Nullable String placeholder, @Nullable String value) {
-        return modals.createTextInput(inputName, label, style)
+    private Label createTextInput(@NotNull String inputName, @NotNull String label, @NotNull TextInputStyle style, boolean required, int maxLength, @Nullable String placeholder, @Nullable String value) {
+        return Label.of(label, TextInput.create(inputName, style)
                 .setRequired(required)
                 .setMaxLength(maxLength)
                 .setPlaceholder(placeholder)
-                .setValue(value);
+                .setValue(value)
+                .build());
     }
 
     @Nullable

@@ -14,8 +14,9 @@ import io.github.freya022.botcommands.api.components.annotations.ComponentData;
 import io.github.freya022.botcommands.api.components.annotations.JDASelectMenuListener;
 import io.github.freya022.botcommands.api.components.event.StringSelectEvent;
 
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.selections.SelectOption;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
@@ -110,12 +111,12 @@ public class Translate extends ApplicationCommand {
     @NotNull
     private MessageEditData getMessage(@NotNull String message, @NotNull Language language) {
         final MessageEditBuilder builder = new MessageEditBuilder()
-                .setActionRow(selectMenus.stringSelectMenu().persistent()
+                .setComponents(ActionRow.of(selectMenus.stringSelectMenu().persistent()
                         .bindTo(MENU_TRANSLATE_LANGUAGE, message)
                         .singleUse(true)
                         .setPlaceholder("Select a language")
                         .addOptions(LANGUAGE_OPTIONS)
-                        .setDefaultValues(language.name()).build());
+                        .setDefaultValues(language.name()).build()));
 
         // Translate message
         String translatedMessage;

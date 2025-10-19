@@ -1,3 +1,5 @@
+import xyz.srnyx.gradlegalaxy.data.config.DependencyConfig
+import xyz.srnyx.gradlegalaxy.data.config.JavaSetupConfig
 import xyz.srnyx.gradlegalaxy.enums.repository
 import xyz.srnyx.gradlegalaxy.utility.magicMongo
 import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
@@ -5,13 +7,18 @@ import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
 
 plugins {
     application
-    id("xyz.srnyx.gradle-galaxy") version "1.3.5"
-    id("com.gradleup.shadow") version "8.3.8"
-    id("dev.reformator.stacktracedecoroutinator") version "2.5.6"
+    id("xyz.srnyx.gradle-galaxy") version "2.0.2"
+    id("com.gradleup.shadow") version "8.3.9"
 }
 
-magicMongo("ef0c2370bd")
-setupLazyLibrary("botcommands-v3-SNAPSHOT", "5.6.1", "network.venox", "2.0.0", "A Discord bot for Venox Network")
+setupLazyLibrary(
+    javaSetupConfig = JavaSetupConfig(
+        group = "network.venox",
+        version = "2.0.0",
+        description = "A Discord bot for Venox Network"),
+    jdaConfig = DependencyConfig(version = "6.1.0"),
+    lazyLibraryConfig = DependencyConfig(version = "botcommands-v3-SNAPSHOT"))
+magicMongo(config = DependencyConfig(version = "ef0c2370bd"))
 
 repository("https://maven.dynomake.it/releases/") // space.dynomake:libretranslate-java
 dependencies {
