@@ -40,7 +40,7 @@ public class CornerCreator {
                     guild.moveVoiceMember(member, cornerChannel).queue();
                     cornerChannel.asGuildMessageChannel()
                             .sendMessage(member.getAsMention())
-                            .setComponents(corner.getComponents(buttons, menus, cornerChannel.asGuildMessageChannel(), null, null, null))
+                            .setComponents(corner.getComponents(buttons, menus, cornerChannel.asGuildMessageChannel(), null))
                             .queue();
                 });
     }

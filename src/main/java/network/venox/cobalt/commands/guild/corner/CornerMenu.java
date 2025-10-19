@@ -56,6 +56,6 @@ public class CornerMenu extends ApplicationCommand {
         }
 
         // Reply with menu
-        event.replyComponents(corner.getComponents(buttons, menus, channel, null, null, null)).setEphemeral(true).queue();
+        event.replyComponents(corner.getComponents(buttons, menus, channel, null)).setEphemeral(true).queue();
     }
 }

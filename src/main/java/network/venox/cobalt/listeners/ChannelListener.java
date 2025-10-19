@@ -6,6 +6,7 @@ import io.github.freya022.botcommands.api.core.service.annotations.BService;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 
 import network.venox.cobalt.MongoProvider;
+import network.venox.cobalt.mongo.Corner;
 import network.venox.cobalt.mongo.CornerCreator;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,12 @@ public class ChannelListener {
 
     @BEventListener
     public void onChannelDelete(@Nonnull ChannelDeleteEvent event) {
-        mongo.database.getMagicCollection(CornerCreator.class).deleteOne("_id", event.getChannel().getIdLong());
+        final long channelId = event.getChannel().getIdLong();
+
+        // CornerCreator
+        if (mongo.database.getMagicCollection(CornerCreator.class).deleteOne("_id", channelId).getDeletedCount() > 0) return;
+
+        // Corner
+        mongo.database.getMagicCollection(Corner.class).deleteOne("_id", channelId);
     }
 }

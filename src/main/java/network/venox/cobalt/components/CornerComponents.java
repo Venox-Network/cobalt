@@ -66,7 +66,7 @@ public class CornerComponents {
         event.getHook().editOriginal(previousStatus
                         ? LazyEmoji.UNLOCK + " **" + name + "** is now **unlocked**!"
                         : LazyEmoji.LOCK + " **" + name + "** is now **locked**!")
-                .setComponents(corner.getComponents(buttons, menus, channel, null, !previousStatus, null))
+                .setComponents(corner.getComponents(buttons, menus, channel, Corner.Data.locked(!previousStatus)))
                 .queue();
     }
 
@@ -114,7 +114,7 @@ public class CornerComponents {
 
         // Reply
         event.getHook().editOriginal(LazyEmoji.YES + " Updated blacklist for **" + channel.getName() + "**!")
-                .setComponents(corner.getComponents(buttons, menus, channel, selected, true, null))
+                .setComponents(corner.getComponents(buttons, menus, channel, Corner.Data.blacklist(selected)))
                 .queue();
     }
 
@@ -182,7 +182,7 @@ public class CornerComponents {
 
         // Reply
         event.getHook().editOriginal(LazyEmoji.YES + " Updated users for **" + channel.getName() + "**!")
-                .setComponents(corner.getComponents(buttons, menus, channel, null, true, selected))
+                .setComponents(corner.getComponents(buttons, menus, channel, Corner.Data.usersRoles(selected)))
                 .queue();
     }
 
