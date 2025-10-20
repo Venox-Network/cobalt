@@ -12,7 +12,7 @@ import io.github.freya022.botcommands.api.commands.application.slash.annotations
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.ReactChannel;
@@ -45,11 +45,11 @@ public class ReactSet extends ApplicationCommand {
             subcommand = "set",
             description = "Sets the emoji(s) for a channel")
     public void setCommand(@NotNull GuildSlashEvent event,
-                           @SlashOption(description = "The channel to manage") @Nullable TextChannel channel,
+                           @SlashOption(description = "The channel to manage") @Nullable GuildMessageChannel channel,
                            @SlashOption(description = "The emojis to set. If empty, channel will be dynamic") @Nullable String emojis) {
         // Get channel
         if (channel == null) {
-            channel = MiscUtility.handleException(() -> event.getChannel().asTextChannel()).orElse(null);
+            channel = MiscUtility.handleException(() -> event.getChannel().asGuildMessageChannel()).orElse(null);
             if (channel == null) {
                 event.reply(LazyEmoji.NO + " Please specify a channel to set!").setEphemeral(true).queue();
                 return;
