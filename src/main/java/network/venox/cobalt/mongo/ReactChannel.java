@@ -1,4 +1,5 @@
 package network.venox.cobalt.mongo;
+
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -11,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ReactChannel {
@@ -23,9 +26,10 @@ public class ReactChannel {
 
     @Nullable
     public List<EmojiUnion> emojis() {
-        return emojis == null ? null : emojis.stream()
-                .map(Emoji::fromFormatted)
-                .toList();
+        if (emojis == null) return null;
+        final List<EmojiUnion> emojiUnions = new ArrayList<>();
+        for (final String emoji : emojis) emojiUnions.add(Emoji.fromFormatted(emoji));
+        return emojiUnions;
     }
 
     public void addReactions(@NotNull Message message) {
@@ -44,8 +48,10 @@ public class ReactChannel {
     @NotNull
     public static List<String> dynamicReact(@NotNull Message message) {
         final List<String> emojis = new ArrayList<>();
-        for (final String emojiString : message.getContentRaw().split("(?<=^|\\s)(<a?:\\w+:\\d+>|:\\w+:)(?=\\s|$)")) {
-            if (emojiString.isEmpty()) continue;
+        final Matcher matcher = Pattern.compile("(<a?:\\w+:\\d+>)|(:\\w+:)").matcher(message.getContentRaw());
+        while (matcher.find()) {
+            final String emojiString = matcher.group();
+            if (emojiString == null || emojiString.isEmpty()) continue;
             emojis.add(emojiString);
             message.addReaction(Emoji.fromFormatted(emojiString)).queue();
         }
