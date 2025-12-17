@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import network.venox.cobalt.MongoProvider;
+import network.venox.cobalt.mongo.MongoMessage;
 import network.venox.cobalt.mongo.StickyMessage;
 
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ public class Sticky extends ApplicationCommand {
                                             Filters.eq("_id", messageChannel.getIdLong()),
                                             Filters.eq(StickyMessage.PROP_GUILD, sentMessage.getGuildIdLong())),
                                     Updates.combine(
-                                            Updates.set(StickyMessage.PROP_MESSAGE, new StickyMessage.MongoMessage(sentMessage)),
+                                            Updates.set(StickyMessage.PROP_MESSAGE, new MongoMessage(sentMessage)),
                                             Updates.set(StickyMessage.PROP_CURRENT, sentMessage.getIdLong())))
                             .send(mongo, messageChannel);
                     return event.reply(LazyEmoji.YES + " " + sentMessage.getJumpUrl() + " has been set as " + messageChannel.getAsMention() + "'s sticky message").setEphemeral(true);

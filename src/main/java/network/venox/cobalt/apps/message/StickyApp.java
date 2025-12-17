@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import network.venox.cobalt.MongoProvider;
+import network.venox.cobalt.mongo.MongoMessage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +45,7 @@ public class StickyApp extends ApplicationCommand {
                                 Filters.eq("_id", channel.getIdLong()),
                                 Filters.eq(network.venox.cobalt.mongo.StickyMessage.PROP_GUILD, event.getGuild().getIdLong())),
                         Updates.combine(
-                                Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_MESSAGE, new network.venox.cobalt.mongo.StickyMessage.MongoMessage(message)),
+                                Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_MESSAGE, new MongoMessage(message)),
                                 Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_CURRENT, message.getIdLong())))
                 .send(mongo, channel);
 
