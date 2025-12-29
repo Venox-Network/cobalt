@@ -51,17 +51,20 @@ public class Cobalt {
         library.activities(library.fileSettings.file.yaml.node("statuses").childrenList().stream()
                 .map(node -> {
                     // Get status
-                    final String status = node.getString();
+                    String status = node.getString();
                     if (status == null) return null;
 
                     // Get type
                     Activity.ActivityType type = Activity.ActivityType.CUSTOM_STATUS;
                     if (status.startsWith("watching")) {
                         type = Activity.ActivityType.WATCHING;
+                        status = status.replaceFirst("watching", "").trim();
                     } else if (status.startsWith("listening")) {
                         type = Activity.ActivityType.LISTENING;
+                        status = status.replaceFirst("listening", "").trim();
                     } else if (status.startsWith("playing")) {
                         type = Activity.ActivityType.PLAYING;
+                        status = status.replaceFirst("playing", "").trim();
                     }
 
                     // Get Activity

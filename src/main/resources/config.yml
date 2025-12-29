@@ -24,7 +24,7 @@ guild:
 
 # Rotating status messages for the bot
 statuses:
-  - "watching %users% across %servers% servers"
+  - "watching %users% users across %servers% servers"
   - "watching over srnyx.com/discord"
   - "watching over discord.gg/commandgeek"
   - "watching over discord.gg/skeppy"
@@ -35,8 +35,7 @@ statuses:
   - "watching over chrizxz.com"
   - "playing on charged.venox.network"
   - "playing on play.eventalerts.gg"
-  - "listening to srnyx.com/playlist"
-  - "listening to chrizxz.com/playlist"
+  - "donating to srnyx.com/donate"
 
 # A list of questions to be used when a user joins a server
 welcome-questions:
