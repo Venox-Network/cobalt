@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 
 @BService
-public final class MessageListener {
+public class MessageListener {
     @NotNull private final MongoProvider mongo;
 
     public MessageListener(@NotNull MongoProvider mongo) {
@@ -134,9 +134,10 @@ public final class MessageListener {
 
         // Highlights stuff
         final String authorName = author.getName();
-        final String content = message.getContentRaw();
-        final String contentLower = content.toLowerCase().replaceAll("https?://(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,63}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&/=]{0,63}", "");
-        final boolean checkHighlights = content.length() < 500;
+        final String rawContent = message.getContentRaw();
+        final int rawLength = rawContent.length();
+        final String rawLower = rawContent.toLowerCase();
+        final String displayLowerNoURLs = message.getContentDisplay().toLowerCase().replaceAll("https?://(?:www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,63}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&/=]{0,63}", "");
         final String jumpUrl = message.getJumpUrl();
         final Set<Long> mentions = message.getMentions().getUsers().stream()
                 .map(ISnowflake::getIdLong)
@@ -149,7 +150,7 @@ public final class MessageListener {
                 .setTimestamp(message.getTimeCreated());
         final List<Message> history = new ArrayList<>(message.getChannel().getHistoryBefore(message, 4).complete().getRetrievedHistory());
         Collections.reverse(history);
-        for (final Message msg1 : history) embedForFactory.addField(new MessageEmbed.Field(msg1.getAuthor().getName(), StringUtility.shorten(msg1.getContentRaw(), 1024), false));
+        for (final Message histMsg : history) embedForFactory.addField(new MessageEmbed.Field(histMsg.getAuthor().getName(), StringUtility.shorten(histMsg.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false));
         final LazyEmbed.Factory embedFactory = embedForFactory.toFactory();
 
         for (final CoUser otherCoUser : userCollection.find(Filters.or( // If other features added to this loop, update this filter!
@@ -169,7 +170,7 @@ public final class MessageListener {
             }
 
             // Highlights
-            if (!checkHighlights || otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
+            if (otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
 
             // Check cooldown
             final Map<Long, Long> cooldowns = CoUser.HIGHLIGHT_COOLDOWNS.get(otherCoUser.id);
@@ -183,8 +184,7 @@ public final class MessageListener {
 
             // Check highlights
             for (final String highlight : otherCoUser.highlights) {
-                final int index = contentLower.indexOf(highlight);
-                if (index == -1) continue;
+                if (!displayLowerNoURLs.contains(highlight)) continue;
                 guild.retrieveMemberById(otherCoUser.id).queue(coMember -> {
                     // Check if in audio channel
                     final GuildVoiceState voiceState = coMember.getVoiceState();
@@ -198,6 +198,7 @@ public final class MessageListener {
                             .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
                             .put(guildId, newCooldown);
 
+                    // Create embed
                     final int highlightHash = highlight.hashCode();
                     final LazyEmbed embed = embedFactory.newEmbed()
                             .setColor(new Color( // Generate unique color based on highlight
@@ -206,10 +207,24 @@ public final class MessageListener {
                                     highlightHash & 0x0000FF))
                             .setTitle(highlight, jumpUrl);
 
-                    // Highlighted message
-                    embed.addField(authorName, StringUtility.shorten(content.substring(0, index) +
-                            "[" + content.substring(index, index + highlight.length()) + "](" + jumpUrl + ")" +
-                            content.substring(index + highlight.length()), 1024), false);
+                    // Highlighted message (snippet if too long)
+                    final String value;
+                    final int index = rawLower.indexOf(highlight);
+                    final int highlightLength = highlight.length();
+                    final String linkedHighlight = "[" + rawContent.substring(index, index + highlightLength) + "](" + jumpUrl + ")";
+                    if (rawLength > MessageEmbed.VALUE_MAX_LENGTH) {
+                        final int snippetRadius = (MessageEmbed.VALUE_MAX_LENGTH - linkedHighlight.length() - 6) / 2; // why does it divide by 2?
+                        final int start = Math.max(0, index - snippetRadius);
+                        final int end = Math.min(rawLength, index + highlightLength + snippetRadius);
+                        String snippet = rawContent.substring(start, end);
+                        if (start > 0) snippet = "..." + snippet;
+                        if (end < rawLength) snippet = snippet + "...";
+                        final int snippetIndex = snippet.toLowerCase().indexOf(highlight);
+                        value = snippet.substring(0, snippetIndex) + linkedHighlight + snippet.substring(snippetIndex + highlightLength);
+                    } else {
+                        value = StringUtility.shorten(rawContent.substring(0, index) + linkedHighlight + rawContent.substring(index + highlightLength), MessageEmbed.VALUE_MAX_LENGTH);
+                    }
+                    embed.addField(authorName, value, false);
 
                     // Send embed in DMs
                     coMember.getUser().openPrivateChannel()

@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 @BService
-public final class GuildMemberListener {
+public class GuildMemberListener {
     @NotNull private final CoConfig config;
     @NotNull private final MongoProvider mongo;
 
