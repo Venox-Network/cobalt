@@ -39,8 +39,9 @@ public class HighlightAdd extends ApplicationCommand {
     public void addCommand(@NotNull GlobalSlashEvent event,
                            @SlashOption(description = "The word(s) to highlight. Use spaces to separate multiple") @NotNull String words) {
         final MagicCollection<CoUser> collection = mongo.database.getMagicCollection(CoUser.class);
+        final long userId = event.getUser().getIdLong();
         final Set<String> highlights = collection
-                .findOne("_id", event.getUser().getIdLong())
+                .findOne("_id", userId)
                 .map(user -> user.highlights)
                 .orElse(Set.of());
 
@@ -61,8 +62,8 @@ public class HighlightAdd extends ApplicationCommand {
         }
 
         // Add words to highlights
-        collection.updateOne(
-                Filters.eq("_id", event.getUser().getIdLong()),
+        collection.upsertOne(
+                Filters.eq("_id", userId),
                 Updates.addEachToSet(CoUser.PROP_HIGHLIGHTS, new ArrayList<>(wordSet)));
         event.reply(LazyEmoji.YES + " Added `" + String.join("`, `", wordSet) + "` to your highlights").setEphemeral(true).queue();
     }
