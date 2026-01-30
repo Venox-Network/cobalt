@@ -2,9 +2,16 @@
 
 A Discord bot used by [@Venox-Network](https://github.com/Venox-Network) to more efficiently administrate and moderate Discord servers. Learn more about Venox Network here: https://venox.network
 
+## Branches
+
+- `java`: Uses Java with JDA and BotCommands v2
+  - **`botcommands-v3`** (current): Uses Java with JDA and BotCommands v3
+- `python`: Uses Python with discord.py
+- `javascript`: Uses JavaScript with discord.js
+
 ## Contributors
 
-- [@srnyx](https://github.com/srnyx) `java` `python`
+- [@srnyx](https://github.com/srnyx) `botcommands-v3` `java` `python`
 - [@DWAA1660](https://github.com/DWAA1660) `python`
 - [@skandabhairava](https://github.com/skandabhairava) `python`
 - [@ChrizxzFTW](https://github.com/Chrizxz) `javascript`
