@@ -57,9 +57,10 @@ public class ThreadIgnoredList  {
         }
 
         // Get ignored phrases/roles
-        final Set<String> ignoredPhrases = threadChannel.ignoredPhrases;
+        final Set<String> ignoredPhrases = threadChannel.ignoredPhrases();
+        final Set<Long> ignoredRoles = threadChannel.ignoredRoles();
         final boolean hasPhrases = !ignoredPhrases.isEmpty();
-        final boolean hasRoles = !threadChannel.ignoredRoles.isEmpty();
+        final boolean hasRoles = !ignoredRoles.isEmpty();
         if (!hasPhrases && !hasRoles) {
             event.reply(LazyEmoji.NO + " There are no ignored phrases/roles for " + channel.getAsMention() + "'s auto-threading").setEphemeral(true).queue();
             return;
@@ -73,7 +74,7 @@ public class ThreadIgnoredList  {
         if (hasRoles) {
             if (hasPhrases) builder.append("\n");
             builder.append("**Ignored Roles:** ");
-            for (long roleId : threadChannel.ignoredRoles) builder.append("<@&").append(roleId).append(">").append(" ");
+            for (long roleId : ignoredRoles) builder.append("<@&").append(roleId).append(">").append(" ");
         }
 
         event.reply(builder.toString()).setEphemeral(true).queue();

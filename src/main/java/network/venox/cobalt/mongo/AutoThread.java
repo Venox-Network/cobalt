@@ -34,8 +34,8 @@ public class AutoThread {
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_NAME) @Nullable public String name;
     @BsonProperty(PROP_COUNT) public int count;
-    @BsonProperty(PROP_IGNORED_PHRASES) public Set<String> ignoredPhrases;
-    @BsonProperty(PROP_IGNORED_ROLES) public Set<Long> ignoredRoles;
+    @BsonProperty(PROP_IGNORED_PHRASES) @Nullable public Set<String> ignoredPhrases;
+    @BsonProperty(PROP_IGNORED_ROLES) @Nullable public Set<Long> ignoredRoles;
 
     public AutoThread() {}
 
@@ -49,18 +49,6 @@ public class AutoThread {
     @NotNull
     public Optional<Guild> guild(@NotNull JDA jda) {
         return Optional.ofNullable(jda.getGuildById(guild));
-    }
-
-    @Nullable
-    public Set<Role> ignoredRoles(@NotNull JDA jda) {
-        final Guild guild = guild(jda).orElse(null);
-        if (guild == null) return null;
-        final Set<Role> roles = new HashSet<>();
-        for (long ignoredRole : ignoredRoles) {
-            final Role role = guild.getRoleById(ignoredRole);
-            if (role != null) roles.add(role);
-        }
-        return roles;
     }
 
     @NotNull
@@ -77,16 +65,33 @@ public class AutoThread {
         return StringUtility.shorten(threadName, 100);
     }
 
+    @NotNull
+    public Set<String> ignoredPhrases() {
+        return Objects.requireNonNullElseGet(ignoredPhrases, HashSet::new);
+    }
+
+    @NotNull
+    public Set<Long> ignoredRoles() {
+        return Objects.requireNonNullElseGet(ignoredRoles, HashSet::new);
+    }
+
     public void createThread(@NotNull MongoProvider mongo, @NotNull Message message) {
         // Check ignoredPhrases
         final String content = message.getContentRaw().toLowerCase().trim();
-        for (final String ignoredPhrase : ignoredPhrases) if (content.contains(ignoredPhrase)) return;
+        for (final String ignoredPhrase : ignoredPhrases()) if (content.contains(ignoredPhrase)) return;
 
         // Check ignoredRoles
-        if (!ignoredRoles.isEmpty()) {
+        final Set<Long> ignoredRolesNonNull = ignoredRoles();
+        if (!ignoredRolesNonNull.isEmpty()) {
             final Member member = message.getMember();
-            final Set<Role> ignoredRolesSet = ignoredRoles(message.getJDA());
-            if (member == null || ignoredRolesSet == null || !Collections.disjoint(ignoredRolesSet, member.getRoles())) return;
+            if (member == null) return;
+
+            // Get member roles IDs
+            final Set<Long> memberRoles = new HashSet<>();
+            for (final Role role : member.getRoles()) memberRoles.add(role.getIdLong());
+
+            // Check for intersection
+            if (!Collections.disjoint(ignoredRolesNonNull, memberRoles)) return;
         }
 
         // Create thread
