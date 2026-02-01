@@ -5,7 +5,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 
@@ -20,7 +19,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class WelcomeRemove extends ApplicationCommand {
+public class WelcomeRemove {
     @NotNull private final MongoProvider mongo;
 
     public WelcomeRemove(@NotNull MongoProvider mongo) {

@@ -5,7 +5,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -47,7 +46,7 @@ import java.util.stream.Collectors;
 
 
 @Command
-public class LockingLock extends ApplicationCommand {
+public class LockingLock {
     @NotNull private final MongoProvider mongo;
     @NotNull private final Buttons buttons;
     @NotNull private final SelectMenus selectMenus;

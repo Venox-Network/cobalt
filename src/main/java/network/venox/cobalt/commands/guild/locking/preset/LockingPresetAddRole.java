@@ -5,7 +5,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -27,7 +26,7 @@ import xyz.srnyx.magicmongo.MagicCollection;
 
 
 @Command
-public class LockingPresetAddRole extends ApplicationCommand {
+public class LockingPresetAddRole {
     @NotNull private final MongoProvider mongo;
 
     public LockingPresetAddRole(@NotNull MongoProvider mongo) {

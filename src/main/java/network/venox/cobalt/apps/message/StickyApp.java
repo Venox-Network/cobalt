@@ -4,7 +4,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
 import io.github.freya022.botcommands.api.commands.application.context.message.GuildMessageEvent;
@@ -21,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 @Command
-public class StickyApp extends ApplicationCommand {
+public class StickyApp {
     @NotNull private final MongoProvider mongo;
 
     public StickyApp(@NotNull MongoProvider mongo) {

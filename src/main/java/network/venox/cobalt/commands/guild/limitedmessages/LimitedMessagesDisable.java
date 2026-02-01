@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -24,7 +23,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class LimitedMessagesDisable extends ApplicationCommand {
+public class LimitedMessagesDisable {
     @NotNull private final MongoProvider mongo;
 
     public LimitedMessagesDisable(@NotNull MongoProvider mongo) {

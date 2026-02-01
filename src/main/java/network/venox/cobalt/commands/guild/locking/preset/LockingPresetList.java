@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -27,7 +26,7 @@ import java.util.Set;
 
 
 @Command
-public class LockingPresetList extends ApplicationCommand {
+public class LockingPresetList {
     @NotNull private final MongoProvider mongo;
 
     public LockingPresetList(@NotNull MongoProvider mongo) {

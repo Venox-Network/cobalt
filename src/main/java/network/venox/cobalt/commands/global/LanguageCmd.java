@@ -6,8 +6,8 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.CommandPath;
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
+import io.github.freya022.botcommands.api.commands.application.SlashOptionChoiceProvider;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -30,7 +30,7 @@ import java.util.List;
 
 
 @Command
-public class LanguageCmd extends ApplicationCommand {
+public class LanguageCmd implements SlashOptionChoiceProvider {
     @NotNull private static final List<Choice> LANGUAGE_CHOICES = Translate.LANGUAGES.stream()
             .map(language -> {
                 final String name = language.name();

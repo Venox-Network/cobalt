@@ -2,7 +2,6 @@ package network.venox.cobalt.commands.guild.thread.ignored;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -25,7 +24,7 @@ import java.util.Set;
 
 
 @Command
-public class ThreadIgnoredList extends ApplicationCommand {
+public class ThreadIgnoredList  {
     @NotNull private final MongoProvider mongo;
 
     public ThreadIgnoredList(@NotNull MongoProvider mongo) {

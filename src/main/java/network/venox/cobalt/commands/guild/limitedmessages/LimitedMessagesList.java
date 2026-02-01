@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -23,7 +22,7 @@ import java.util.List;
 
 
 @Command
-public class LimitedMessagesList extends ApplicationCommand {
+public class LimitedMessagesList {
     @NotNull private final MongoProvider mongo;
 
     public LimitedMessagesList(@NotNull MongoProvider mongo) {

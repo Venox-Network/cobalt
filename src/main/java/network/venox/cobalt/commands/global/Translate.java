@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
 import io.github.freya022.botcommands.api.commands.application.context.message.GlobalMessageEvent;
@@ -37,7 +36,7 @@ import java.util.Map;
 
 
 @Command
-public class Translate extends ApplicationCommand {
+public class Translate {
     @NotNull private static final String MENU_TRANSLATE_LANGUAGE = "TranslateMenu.translateLanguage";
     @NotNull public static final List<Language> LANGUAGES = List.of(
             Language.ENGLISH, Language.SPANISH, Language.FRENCH, Language.GERMAN, Language.TURKISH,

@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global.afk;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -20,7 +19,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class AfkGet extends ApplicationCommand {
+public class AfkGet {
     @NotNull private final MongoProvider mongo;
 
     public AfkGet(@NotNull MongoProvider mongo) {

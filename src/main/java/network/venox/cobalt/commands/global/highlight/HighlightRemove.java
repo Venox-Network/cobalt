@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 
 @Command
-public class HighlightRemove extends ApplicationCommand {
+public class HighlightRemove {
     @NotNull private static final String AC_REMOVE_WORDS = "HighlightCmd.removeCommand.word";
 
     @NotNull private final MongoProvider mongo;

@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -32,7 +31,7 @@ import java.util.List;
 
 
 @Command
-public class ReactSet extends ApplicationCommand {
+public class ReactSet {
     @NotNull private final MongoProvider mongo;
 
     public ReactSet(@NotNull MongoProvider mongo) {

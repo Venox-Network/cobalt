@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -52,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 
 @Command
-public class Embed extends ApplicationCommand {
+public class Embed {
     @NotNull private static final String BUTTON_EXPORT = "EmbedCmd.button.export";
     @NotNull private static final String BUTTON_SEND = "EmbedCmd.button.send";
     @NotNull private static final String MENU_FIELD = "EmbedCmd.menu.field";

@@ -1,6 +1,5 @@
 package network.venox.cobalt.commands.guild.locking;
 
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.autocomplete.annotations.AutocompleteHandler;
 import io.github.freya022.botcommands.api.core.annotations.Handler;
@@ -23,7 +22,7 @@ import java.util.*;
 
 
 @Handler
-public class LockingCommon extends ApplicationCommand {
+public class LockingCommon {
     @NotNull public static final String AC_PRESET = "LockingLock.ac.preset";
     @NotNull public static final Set<Permission> PERMISSIONS = Set.of(Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION, Permission.CREATE_PUBLIC_THREADS, Permission.CREATE_PRIVATE_THREADS, Permission.MESSAGE_SEND_IN_THREADS);
 

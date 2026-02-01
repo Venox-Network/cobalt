@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -17,7 +16,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class Invite extends ApplicationCommand {
+public class Invite {
     @NotNull private final CoConfig config;
 
     public Invite(@NotNull CoConfig config) {

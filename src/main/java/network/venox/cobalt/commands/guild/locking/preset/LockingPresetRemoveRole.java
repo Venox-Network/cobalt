@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -34,7 +33,7 @@ import java.util.*;
 
 
 @io.github.freya022.botcommands.api.commands.annotations.Command
-public class LockingPresetRemoveRole extends ApplicationCommand {
+public class LockingPresetRemoveRole {
     @NotNull private static final String AC_ROLE = "LockingPresetRemoveRole.ac.role";
 
     @NotNull private final MongoProvider mongo;

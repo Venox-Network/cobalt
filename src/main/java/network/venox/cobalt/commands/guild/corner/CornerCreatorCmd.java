@@ -2,7 +2,6 @@ package network.venox.cobalt.commands.guild.corner;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -19,7 +18,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class CornerCreatorCmd extends ApplicationCommand {
+public class CornerCreatorCmd {
     @NotNull private final MongoProvider mongo;
 
     public CornerCreatorCmd(@NotNull MongoProvider mongo) {

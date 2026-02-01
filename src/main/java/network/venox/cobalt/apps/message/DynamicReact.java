@@ -1,7 +1,6 @@
 package network.venox.cobalt.apps.message;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
 import io.github.freya022.botcommands.api.commands.application.context.message.GlobalMessageEvent;
@@ -19,7 +18,7 @@ import java.util.List;
 
 
 @Command
-public class DynamicReact extends ApplicationCommand {
+public class DynamicReact {
     @NotNull private final CoConfig config;
 
     public DynamicReact(@NotNull CoConfig config) {

@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -15,7 +14,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class Stop extends ApplicationCommand {
+public class Stop {
     @NotNull private final CoConfig config;
 
     public Stop(@NotNull CoConfig config) {

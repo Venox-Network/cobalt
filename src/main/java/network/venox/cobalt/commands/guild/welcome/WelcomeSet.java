@@ -5,7 +5,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
@@ -28,7 +27,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class WelcomeSet extends ApplicationCommand {
+public class WelcomeSet {
     @NotNull private final MongoProvider mongo;
 
     public WelcomeSet(@NotNull MongoProvider mongo) {

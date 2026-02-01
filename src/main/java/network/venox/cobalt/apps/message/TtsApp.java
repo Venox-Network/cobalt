@@ -1,6 +1,5 @@
 package network.venox.cobalt.apps.message;
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
 import io.github.freya022.botcommands.api.commands.application.context.message.GuildMessageEvent;
@@ -16,7 +15,7 @@ import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 
 @Command
-public class TtsApp extends ApplicationCommand {
+public class TtsApp {
     @JDAMessageCommand(
             scope = CommandScope.GUILD,
             name = "TTS")

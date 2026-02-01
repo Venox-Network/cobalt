@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 
 
 @Command
-public class HighlightAdd extends ApplicationCommand {
+public class HighlightAdd {
     @NotNull private final MongoProvider mongo;
 
     public HighlightAdd(@NotNull MongoProvider mongo) {

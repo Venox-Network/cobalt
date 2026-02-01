@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -22,7 +21,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class AfkDisable extends ApplicationCommand {
+public class AfkDisable {
     @NotNull private final CoConfig config;
     @NotNull private final MongoProvider mongo;
 

@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.guild;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -23,7 +22,7 @@ import java.time.OffsetDateTime;
 
 
 @Command
-public class InviteInfo extends ApplicationCommand {
+public class InviteInfo {
     @TopLevelSlashCommandData(scope = CommandScope.GUILD)
     @JDASlashCommand(
             name = "inviteinfo",

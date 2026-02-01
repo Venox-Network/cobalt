@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -32,7 +31,7 @@ import java.util.stream.Collectors;
 
 
 @Command
-public class Servers extends ApplicationCommand {
+public class Servers {
     @NotNull private static final String AC_SERVERS_USER = "ServersCmd.serversCommand.user";
 
     @NotNull private final LazyLibrary library;

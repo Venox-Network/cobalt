@@ -2,7 +2,6 @@ package network.venox.cobalt.commands.guild.locking;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -31,7 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 
 
 @Command
-public class LockingUnlock extends ApplicationCommand {
+public class LockingUnlock {
     @NotNull private final MongoProvider mongo;
 
     public LockingUnlock(@NotNull MongoProvider mongo) {

@@ -3,7 +3,6 @@ package network.venox.cobalt.commands.guild.react;
 import com.mongodb.client.model.Filters;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
@@ -24,7 +23,7 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class ReactUnset extends ApplicationCommand {
+public class ReactUnset {
     @NotNull private final MongoProvider mongo;
 
     public ReactUnset(@NotNull MongoProvider mongo) {

@@ -1,7 +1,6 @@
 package network.venox.cobalt.commands.global.highlight;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -18,7 +17,7 @@ import java.util.Set;
 
 
 @Command
-public class HighlightList extends ApplicationCommand {
+public class HighlightList {
     @NotNull private final MongoProvider mongo;
 
     public HighlightList(@NotNull MongoProvider mongo) {

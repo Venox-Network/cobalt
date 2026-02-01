@@ -5,7 +5,6 @@ import com.mongodb.client.model.Updates;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -29,7 +28,7 @@ import xyz.srnyx.magicmongo.MagicCollection;
 
 
 @Command
-public class ThreadIgnoredRemove extends ApplicationCommand {
+public class ThreadIgnoredRemove {
     @NotNull private final MongoProvider mongo;
 
     public ThreadIgnoredRemove(@NotNull MongoProvider mongo) {

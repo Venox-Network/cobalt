@@ -1,7 +1,6 @@
 package network.venox.cobalt.apps.message;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.context.annotations.JDAMessageCommand;
 import io.github.freya022.botcommands.api.commands.application.context.message.GlobalMessageEvent;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 
 @Command
-public class Echo extends ApplicationCommand {
+public class Echo {
     @NotNull private final CoConfig config;
 
     public Echo(@NotNull CoConfig config) {

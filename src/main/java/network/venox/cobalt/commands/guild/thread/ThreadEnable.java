@@ -4,7 +4,6 @@ import com.mongodb.client.model.Filters;
 
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
@@ -29,7 +28,7 @@ import xyz.srnyx.magicmongo.MagicCollection;
 
 
 @Command
-public class ThreadEnable extends ApplicationCommand {
+public class ThreadEnable {
     @NotNull private final MongoProvider mongo;
 
     public ThreadEnable(@NotNull MongoProvider mongo) {

@@ -1,6 +1,5 @@
 package network.venox.cobalt.commands.global;
 
-import io.github.freya022.botcommands.api.commands.application.ApplicationCommand;
 import io.github.freya022.botcommands.api.commands.application.CommandScope;
 import io.github.freya022.botcommands.api.commands.application.slash.GlobalSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
@@ -25,7 +24,7 @@ import java.util.List;
 
 
 @io.github.freya022.botcommands.api.commands.annotations.Command
-public class Leave extends ApplicationCommand {
+public class Leave {
     @NotNull private static final String AC_LEAVE_SERVER = "LeaveCmd.leaveCommand.server";
 
     @NotNull private final LazyLibrary library;
