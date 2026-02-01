@@ -148,6 +148,7 @@ public class MessageListener {
                 .setAuthor(authorName, "https://discord.com/users/" + authorId, author.getEffectiveAvatarUrl())
                 .setFooter("#" + channel.getName() + " in " + guild.getName(), guild.getIconUrl())
                 .setTimestamp(message.getTimeCreated());
+        LazyLibrary.LOGGER.info("Requesting past 4 messages for highlights embed...");
         final List<Message> history = new ArrayList<>(message.getChannel().getHistoryBefore(message, 4).complete().getRetrievedHistory());
         Collections.reverse(history);
         for (final Message histMsg : history) embedForFactory.addField(new MessageEmbed.Field(histMsg.getAuthor().getName(), StringUtility.shorten(histMsg.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false));
@@ -185,6 +186,11 @@ public class MessageListener {
             // Check highlights
             for (final String highlight : otherCoUser.highlights) {
                 if (!displayLowerNoURLs.contains(highlight)) continue;
+
+                // Get highlight index in raw content
+                final int index = rawLower.indexOf(highlight);
+                if (index == -1) continue; // Edge case: removing URLs somehow formed/created highlight
+
                 guild.retrieveMemberById(otherCoUser.id).queue(coMember -> {
                     // Check if in audio channel
                     final GuildVoiceState voiceState = coMember.getVoiceState();
@@ -195,7 +201,7 @@ public class MessageListener {
 
                     // Add to cooldowns
                     CoUser.HIGHLIGHT_COOLDOWNS
-                            .computeIfAbsent(otherCoUser.id, v -> new HashMap<>())
+                            .computeIfAbsent(otherCoUser.id, _ -> new HashMap<>())
                             .put(guildId, newCooldown);
 
                     // Create embed
@@ -209,7 +215,6 @@ public class MessageListener {
 
                     // Highlighted message (snippet if too long)
                     final String value;
-                    final int index = rawLower.indexOf(highlight);
                     final int highlightLength = highlight.length();
                     final String linkedHighlight = "[" + rawContent.substring(index, index + highlightLength) + "](" + jumpUrl + ")";
                     if (rawLength > MessageEmbed.VALUE_MAX_LENGTH) {
