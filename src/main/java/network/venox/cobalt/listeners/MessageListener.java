@@ -47,7 +47,6 @@ public class MessageListener {
     @BEventListener
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User author = event.getAuthor();
-        if (author.isBot()) return;
         final ChannelType channelType = event.getChannel().getType();
         if (channelType == ChannelType.PRIVATE) return;
         final boolean isTextChannel = channelType == ChannelType.TEXT;
@@ -90,6 +89,13 @@ public class MessageListener {
 
         if (author.isSystem()) return;
 
+        // Auto-thread channel
+        if (!isLocked) mongo.database.getMagicCollection(AutoThread.class)
+                .findOne("_id", channelId)
+                .ifPresent(threadChannel -> threadChannel.createThread(mongo, message));
+
+        if (author.isBot()) return;
+
         // Slowmode
         final long authorId = author.getIdLong();
         final long now = System.currentTimeMillis();
@@ -99,16 +105,11 @@ public class MessageListener {
                     .findOne("_id", channel.getIdLong())
                     .ifPresent(slowmode -> {
                         AutoSlowmode.ACTIVE_USERS
-                                .computeIfAbsent(channelId, v -> new HashMap<>())
+                                .computeIfAbsent(channelId, _ -> new HashMap<>())
                                 .put(authorId, now);
                         slowmode.setSlowmode(mongo, textChannel);
                     });
         }
-
-        // Auto-thread channel
-        if (!isLocked) mongo.database.getMagicCollection(AutoThread.class)
-                .findOne("_id", channelId)
-                .ifPresent(threadChannel -> threadChannel.createThread(mongo, message));
 
         // Limited messages
         mongo.database.getMagicCollection(LimitedMessages.class)
