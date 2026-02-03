@@ -82,11 +82,6 @@ public class MessageListener {
                 .findOne("_id", channelId)
                 .ifPresent(reactChannel -> reactChannel.addReactions(message));
 
-        // Sticky message
-        if (!isLocked) mongo.database.getMagicCollection(StickyMessage.class)
-                .findOne("_id", channelId)
-                .ifPresent(stickyMessage -> stickyMessage.send(mongo, channel));
-
         if (author.isSystem()) return;
 
         // Auto-thread channel
@@ -95,6 +90,11 @@ public class MessageListener {
                 .ifPresent(threadChannel -> threadChannel.createThread(mongo, message));
 
         if (author.isBot()) return;
+
+        // Sticky message
+        if (!isLocked) mongo.database.getMagicCollection(StickyMessage.class)
+                .findOne("_id", channelId)
+                .ifPresent(stickyMessage -> stickyMessage.send(mongo, channel));
 
         // Slowmode
         final long authorId = author.getIdLong();
