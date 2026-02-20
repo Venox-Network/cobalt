@@ -43,14 +43,16 @@ public class MessageListener {
     @NotNull public static final Duration HIGHLIGHT_TIME = Duration.ofMinutes(5);
 
     @NotNull private final MongoProvider mongo;
+    @NotNull private final AutoThread.Manager autoThreadManager;
 
     /**
      * [user ID, [guild ID, next highlight time]]
      */
     @NotNull public final Map<Long, Map<Long, Long>> highlightCooldowns = new HashMap<>();
 
-    public MessageListener(@NotNull MongoProvider mongo) {
+    public MessageListener(@NotNull MongoProvider mongo, @NotNull AutoThread.Manager autoThreadManager) {
         this.mongo = mongo;
+        this.autoThreadManager = autoThreadManager;
     }
 
     @BEventListener
@@ -72,6 +74,7 @@ public class MessageListener {
                 scheduler.cancel(false);
                 Lock.LOCK_FUTURES.remove(channelId);
             }
+
             // Start new scheduler
             final Lock lock = mongo.database.getMagicCollection(Lock.class)
                     .findOne("_id", channelId)
@@ -96,7 +99,7 @@ public class MessageListener {
         // Auto-thread channel
         if (!isLocked) mongo.database.getMagicCollection(AutoThread.class)
                 .findOne("_id", channelId)
-                .ifPresent(threadChannel -> threadChannel.createThread(mongo, message));
+                .ifPresent(autoThread -> autoThreadManager.createThread(autoThread, message));
 
         if (author.isBot()) return;
 

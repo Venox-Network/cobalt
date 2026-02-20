@@ -1,4 +1,5 @@
 package network.venox.cobalt.mongo;
+
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
@@ -7,8 +8,6 @@ import org.jetbrains.annotations.Nullable;
 
 import space.dynomake.libretranslate.Language;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 

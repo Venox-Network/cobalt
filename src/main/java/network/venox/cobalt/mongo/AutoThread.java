@@ -3,11 +3,10 @@ package network.venox.cobalt.mongo;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
+import io.github.freya022.botcommands.api.core.service.annotations.BService;
+
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 
 import network.venox.cobalt.MongoProvider;
@@ -61,6 +60,18 @@ public class AutoThread {
                 .replace("%count%", String.valueOf(count))
                 .replace("%message%", message.getContentRaw());
 
+        if (threadName.isBlank()) {
+            // Try to get from first embed title
+            final List<MessageEmbed> embeds = message.getEmbeds();
+            if (!embeds.isEmpty()) {
+                final String title = embeds.getFirst().getTitle();
+                if (title != null) threadName = title;
+            }
+
+            // Fallback to generic name
+            if (threadName.isBlank()) threadName = "Thread " + count;
+        }
+
         // Shorten
         return StringUtility.shorten(threadName, 100);
     }
@@ -75,29 +86,38 @@ public class AutoThread {
         return Objects.requireNonNullElseGet(ignoredRoles, HashSet::new);
     }
 
-    public void createThread(@NotNull MongoProvider mongo, @NotNull Message message) {
-        // Check ignoredPhrases
-        final String content = message.getContentRaw().toLowerCase().trim();
-        for (final String ignoredPhrase : ignoredPhrases()) if (content.contains(ignoredPhrase)) return;
+    @BService
+    public static class Manager {
+        @NotNull private final MongoProvider mongo;
 
-        // Check ignoredRoles
-        final Set<Long> ignoredRolesNonNull = ignoredRoles();
-        if (!ignoredRolesNonNull.isEmpty()) {
-            final Member member = message.getMember();
-            if (member == null) return;
-
-            // Get member roles IDs
-            final Set<Long> memberRoles = new HashSet<>();
-            for (final Role role : member.getRoles()) memberRoles.add(role.getIdLong());
-
-            // Check for intersection
-            if (!Collections.disjoint(ignoredRolesNonNull, memberRoles)) return;
+        public Manager(@NotNull MongoProvider mongo) {
+            this.mongo = mongo;
         }
 
-        // Create thread
-        message.createThreadChannel(name(message)).queue();
-        mongo.database.getMagicCollection(AutoThread.class).updateOne(
-                Filters.eq("_id", channel),
-                Updates.inc(PROP_COUNT, 1));
+        public void createThread(@NotNull AutoThread thread, @NotNull Message message) {
+            // Check ignoredPhrases
+            final String content = message.getContentRaw().toLowerCase().trim();
+            for (final String ignoredPhrase : thread.ignoredPhrases()) if (content.contains(ignoredPhrase)) return;
+
+            // Check ignoredRoles
+            final Set<Long> ignoredRolesNonNull = thread.ignoredRoles();
+            if (!ignoredRolesNonNull.isEmpty()) {
+                final Member member = message.getMember();
+                if (member == null) return;
+
+                // Get member roles IDs
+                final Set<Long> memberRoles = new HashSet<>();
+                for (final Role role : member.getRoles()) memberRoles.add(role.getIdLong());
+
+                // Check for intersection
+                if (!Collections.disjoint(ignoredRolesNonNull, memberRoles)) return;
+            }
+
+            // Create thread
+            message.createThreadChannel(thread.name(message)).queue();
+            mongo.database.getMagicCollection(AutoThread.class).updateOne(
+                    Filters.eq("_id", thread.channel),
+                    Updates.inc(PROP_COUNT, 1));
+        }
     }
 }
