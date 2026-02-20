@@ -12,7 +12,7 @@ import org.spongepowered.configurate.ConfigurationNode;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyLibrary;
-import xyz.srnyx.lazylibrary.config.LazyChannel;
+import xyz.srnyx.lazylibrary.config.ConfigChannel;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,11 +47,11 @@ public class CoConfig {
 
     public class GuildNode implements Supplier<Guild> {
         public final long id;
-        @NotNull public final LazyChannel<GuildMessageChannel> log;
+        @NotNull public final ConfigChannel<GuildMessageChannel> log;
 
         public GuildNode(@NotNull ConfigurationNode node) {
             this.id = node.node("id").getLong();
-            this.log = new LazyChannel<>(this, node.node("log"));
+            this.log = new ConfigChannel<>(this, node.node("log"));
         }
 
         @Override

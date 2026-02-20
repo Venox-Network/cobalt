@@ -1,4 +1,5 @@
 package network.venox.cobalt.apps.message;
+
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.MongoMessage;
+import network.venox.cobalt.mongo.StickyMessage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,14 +40,12 @@ public class StickyApp {
         final Message message = event.getTarget();
 
         // Upsert and send/edit sticky message
-        mongo.database.getMagicCollection(network.venox.cobalt.mongo.StickyMessage.class)
+        mongo.database.getMagicCollection(StickyMessage.class)
                 .findOneAndUpsert(
                         Filters.and(
                                 Filters.eq("_id", channel.getIdLong()),
-                                Filters.eq(network.venox.cobalt.mongo.StickyMessage.PROP_GUILD, event.getGuild().getIdLong())),
-                        Updates.combine(
-                                Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_MESSAGE, new MongoMessage(message)),
-                                Updates.set(network.venox.cobalt.mongo.StickyMessage.PROP_CURRENT, message.getIdLong())))
+                                Filters.eq(StickyMessage.PROP_GUILD, event.getGuild().getIdLong())),
+                        Updates.set(StickyMessage.PROP_MESSAGE, new MongoMessage(message)))
                 .send(mongo, channel);
 
         // Reply

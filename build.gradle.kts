@@ -16,8 +16,8 @@ setupLazyLibrary(
         group = "network.venox",
         version = "2.0.0",
         description = "A Discord bot for Venox Network"),
-    jdaConfig = DependencyConfig(version = "6.3.0"),
-    lazyLibraryConfig = DependencyConfig(version = "fabec338ba"))
+    jdaConfig = DependencyConfig(version = "6.3.1"),
+    lazyLibraryConfig = DependencyConfig(version = "e9c0b9cf38"))
 magicMongo(config = DependencyConfig(version = "ef0c2370bd"))
 
 repository("https://maven.dynomake.it/releases/") // space.dynomake:libretranslate-java
