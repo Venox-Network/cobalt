@@ -17,12 +17,6 @@ public class CoUser {
     @NotNull public static final String PROP_LANGUAGE = "language";
     @NotNull public static final String PROP_HIGHLIGHTS = "highlights";
 
-    public static final long HIGHLIGHT_TIME = 300000; // in milliseconds, 5 minutes
-    /**
-     * [user ID, [guild ID, next highlight time]]
-     */
-    @NotNull public static final Map<Long, Map<Long, Long>> HIGHLIGHT_COOLDOWNS = new HashMap<>();
-
     @BsonId public long id;
     @BsonProperty(PROP_AFK) public boolean afk;
     @BsonProperty(PROP_LANGUAGE) @Nullable public Language language;

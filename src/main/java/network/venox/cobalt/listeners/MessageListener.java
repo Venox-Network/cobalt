@@ -29,16 +29,25 @@ import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 import xyz.srnyx.magicmongo.MagicCollection;
 
 import java.awt.*;
+import java.time.Duration;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 @BService
 public class MessageListener {
+    @NotNull public static final Duration HIGHLIGHT_TIME = Duration.ofMinutes(5);
+
     @NotNull private final MongoProvider mongo;
+
+    /**
+     * [user ID, [guild ID, next highlight time]]
+     */
+    @NotNull public final Map<Long, Map<Long, Long>> highlightCooldowns = new HashMap<>();
 
     public MessageListener(@NotNull MongoProvider mongo) {
         this.mongo = mongo;
@@ -128,8 +137,8 @@ public class MessageListener {
         // Update highlights cooldown
         final Guild guild = event.getGuild();
         final long guildId = guild.getIdLong();
-        final long newCooldown = now + CoUser.HIGHLIGHT_TIME;
-        CoUser.HIGHLIGHT_COOLDOWNS
+        final long newCooldown = now + HIGHLIGHT_TIME.toMillis();
+        highlightCooldowns
                 .computeIfAbsent(authorId, _ -> new HashMap<>())
                 .put(guildId, newCooldown);
 
@@ -144,17 +153,8 @@ public class MessageListener {
                 .map(ISnowflake::getIdLong)
                 .collect(Collectors.toSet());
 
-        // Get highlights embed factory
-        final LazyEmbed embedForFactory = new LazyEmbed()
-                .setAuthor(authorName, "https://discord.com/users/" + authorId, author.getEffectiveAvatarUrl())
-                .setFooter("#" + channel.getName() + " in " + guild.getName(), guild.getIconUrl())
-                .setTimestamp(message.getTimeCreated());
-        LazyLibrary.LOGGER.info("Requesting past 4 messages for highlights embed...");
-        final List<Message> history = new ArrayList<>(message.getChannel().getHistoryBefore(message, 4).complete().getRetrievedHistory());
-        Collections.reverse(history);
-        for (final Message histMsg : history) embedForFactory.addField(new MessageEmbed.Field(histMsg.getAuthor().getName(), StringUtility.shorten(histMsg.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false));
-        final LazyEmbed.Factory embedFactory = embedForFactory.toFactory();
-
+        // Loop through users with highlights
+        final AtomicReference<LazyEmbed.Factory> embedFactory = new AtomicReference<>();
         for (final CoUser otherCoUser : userCollection.find(Filters.or( // If other features added to this loop, update this filter!
                 Filters.eq(CoUser.PROP_AFK, true),
                 Filters.and(
@@ -175,7 +175,7 @@ public class MessageListener {
             if (otherCoUser.highlights == null || otherCoUser.highlights.isEmpty()) continue;
 
             // Check cooldown
-            final Map<Long, Long> cooldowns = CoUser.HIGHLIGHT_COOLDOWNS.get(otherCoUser.id);
+            final Map<Long, Long> cooldowns = highlightCooldowns.get(otherCoUser.id);
             if (cooldowns != null) {
                 final Long cooldown = cooldowns.get(guildId);
                 if (cooldown != null) {
@@ -201,13 +201,25 @@ public class MessageListener {
                     if (!coMember.hasPermission(channel, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY)) return;
 
                     // Add to cooldowns
-                    CoUser.HIGHLIGHT_COOLDOWNS
+                    highlightCooldowns
                             .computeIfAbsent(otherCoUser.id, _ -> new HashMap<>())
                             .put(guildId, newCooldown);
 
-                    // Create embed
+                    // Create embed factory
+                    if (embedFactory.get() == null) {
+                        final LazyEmbed embedForFactory = new LazyEmbed()
+                                .setAuthor(authorName, "https://discord.com/users/" + authorId, author.getEffectiveAvatarUrl())
+                                .setFooter("#" + channel.getName() + " in " + guild.getName(), guild.getIconUrl())
+                                .setTimestamp(message.getTimeCreated());
+                        final List<Message> history = new ArrayList<>(message.getChannel().getHistoryBefore(message, 4).complete().getRetrievedHistory());
+                        Collections.reverse(history);
+                        for (final Message histMsg : history) embedForFactory.addField(new MessageEmbed.Field(histMsg.getAuthor().getName(), StringUtility.shorten(histMsg.getContentRaw(), MessageEmbed.VALUE_MAX_LENGTH), false));
+                        embedFactory.set(embedForFactory.toFactory());
+                    }
+
+                    // Create new embed from factory
                     final int highlightHash = highlight.hashCode();
-                    final LazyEmbed embed = embedFactory.newEmbed()
+                    final LazyEmbed embed = embedFactory.get().newEmbed()
                             .setColor(new Color( // Generate unique color based on highlight
                                     (highlightHash & 0xFF0000) >> 16,
                                     (highlightHash & 0x00FF00) >> 8,
