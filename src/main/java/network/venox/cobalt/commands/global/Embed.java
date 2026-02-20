@@ -124,10 +124,13 @@ public class Embed {
 
     @JDAButtonListener(BUTTON_SEND)
     public void buttonSend(@NotNull ButtonEvent event) {
-        if (!library.isOwner(event.getUser().getIdLong())) {
-            event.deferEdit().queue();
-            return;
-        }
+        // Defer to acknowledge button interaction
+        event.deferEdit().queue();
+
+        // Check if owner
+        if (!library.isOwner(event.getUser().getIdLong())) return;
+
+        // Send embed
         event.getChannel().sendMessageEmbeds(event.getMessage().getEmbeds().getFirst()).queue();
     }
 
