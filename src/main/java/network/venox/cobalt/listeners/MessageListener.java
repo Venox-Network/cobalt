@@ -57,9 +57,10 @@ public class MessageListener {
 
     @BEventListener
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        final User author = event.getAuthor();
         final ChannelType channelType = event.getChannel().getType();
         if (channelType == ChannelType.PRIVATE) return;
+        final User author = event.getAuthor();
+        final long authorId = author.getIdLong();
         final boolean isTextChannel = channelType == ChannelType.TEXT;
         final GuildMessageChannel channel = event.getGuildChannel();
         final long channelId = channel.getIdLong();
@@ -67,7 +68,7 @@ public class MessageListener {
 
         // Send lock sticky message if no chatting for 5 minutes
         boolean isLocked = false;
-        if (isTextChannel) {
+        if (isTextChannel && authorId != event.getJDA().getSelfUser().getIdLong()) {
             // End existing scheduler
             final ScheduledFuture<?> scheduler = Lock.LOCK_FUTURES.get(channelId);
             if (scheduler != null) {
@@ -109,7 +110,6 @@ public class MessageListener {
                 .ifPresent(stickyMessage -> stickyMessage.send(mongo, channel));
 
         // Slowmode
-        final long authorId = author.getIdLong();
         final long now = System.currentTimeMillis();
         if (isTextChannel) {
             final TextChannel textChannel = (TextChannel) channel;
