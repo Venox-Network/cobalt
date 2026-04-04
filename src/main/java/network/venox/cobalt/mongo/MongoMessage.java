@@ -10,6 +10,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +76,8 @@ public class MongoMessage {
         public Embed() {}
 
         public Embed(@NotNull MessageEmbed embed) {
-            color = embed.getColorRaw();
+            final Color colorJava = embed.getColor();
+            color = colorJava != null ? colorJava.getRGB() : null;
             final MessageEmbed.AuthorInfo authorInfo = embed.getAuthor();
             author = authorInfo != null ? new Embed.Author(authorInfo) : null;
             final String titleText = embed.getTitle();
