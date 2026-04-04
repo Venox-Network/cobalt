@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -65,6 +66,13 @@ public class MessageListener {
         final GuildMessageChannel channel = event.getGuildChannel();
         final long channelId = channel.getIdLong();
         final Message message = event.getMessage();
+
+        // ThreadMessage
+        // Need to listen to MessageReceivedEvent due to "Cannot message this thread until after the post author has sent an initial message."
+        if (channel instanceof ThreadChannel threadChannel && threadChannel.getIdLong() == message.getIdLong()) {
+            mongo.database.getMagicCollection(ThreadMessage.class).findOne("_id", threadChannel.getParentChannel().getIdLong())
+                    .ifPresent(threadMessage -> threadChannel.sendMessage(threadMessage.message.toBuilder().build()).queue());
+        }
 
         // Send lock sticky message if no chatting for 5 minutes
         boolean isLocked = false;

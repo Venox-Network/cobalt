@@ -6,7 +6,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 
-public class ForumMessage {
+public class ThreadMessage {
     @NotNull public static final String PROP_GUILD = "guild";
     @NotNull public static final String PROP_MESSAGE = "message";
 

@@ -1,4 +1,4 @@
-package network.venox.cobalt.commands.guild.forummessage;
+package network.venox.cobalt.commands.guild.threadmessage;
 
 import com.mongodb.client.model.Filters;
 
@@ -11,10 +11,10 @@ import io.github.freya022.botcommands.api.commands.application.slash.annotations
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.TopLevelSlashCommandData;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.IThreadContainer;
 
 import network.venox.cobalt.MongoProvider;
-import network.venox.cobalt.mongo.ForumMessage;
+import network.venox.cobalt.mongo.ThreadMessage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,30 +23,30 @@ import xyz.srnyx.lazylibrary.LazyEmoji;
 
 
 @Command
-public class ForumMessageRemove {
+public class ThreadMessageRemove {
     @NotNull private final MongoProvider mongo;
 
-    public ForumMessageRemove(@NotNull MongoProvider mongo) {
+    public ThreadMessageRemove(@NotNull MongoProvider mongo) {
         this.mongo = mongo;
     }
 
     @TopLevelSlashCommandData(scope = CommandScope.GUILD)
     @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE, Permission.MESSAGE_SEND})
     @JDASlashCommand(
-            name = "forummessage",
+            name = "threadmessage",
             subcommand = "remove",
-            description = "Remove the forum message of a forum channel")
-    public void forumMessageRemove(@NotNull GuildSlashEvent event,
-                                   @SlashOption(description = "The channel ID of the forum channel") @NotNull ForumChannel channel) {
+            description = "Remove the thread message of a thread channel")
+    public void threadMessageRemove(@NotNull GuildSlashEvent event,
+                                   @SlashOption(description = "The channel ID of the thread channel") @NotNull IThreadContainer channel) {
         final String channelMention = channel.getAsMention();
 
-        // Delete forum message if it exists
-        if (mongo.database.getMagicCollection(ForumMessage.class).deleteOne(Filters.eq("_id", channel.getIdLong())).getDeletedCount() == 0) {
-            event.replyEmbeds(LazyEmbed.invalidArgument("channel", channelMention + " does not have a forum message set").build()).setEphemeral(true).queue();
+        // Delete thread message if it exists
+        if (mongo.database.getMagicCollection(ThreadMessage.class).deleteOne(Filters.eq("_id", channel.getIdLong())).getDeletedCount() == 0) {
+            event.replyEmbeds(LazyEmbed.invalidArgument("channel", channelMention + " does not have a thread message set").build()).setEphemeral(true).queue();
             return;
         }
 
         // Reply
-        event.reply(LazyEmoji.YES + " " + channelMention + "'s forum message has been removed").setEphemeral(true).queue();
+        event.reply(LazyEmoji.YES + " " + channelMention + "'s thread message has been removed").setEphemeral(true).queue();
     }
 }
