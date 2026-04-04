@@ -1,7 +1,5 @@
 import xyz.srnyx.gradlegalaxy.data.config.DependencyConfig
 import xyz.srnyx.gradlegalaxy.data.config.JavaSetupConfig
-import xyz.srnyx.gradlegalaxy.enums.Repository
-import xyz.srnyx.gradlegalaxy.enums.repository
 import xyz.srnyx.gradlegalaxy.utility.magicMongo
 import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
 
@@ -17,7 +15,7 @@ setupLazyLibrary(
         group = "network.venox",
         version = "2.0.0",
         description = "A Discord bot for Venox Network"),
-    jdaConfig = DependencyConfig(version = "6.4.0"),
+    jdaConfig = DependencyConfig(version = "6.4.1"),
     lazyLibraryConfig = DependencyConfig(version = "4733f172b8"))
 magicMongo(config = DependencyConfig(version = "ef0c2370bd"))
 
