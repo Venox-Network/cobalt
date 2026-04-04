@@ -209,7 +209,7 @@ public class Embed {
 
     @ModalHandler(MODAL_COLOR)
     public void modalColor(@NotNull ModalEvent event,
-                           @ModalInput("color") @NotNull String color) {
+                           @ModalInput("color") @Nullable String color) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -233,9 +233,9 @@ public class Embed {
 
     @ModalHandler(MODAL_AUTHOR)
     public void modalAuthor(@NotNull ModalEvent event,
-                            @ModalInput("authorName") @NotNull String authorName,
-                            @ModalInput("authorUrl") @NotNull String authorUrl,
-                            @ModalInput("authorIconUrl") @NotNull String authorIconUrl) {
+                            @ModalInput("authorName") @Nullable String authorName,
+                            @ModalInput("authorUrl") @Nullable String authorUrl,
+                            @ModalInput("authorIconUrl") @Nullable String authorIconUrl) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -255,8 +255,8 @@ public class Embed {
 
     @ModalHandler(MODAL_TITLE)
     public void modalTitle(@NotNull ModalEvent event,
-                           @ModalInput("titleText") @NotNull String titleText,
-                           @ModalInput("titleUrl") @NotNull String titleUrl) {
+                           @ModalInput("titleText") @Nullable String titleText,
+                           @ModalInput("titleUrl") @Nullable String titleUrl) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -276,7 +276,7 @@ public class Embed {
 
     @ModalHandler(MODAL_DESCRIPTION)
     public void modalDescription(@NotNull ModalEvent event,
-                                 @ModalInput("description") @NotNull String description) {
+                                 @ModalInput("description") @Nullable String description) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message != null) editEmbed(event, new EmbedBuilder(message.getEmbeds().getFirst()).setDescription(description));
@@ -286,7 +286,7 @@ public class Embed {
     public void modalField(@NotNull ModalEvent event,
                            @ModalInput("fieldName") @NotNull String fieldName,
                            @ModalInput("fieldValue") @NotNull String fieldValue,
-                           @ModalInput("fieldInline") @NotNull String fieldInline) {
+                           @ModalInput("fieldInline") @Nullable String fieldInline) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message != null) editEmbed(event, new EmbedBuilder(message.getEmbeds().getFirst()).addField(fieldName, fieldValue, Boolean.parseBoolean(fieldInline)));
@@ -294,8 +294,8 @@ public class Embed {
 
     @ModalHandler(MODAL_MEDIA)
     public void modalMedia(@NotNull ModalEvent event,
-                           @ModalInput("thumbnail") @NotNull String thumbnail,
-                           @ModalInput("image") @NotNull String image) {
+                           @ModalInput("thumbnail") @Nullable String thumbnail,
+                           @ModalInput("image") @Nullable String image) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -323,9 +323,9 @@ public class Embed {
 
     @ModalHandler(MODAL_FOOTER)
     public void modalFooter(@NotNull ModalEvent event,
-                            @ModalInput("footerText") @NotNull String footerText,
-                            @ModalInput("footerIconUrl") @NotNull String footerIconUrl,
-                            @ModalInput("timestamp") @NotNull String timestamp) {
+                            @ModalInput("footerText") @Nullable String footerText,
+                            @ModalInput("footerIconUrl") @Nullable String footerIconUrl,
+                            @ModalInput("timestamp") @Nullable String timestamp) {
         event.deferEdit().queue();
         final Message message = event.getMessage();
         if (message == null) return;
@@ -374,8 +374,8 @@ public class Embed {
     }
 
     @Nullable
-    private String processInput(@NotNull String input) {
-        return input.isEmpty() || input.equalsIgnoreCase("null") ? null : input;
+    private String processInput(@Nullable String input) {
+        return input == null || input.isEmpty() || input.equalsIgnoreCase("null") ? null : input;
     }
 
     private void error(@NotNull ModalEvent event, @NotNull String parameter, @Nullable String value) {
