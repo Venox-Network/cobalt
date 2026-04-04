@@ -40,12 +40,12 @@ public class MongoMessage {
     public MessageCreateBuilder toBuilder() {
         final MessageCreateBuilder builder = new MessageCreateBuilder();
         builder.setContent(content);
-        builder.setEmbeds(getEmbeds());
+        builder.setEmbeds(toMessageEmbeds());
         return builder;
     }
 
     @NotNull
-    public List<MessageEmbed> getEmbeds() {
+    public List<MessageEmbed> toMessageEmbeds() {
         if (embeds == null) return Collections.emptyList();
         final List<MessageEmbed> list = new ArrayList<>();
         for (final Embed embed : embeds) list.add(embed.build());
