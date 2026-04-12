@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - java
+      - botcommands-v3
     paths:
       - 'gradle/**'
       - 'src/**'
@@ -17,4 +17,4 @@ jobs:
     uses: srnyx/tools/.github/workflows/build.yml@main
     with:
       name: Cobalt
-      java: 21
+      java: 22
