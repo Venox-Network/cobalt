@@ -18,6 +18,8 @@ import network.venox.cobalt.mongo.Lock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.manipulation.Mapper;
+
 import xyz.srnyx.lazylibrary.LazyEmoji;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
@@ -25,6 +27,7 @@ import xyz.srnyx.magicmongo.MagicCollection;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
@@ -61,8 +64,9 @@ public class LockingUnlock {
         final Guild guild = channel.getGuild();
         for (final Map.Entry<String, Lock.PreviousPermissions> entry : lock.previousPermissions.entrySet()) {
             // Get override
-            final long roleId = Long.parseLong(entry.getKey());
-            final Role role = guild.getRoleById(roleId);
+            final Optional<Long> roleId = Mapper.toLong(entry.getKey());
+            if (roleId.isEmpty()) continue;
+            final Role role = guild.getRoleById(roleId.get());
             if (role == null) continue;
             final PermissionOverride override = channel.getPermissionOverride(role);
             if (override == null) continue;
