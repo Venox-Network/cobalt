@@ -23,7 +23,7 @@ import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.javautilities.StringUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 

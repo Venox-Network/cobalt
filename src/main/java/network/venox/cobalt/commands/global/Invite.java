@@ -12,7 +12,7 @@ import network.venox.cobalt.CoConfig;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 
 @Command

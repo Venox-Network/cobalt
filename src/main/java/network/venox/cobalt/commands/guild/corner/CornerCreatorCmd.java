@@ -14,7 +14,7 @@ import network.venox.cobalt.mongo.CornerCreator;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 
 @Command

@@ -25,7 +25,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.*;
 
@@ -72,8 +72,8 @@ public class Corner {
         // Toggle lock button
         rows.add(ActionRow.of(
                 buttons.of(data.isLocked(channel)
-                                ? LazyEmoji.UNLOCK_CLEAR_DARK.getButtonContent(ButtonStyle.SUCCESS, "Unlock")
-                                : LazyEmoji.LOCK_CLEAR_DARK.getButtonContent(ButtonStyle.DANGER, "Lock")).persistent()
+                                ? LazyEmoji.getButtonContent(LazyEmoji.UNLOCK_CLEAR_DARK, ButtonStyle.SUCCESS, "Unlock")
+                                : LazyEmoji.getButtonContent(LazyEmoji.LOCK_CLEAR_DARK, ButtonStyle.DANGER, "Lock")).persistent()
                         .bindTo(CornerComponents.LOCK_BUTTON)
                         .constraints(constraints)
                         .build()));

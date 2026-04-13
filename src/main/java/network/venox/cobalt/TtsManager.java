@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import xyz.srnyx.javautilities.FileUtility;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import javax.sound.sampled.AudioFileFormat;
 

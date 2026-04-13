@@ -17,7 +17,7 @@ import network.venox.cobalt.mongo.Server;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.Map;
 import java.util.Objects;

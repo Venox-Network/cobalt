@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.Optional;
 

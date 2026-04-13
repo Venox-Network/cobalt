@@ -22,7 +22,7 @@ import network.venox.cobalt.mongo.Corner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.ArrayList;
 import java.util.List;

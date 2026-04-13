@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import java.time.OffsetDateTime;

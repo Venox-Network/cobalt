@@ -20,7 +20,7 @@ import org.bson.conversions.Bson;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import xyz.srnyx.magicmongo.MagicCollection;
 

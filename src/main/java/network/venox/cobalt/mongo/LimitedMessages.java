@@ -16,7 +16,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -29,7 +29,7 @@ import space.dynomake.libretranslate.Translator;
 
 import xyz.srnyx.javautilities.MapGenerator;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.List;
 import java.util.Map;

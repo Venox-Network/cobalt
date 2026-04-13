@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import space.dynomake.libretranslate.Language;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.util.List;
 

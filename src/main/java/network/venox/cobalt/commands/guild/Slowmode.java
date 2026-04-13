@@ -22,7 +22,7 @@ import network.venox.cobalt.mongo.AutoSlowmode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import xyz.srnyx.lazylibrary.LazyEmoji;
+import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import xyz.srnyx.magicmongo.MagicCollection;
 
