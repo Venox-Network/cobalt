@@ -17,4 +17,4 @@ jobs:
     uses: srnyx/tools/.github/workflows/build.yml@main
     with:
       name: Cobalt
-      java: 22
+      java: 26
