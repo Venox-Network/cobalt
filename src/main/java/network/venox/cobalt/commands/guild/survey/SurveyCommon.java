@@ -192,7 +192,7 @@ public class SurveyCommon {
         actionRow.add(buttons.of(
                         survey.open ? ButtonStyle.DANGER : ButtonStyle.SUCCESS,
                         survey.open ? "Close" : "Open",
-                        survey.open ? LazyEmoji.LOCK_CLEAR_DARK.emoji() : LazyEmoji.UNLOCK_CLEAR_DARK.emoji()).ephemeral()
+                        survey.open ? LazyEmoji.LOCK_CLEAR_DARK : LazyEmoji.UNLOCK_CLEAR_DARK).ephemeral()
                 .bindTo(toggle -> {
                     // Check if there's any questions
                     if (survey.questions.isEmpty()) {
@@ -210,7 +210,7 @@ public class SurveyCommon {
                 .build());
 
         // Re-send panel button
-        if (survey.panel != null) actionRow.add(buttons.secondary("Re-send panel", LazyEmoji.CHAT_CLEAR.emoji()).ephemeral()
+        if (survey.panel != null) actionRow.add(buttons.secondary("Re-send panel", LazyEmoji.CHAT_CLEAR).ephemeral()
                 .bindTo(reSendPanel -> {
                     // Delete old panel (if exist)
                     deletePanel(reSendPanel, survey);
@@ -226,7 +226,7 @@ public class SurveyCommon {
                 .build());
 
         // Unset notification channel button
-        if (survey.notificationChannel != null) actionRow.add(buttons.danger("Unset notification channel", LazyEmoji.TRASH_CLEAR_DARK.emoji()).ephemeral()
+        if (survey.notificationChannel != null) actionRow.add(buttons.danger("Unset notification channel", LazyEmoji.TRASH_CLEAR_DARK).ephemeral()
                 .bindTo(button -> {
                     survey.notificationChannel = null;
                     mongo.database.getMagicCollection(Survey.class).upsertOne(

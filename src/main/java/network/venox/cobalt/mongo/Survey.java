@@ -131,7 +131,7 @@ public class Survey {
         public SelectOption toSelectOption() {
             return SelectOption.of(StringUtility.shorten(name, SelectOption.LABEL_MAX_LENGTH), String.valueOf(id))
                     .withDescription(StringUtility.shortenElseNull(description, SelectOption.DESCRIPTION_MAX_LENGTH))
-                    .withEmoji(LazyEmoji.QUESTION_CLEAR.emoji());
+                    .withEmoji(LazyEmoji.QUESTION_CLEAR);
         }
 
         @NotNull

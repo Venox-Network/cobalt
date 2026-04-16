@@ -101,7 +101,7 @@ public class LockingLock {
                                         .collect(Collectors.toSet()))
                                 .build()),
                         ActionRow.of(
-                                buttons.success("Done, lock channel", LazyEmoji.YES_CLEAR.emoji()).ephemeral().bindTo(done -> {
+                                buttons.success("Done, lock channel", LazyEmoji.YES_CLEAR).ephemeral().bindTo(done -> {
                                     final List<RestAction<?>> actions = new ArrayList<>();
 
                                     // Get existing previous permissions from existing lock
@@ -173,7 +173,7 @@ public class LockingLock {
                                 })
                                         .constraints(constraints)
                                         .build(),
-                                buttons.danger("Cancel, don't lock channel", LazyEmoji.NO_CLEAR_DARK.emoji())
+                                buttons.danger("Cancel, don't lock channel", LazyEmoji.NO_CLEAR_DARK)
                                         .ephemeral()
                                         .constraints(constraints)
                                         .bindTo(cancel -> cancel.editMessage(LazyEmoji.YES + " Cancelled channel locking!").setComponents().queue())
