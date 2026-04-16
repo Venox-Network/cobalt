@@ -17,6 +17,8 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.StringUtility;
+
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
 import java.awt.*;
@@ -127,15 +129,15 @@ public class Survey {
 
         @NotNull
         public SelectOption toSelectOption() {
-            return SelectOption.of(name, String.valueOf(id))
-                    .withDescription(description)
+            return SelectOption.of(StringUtility.shorten(name, SelectOption.LABEL_MAX_LENGTH), String.valueOf(id))
+                    .withDescription(StringUtility.shortenElseNull(description, SelectOption.DESCRIPTION_MAX_LENGTH))
                     .withEmoji(LazyEmoji.QUESTION_CLEAR.emoji());
         }
 
         @NotNull
         public Label toLabel(@Nullable String value) {
             return Label.of(name, TextInput.create(String.valueOf(id), TextInputStyle.PARAGRAPH)
-                            .setPlaceholder(placeholder)
+                            .setPlaceholder(StringUtility.shortenElseNull(placeholder, TextInput.MAX_PLACEHOLDER_LENGTH))
                             .setValue(value)
                             .build())
                     .withDescription(description);

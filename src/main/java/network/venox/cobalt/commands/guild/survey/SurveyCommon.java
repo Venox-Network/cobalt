@@ -56,6 +56,7 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.StringUtility;
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
@@ -117,9 +118,9 @@ public class SurveyCommon {
         builder.addComponents(ActionRow.of(menus.stringSelectMenu().ephemeral()
                 .bindTo(menu -> {
                     final String selected = menu.getSelectedOptions().getFirst().getValue();
-                    final Survey.Question existing = selected.equals("add") ? null : Mapper.toInt(selected)
-                                                                                     .map(index -> survey.questions.get(index))
-                                                                                     .orElse(null);
+                    final Survey.Question existing = !selected.equals("add") ? Mapper.toInt(selected)
+                                                                               .map(index -> survey.questions.get(index))
+                                                                               .orElse(null) : null;
                     menu.replyModal(modals.create(existing != null ? "Edit question" : "Add question")
                             .bindTo(MODAL_QUESTION, survey.id.toHexString(), existing != null ? existing.id : null)
                             .addComponents(
@@ -333,6 +334,7 @@ public class SurveyCommon {
                               @ModalInput(FIELD_QUESTION_PLACEHOLDER) @Nullable String placeholder,
                               @ModalData @NotNull String surveyId,
                               @ModalData @Nullable Integer questionId) {
+        // Get Sruvey
         final Bson filter = Filters.eq("_id", new ObjectId(surveyId));
         final Survey survey = mongo.database.getMagicCollection(Survey.class)
                 .findOne(filter)
@@ -341,6 +343,14 @@ public class SurveyCommon {
             event.reply(LazyEmoji.NO + " Survey not found!").setEphemeral(true).queue();
             return;
         }
+
+        // Handle blanks
+        if (StringUtility.isBlank(name)) {
+            event.reply(LazyEmoji.NO + " Question name cannot be blank!").setEphemeral(true).queue();
+            return;
+        }
+        if (StringUtility.isBlank(description)) description = null;
+        if (StringUtility.isBlank(placeholder)) placeholder = null;
 
         if (questionId != null) {
             // Edit existing question
