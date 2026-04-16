@@ -56,6 +56,8 @@ import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import xyz.srnyx.javautilities.manipulation.Mapper;
+
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
@@ -115,7 +117,9 @@ public class SurveyCommon {
         builder.addComponents(ActionRow.of(menus.stringSelectMenu().ephemeral()
                 .bindTo(menu -> {
                     final String selected = menu.getSelectedOptions().getFirst().getValue();
-                    final Survey.Question existing = selected.equals("add") ? null : survey.questions.get(Integer.parseInt(selected));
+                    final Survey.Question existing = selected.equals("add") ? null : Mapper.toInt(selected)
+                                                                                     .map(index -> survey.questions.get(index))
+                                                                                     .orElse(null);
                     menu.replyModal(modals.create(existing != null ? "Edit question" : "Add question")
                             .bindTo(MODAL_QUESTION, survey.id.toHexString(), existing != null ? existing.id : null)
                             .addComponents(
