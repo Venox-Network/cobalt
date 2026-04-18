@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.modals.Modal;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -127,7 +128,7 @@ public class SurveyCommon {
                     menu.replyModal(modals.create(editing ? "Edit question" : "Add question")
                             .bindTo(MODAL_QUESTION, survey.id.toHexString(), editing ? existing.id.toHexString() : null)
                             .addComponents(
-                                    Label.of("Name", editing ? "Unset this field and Submit to remove question" : null, TextInput.create(FIELD_QUESTION_NAME, TextInputStyle.SHORT)
+                                    Label.of("Name", editing ? "Unset this field and Submit to remove question (NOT RECOMMENDED, undefined behavior!)" : null, TextInput.create(FIELD_QUESTION_NAME, TextInputStyle.SHORT)
                                             .setRequired(false)
                                             .setMaxLength(Label.LABEL_MAX_LENGTH)
                                             .setValue(editing ? existing.name : null)
@@ -298,7 +299,7 @@ public class SurveyCommon {
                 .orElse(null)));
 
         // Reply with response modal
-        event.replyModal(modals.create(survey.name)
+        event.replyModal(modals.create(StringUtility.shorten(survey.name, Modal.MAX_TITLE_LENGTH))
                 .bindTo(SurveyCommon.MODAL_RESPOND, survey.id.toHexString())
                 .addComponents(components)
                 .build()).queue();

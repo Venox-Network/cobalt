@@ -14,7 +14,9 @@ import network.venox.cobalt.mongo.Survey;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
+import xyz.srnyx.javautilities.StringUtility;
+
+import xyz.srnyx.lazylibrary.LazyEmbed;
 
 
 @Command
@@ -38,7 +40,13 @@ public class SurveyCreate {
 
         // Check permissions
         if (!member.hasPermission(SurveyCommon.REQUIRED_PERMISSION)) {
-            event.reply(LazyEmoji.NO + " You don't have permission to create surveys!").setEphemeral(true).queue();
+            event.replyEmbeds(LazyEmbed.noPermission().build()).setEphemeral(true).queue();
+            return;
+        }
+
+        // Check if name blank
+        if (StringUtility.isBlank(name)) {
+            event.replyEmbeds(LazyEmbed.invalidArgument("name", name, "Cannot be blank").build()).setEphemeral(true).queue();
             return;
         }
 
