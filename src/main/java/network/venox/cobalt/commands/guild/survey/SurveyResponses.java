@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.components.container.Container;
 import net.dv8tion.jda.api.components.replacer.ComponentReplacer;
 import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 
+import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
 
@@ -18,7 +19,6 @@ import org.bson.types.ObjectId;
 
 import org.jetbrains.annotations.NotNull;
 
-import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
@@ -27,7 +27,6 @@ import xyz.srnyx.lazylibrary.paginator.PaginatorV2;
 import xyz.srnyx.lazylibrary.paginator.PaginatorsV2;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -56,7 +55,7 @@ public class SurveyResponses {
         }
 
         // Get ObjectId
-        final ObjectId objectId = MiscUtility.handleException(() -> new ObjectId(id)).orElse(null);
+        final ObjectId objectId = CoUtility.toObjectId(id).orElse(null);
         if (objectId == null) {
             event.replyEmbeds(LazyEmbed.invalidArgument("id", id, "Not a valid ObjectId").build()).setEphemeral(true).queue();
             return;
@@ -79,12 +78,13 @@ public class SurveyResponses {
             return;
         }
 
+        // Sort newest first
+        final List<Survey.Response> responses = new ArrayList<>(survey.responses);
+        responses.sort((a, b) -> b.created.compareTo(a.created));
+
         // Build Containers
         final List<Container> containers = new ArrayList<>();
-        for (final Survey.Response response : survey.responses.values()) containers.add(response.toContainer(survey).withAccentColor(Mapper.toColor(response.user)).withUniqueId(ID_RESPONSE));
-
-        // Reverse order (newest first)
-        Collections.reverse(containers);
+        for (final Survey.Response response : responses) containers.add(response.toContainer().withAccentColor(Mapper.toColor(response.user)).withUniqueId(ID_RESPONSE));
 
         // Send paginator
         final PaginatorV2 paginator = paginators.createPaginator(
@@ -93,7 +93,7 @@ public class SurveyResponses {
         event.replyComponents(
                         containers.getFirst(),
                         Container.of(
-                                        TextDisplay.of("## " + survey.name + "\n**Responses:** " + survey.responses.size() + "\n**Status:** " + (survey.open ? "Open" : "Closed")),
+                                        TextDisplay.of("## " + survey.name + "\n**Responses:** " + responses.size() + "\n**Status:** " + (survey.open ? "Open" : "Closed")),
                                         paginator.getButtonRow())
                                 .withAccentColor(survey.color()))
                 .useComponentsV2().setEphemeral(true).queue();

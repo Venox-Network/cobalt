@@ -12,15 +12,13 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 
+import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
 
 import org.bson.types.ObjectId;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import xyz.srnyx.javautilities.MiscUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 
@@ -47,7 +45,7 @@ public class SurveyRespond {
     public void surveyRespond(@NotNull GuildSlashEvent event,
                               @SlashOption(description = "The ID of the survey to respond to", autocomplete = AC_ID_OPEN) @NotNull String id) {
         // Get ObjectId
-        final ObjectId objectId = MiscUtility.handleException(() -> new ObjectId(id)).orElse(null);
+        final ObjectId objectId = CoUtility.toObjectId(id).orElse(null);
         if (objectId == null) {
             event.replyEmbeds(LazyEmbed.invalidArgument("id", id, "Not a valid ObjectId").build()).setEphemeral(true).queue();
             return;

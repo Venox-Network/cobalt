@@ -41,12 +41,14 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.interactions.callbacks.IModalCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 import network.venox.cobalt.CoEmoji;
+import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
 
@@ -57,7 +59,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import xyz.srnyx.javautilities.StringUtility;
-import xyz.srnyx.javautilities.manipulation.Mapper;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
@@ -66,6 +67,7 @@ import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Handler
@@ -118,26 +120,27 @@ public class SurveyCommon {
         builder.addComponents(ActionRow.of(menus.stringSelectMenu().ephemeral()
                 .bindTo(menu -> {
                     final String selected = menu.getSelectedOptions().getFirst().getValue();
-                    final Survey.Question existing = !selected.equals("add") ? Mapper.toInt(selected)
-                                                                               .map(index -> survey.questions.get(index))
+                    final Survey.Question existing = !selected.equals("add") ? CoUtility.toObjectId(selected)
+                                                                               .map(survey::question)
                                                                                .orElse(null) : null;
-                    menu.replyModal(modals.create(existing != null ? "Edit question" : "Add question")
-                            .bindTo(MODAL_QUESTION, survey.id.toHexString(), existing != null ? existing.id : null)
+                    final boolean editing = existing != null;
+                    menu.replyModal(modals.create(editing ? "Edit question" : "Add question")
+                            .bindTo(MODAL_QUESTION, survey.id.toHexString(), editing ? existing.id.toHexString() : null)
                             .addComponents(
-                                    Label.of("Name", TextInput.create(FIELD_QUESTION_NAME, TextInputStyle.SHORT)
-                                            .setRequired(true)
+                                    Label.of("Name", editing ? "Unset this field and Submit to remove question" : null, TextInput.create(FIELD_QUESTION_NAME, TextInputStyle.SHORT)
+                                            .setRequired(false)
                                             .setMaxLength(Label.LABEL_MAX_LENGTH)
-                                            .setValue(existing != null ? existing.name : null)
+                                            .setValue(editing ? existing.name : null)
                                             .build()),
                                     Label.of("Description", TextInput.create(FIELD_QUESTION_DESCRIPTION, TextInputStyle.PARAGRAPH)
                                             .setRequired(false)
                                             .setMaxLength(Label.DESCRIPTION_MAX_LENGTH)
-                                            .setValue(existing != null ? existing.description : null)
+                                            .setValue(editing ? existing.description : null)
                                             .build()),
                                     Label.of("Placeholder", TextInput.create(FIELD_QUESTION_PLACEHOLDER, TextInputStyle.SHORT)
                                             .setRequired(false)
                                             .setMaxLength(TextInput.MAX_PLACEHOLDER_LENGTH)
-                                            .setValue(existing != null ? existing.placeholder : null).build())).build()).queue();
+                                            .setValue(editing ? existing.placeholder : null).build())).build()).queue();
                 })
                 .addOptions(questionOptions)
                 .setMaxValues(1)
@@ -286,14 +289,13 @@ public class SurveyCommon {
     }
 
     public void respond(@NotNull IModalCallback event, @NotNull Survey survey) {
-        // Get existing Response
-        final Survey.Response existingResponse = survey.response(event.getUser().getIdLong());
-        final List<Survey.Response.Answer> existingAnswers = existingResponse != null ? existingResponse.answers : List.of();
-
         // Get question components
         final List<ModalTopLevelComponent> components = new ArrayList<>();
-        final int existingAnswersSize = existingAnswers.size();
-        for (final Survey.Question question : survey.questions) components.add(question.toLabel(existingAnswersSize > question.id ? existingAnswers.get(question.id).answer : null));
+        final Optional<Survey.Response> existingResponse = survey.response(event.getUser().getIdLong());
+        for (final Survey.Question question : survey.questions) components.add(question.toLabel(existingResponse
+                .flatMap(response -> response.answer(question.id))
+                .map(answer -> answer.answer)
+                .orElse(null)));
 
         // Reply with response modal
         event.replyModal(modals.create(survey.name)
@@ -329,12 +331,12 @@ public class SurveyCommon {
 
     @ModalHandler(MODAL_QUESTION)
     public void modalQuestion(@NotNull ModalEvent event,
-                              @ModalInput(FIELD_QUESTION_NAME) @NotNull String name,
+                              @ModalInput(FIELD_QUESTION_NAME) @Nullable String name,
                               @ModalInput(FIELD_QUESTION_DESCRIPTION) @Nullable String description,
                               @ModalInput(FIELD_QUESTION_PLACEHOLDER) @Nullable String placeholder,
                               @ModalData @NotNull String surveyId,
-                              @ModalData @Nullable Integer questionId) {
-        // Get Sruvey
+                              @ModalData @Nullable String questionId) {
+        // Get Survey
         final Bson filter = Filters.eq("_id", new ObjectId(surveyId));
         final Survey survey = mongo.database.getMagicCollection(Survey.class)
                 .findOne(filter)
@@ -345,31 +347,40 @@ public class SurveyCommon {
         }
 
         // Handle blanks
-        if (StringUtility.isBlank(name)) {
-            event.reply(LazyEmoji.NO + " Question name cannot be blank!").setEphemeral(true).queue();
-            return;
-        }
+        final boolean nameBlank = StringUtility.isBlank(name);
         if (StringUtility.isBlank(description)) description = null;
         if (StringUtility.isBlank(placeholder)) placeholder = null;
 
         if (questionId != null) {
-            // Edit existing question
-            final Survey.Question question = survey.questions.get(questionId);
+            // Get existing question
+            final Survey.Question question = survey.question(new ObjectId(questionId));
             if (question == null) {
                 event.reply(LazyEmoji.NO + " Question not found!").setEphemeral(true).queue();
                 return;
             }
-            question.name = name;
-            question.description = description;
-            question.placeholder = placeholder;
+
+            if (nameBlank) {
+                // Removing question
+                survey.questions.remove(question);
+            } else {
+                // Editing question
+                question.name = name;
+                question.description = description;
+                question.placeholder = placeholder;
+            }
         } else {
+            // Can't have a blank new question
+            if (nameBlank) {
+                event.reply(LazyEmoji.NO + " Question name cannot be blank!").setEphemeral(true).queue();
+                return;
+            }
+
             // Add new question
-            final int size = survey.questions.size();
-            if (size >= Survey.MAX_QUESTIONS) {
+            if (survey.questions.size() >= Survey.MAX_QUESTIONS) {
                 event.reply(LazyEmoji.NO + " Maximum number of questions reached!").setEphemeral(true).queue();
                 return;
             }
-            survey.questions.add(new Survey.Question(size, name, description, placeholder));
+            survey.questions.add(new Survey.Question(name, description, placeholder));
         }
 
         // Update in database
@@ -383,11 +394,6 @@ public class SurveyCommon {
 
     @ModalHandler(MODAL_RESPOND)
     public void modalRespond(@NotNull ModalEvent event,
-                             @ModalInput("0") @NotNull String answer1,
-                             @ModalInput("1") @Nullable String answer2,
-                             @ModalInput("2") @Nullable String answer3,
-                             @ModalInput("3") @Nullable String answer4,
-                             @ModalInput("4") @Nullable String answer5,
                              @ModalData @NotNull String id) {
         // Get guild
         final Guild guild = event.getGuild();
@@ -410,23 +416,24 @@ public class SurveyCommon {
 
         // Determine if editing or adding
         final long userId = event.getUser().getIdLong();
-        final Survey.Response existing = survey.response(userId);
-        final boolean editing = existing != null;
+        final Optional<Survey.Response> existing = survey.response(userId);
+        final boolean editing = existing.isPresent();
 
         // Build Answers
         final List<Survey.Response.Answer> answers = new ArrayList<>();
-        answers.add(new Survey.Response.Answer(0, answer1));
-        if (answer2 != null) answers.add(new Survey.Response.Answer(1, answer2));
-        if (answer3 != null) answers.add(new Survey.Response.Answer(2, answer3));
-        if (answer4 != null) answers.add(new Survey.Response.Answer(3, answer4));
-        if (answer5 != null) answers.add(new Survey.Response.Answer(4, answer5));
+        for (final Survey.Question question : survey.questions) {
+            final ModalMapping value = event.getValue(question.id.toHexString());
+            if (value != null) answers.add(new Survey.Response.Answer(question, value.getAsString()));
+        }
 
         // Add response to survey
         final Date now = new Date();
-        final Survey.Response response = new Survey.Response(userId, editing ? existing.created : now, editing ? now : null, answers);
-        mongo.database.getMagicCollection(Survey.class).updateOne(
+        final Survey.Response response = new Survey.Response(userId, existing.map(r -> r.created).orElse(now), editing ? now : null, answers);
+        if (editing) existing.ifPresent(r -> survey.responses.remove(r));
+        survey.responses.add(response);
+        mongo.database.getMagicCollection(Survey.class).upsertOne(
                 Filters.eq("_id", survey.id),
-                Updates.set(Survey.PROP_RESPONSES + "." + userId, response));
+                Updates.set(Survey.PROP_RESPONSES, survey.responses));
 
         // Reply
         event.reply(LazyEmoji.YES + " Your response for **" + survey.name + "** has been " + (editing ? "updated" : "recorded")).setEphemeral(true).queue();
@@ -436,7 +443,7 @@ public class SurveyCommon {
         final StandardGuildMessageChannel channel = guild.getChannelById(StandardGuildMessageChannel.class, survey.notificationChannel);
         if (channel != null) channel.sendMessageComponents(
                         TextDisplay.of("**" + (editing ? LazyEmoji.MAYBE + " Updated" : LazyEmoji.YES + " New") + "** response for **" + survey.name + "**"),
-                        response.toContainer(survey).withAccentColor(survey.color()))
+                        response.toContainer().withAccentColor(survey.color()))
                 .useComponentsV2().queue();
     }
 }

@@ -7,14 +7,13 @@ import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashE
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
 
+import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
 
 import org.bson.types.ObjectId;
 
 import org.jetbrains.annotations.NotNull;
-
-import xyz.srnyx.javautilities.MiscUtility;
 
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
@@ -43,7 +42,7 @@ public class SurveyEdit {
         }
 
         // Get ID as ObjectId
-        final ObjectId objectId = MiscUtility.handleException(() -> new ObjectId(id)).orElse(null);
+        final ObjectId objectId = CoUtility.toObjectId(id).orElse(null);
         if (objectId == null) {
             event.replyEmbeds(LazyEmbed.invalidArgument("id", id, "Not a valid ObjectId").build()).setEphemeral(true).queue();
             return;

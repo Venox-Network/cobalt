@@ -46,7 +46,7 @@ public class Survey {
     @BsonProperty(PROP_CREATOR) public long creator;
     @BsonProperty(PROP_OPEN) public boolean open;
     @BsonProperty(PROP_QUESTIONS) public List<Question> questions;
-    @BsonProperty(PROP_RESPONSES) public Map<String, Response> responses;
+    @BsonProperty(PROP_RESPONSES) public List<Response> responses;
     @BsonProperty(PROP_PANEL) @Nullable public Panel panel;
     @BsonProperty(PROP_NOTIFICATION_CHANNEL) @Nullable public Long notificationChannel;
 
@@ -58,7 +58,7 @@ public class Survey {
         this.created = new Date();
         this.creator = creator;
         this.questions = new ArrayList<>();
-        this.responses = new HashMap<>();
+        this.responses = new ArrayList<>();
     }
 
     @NotNull
@@ -67,8 +67,15 @@ public class Survey {
     }
 
     @Nullable
-    public Response response(long user) {
-        return responses.get(String.valueOf(user));
+    public Question question(@NotNull ObjectId id) {
+        for (final Question question : questions) if (question.id.equals(id)) return question;
+        return null;
+    }
+
+    @NotNull
+    public Optional<Response> response(long user) {
+        for (final Response response : responses) if (response.user == user) return Optional.of(response);
+        return Optional.empty();
     }
 
     @NotNull
@@ -104,15 +111,15 @@ public class Survey {
         @NotNull public static final String PROP_DESCRIPTION = "description";
         @NotNull public static final String PROP_PLACEHOLDER = "placeholder";
 
-        @BsonId public int id;
+        @BsonId public ObjectId id;
         @BsonProperty(PROP_NAME) public String name;
         @BsonProperty(PROP_DESCRIPTION) @Nullable public String description;
         @BsonProperty(PROP_PLACEHOLDER) @Nullable public String placeholder;
 
         public Question() {}
 
-        public Question(int id, @NotNull String name, @Nullable String description, @Nullable String placeholder) {
-            this.id = id;
+        public Question(@NotNull String name, @Nullable String description, @Nullable String placeholder) {
+            this.id = new ObjectId();
             this.name = name;
             this.description = description;
             this.placeholder = placeholder;
@@ -129,14 +136,14 @@ public class Survey {
 
         @NotNull
         public SelectOption toSelectOption() {
-            return SelectOption.of(StringUtility.shorten(name, SelectOption.LABEL_MAX_LENGTH), String.valueOf(id))
+            return SelectOption.of(StringUtility.shorten(name, SelectOption.LABEL_MAX_LENGTH), id.toHexString())
                     .withDescription(StringUtility.shortenElseNull(description, SelectOption.DESCRIPTION_MAX_LENGTH))
                     .withEmoji(LazyEmoji.QUESTION_CLEAR);
         }
 
         @NotNull
         public Label toLabel(@Nullable String value) {
-            return Label.of(name, TextInput.create(String.valueOf(id), TextInputStyle.PARAGRAPH)
+            return Label.of(name, TextInput.create(id.toHexString(), TextInputStyle.PARAGRAPH)
                             .setPlaceholder(StringUtility.shortenElseNull(placeholder, TextInput.MAX_PLACEHOLDER_LENGTH))
                             .setValue(value)
                             .build())
@@ -165,33 +172,42 @@ public class Survey {
         }
 
         @NotNull
-        public Container toContainer(@NotNull Survey survey) {
+        public Optional<Answer> answer(@NotNull ObjectId questionId) {
+            for (final Answer answer : answers) if (answer.id.equals(questionId)) return Optional.of(answer);
+            return Optional.empty();
+        }
+
+        @NotNull
+        public Container toContainer() {
             final StringBuilder builder = new StringBuilder();
             builder.append("## <@").append(user).append(">\n");
             builder.append("**Created:** <t:").append(created.getTime() / 1000).append(":F>\n");
             if (edited != null) builder.append("**Edited:** <t:").append(edited.getTime() / 1000).append(":F>\n");
-            for (final Answer answer : answers) builder.append(answer.toDisplayString(survey)).append("\n");
+            for (final Answer answer : answers) builder.append(answer.toDisplayString()).append("\n");
             return Container.of(TextDisplay.of(builder.substring(0, builder.length() - 1)));
         }
 
         public static class Answer {
-            @NotNull public static final String PROP_QUESTION = "question";
+            @NotNull public static final String PROP_QUESTION_NAME = "question_name";
             @NotNull public static final String PROP_ANSWER = "answer";
 
-            @BsonProperty(PROP_QUESTION) public int question;
+            /**
+             * {@link Question#id Question ID}
+             */
+            @BsonId public ObjectId id;
+            @BsonProperty(PROP_QUESTION_NAME) public String questionName;
             @BsonProperty(PROP_ANSWER) public String answer;
 
             public Answer() {}
 
-            public Answer(int question, @NotNull String answer) {
-                this.question = question;
+            public Answer(@NotNull Question questionName, @NotNull String answer) {
+                this.id = questionName.id;
+                this.questionName = questionName.name;
                 this.answer = answer;
             }
 
             @NotNull
-            public String toDisplayString(@NotNull Survey survey) {
-                final Question questionObject = survey.questions.size() > question ? survey.questions.get(question) : null;
-                final String questionName = questionObject != null ? questionObject.name : "Question " + (question + 1);
+            public String toDisplayString() {
                 return "### " + questionName + "\n" + answer;
             }
         }
