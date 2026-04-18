@@ -52,6 +52,7 @@ import network.venox.cobalt.CoEmoji;
 import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
+import network.venox.cobalt.mongo.SurveyResponse;
 
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
@@ -64,6 +65,9 @@ import xyz.srnyx.javautilities.StringUtility;
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
+
+import xyz.srnyx.magicmongo.MagicCollection;
+import xyz.srnyx.magicmongo.builders.UpdateBuilder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -208,7 +212,7 @@ public class SurveyCommon {
                     survey.open = !survey.open;
                     mongo.database.getMagicCollection(Survey.class).upsertOne(
                             filter,
-                            Updates.set("open", survey.open));
+                            Updates.set(Survey.PROP_OPEN, survey.open));
                     toggle.editMessage(MessageEditData.fromCreateData(getBuilder(survey))).useComponentsV2().queue();
                 })
                 .build());
@@ -292,7 +296,9 @@ public class SurveyCommon {
     public void respond(@NotNull IModalCallback event, @NotNull Survey survey) {
         // Get question components
         final List<ModalTopLevelComponent> components = new ArrayList<>();
-        final Optional<Survey.Response> existingResponse = survey.response(event.getUser().getIdLong());
+        final Optional<SurveyResponse> existingResponse = mongo.database.getMagicCollection(SurveyResponse.class).findOne(Filters.and(
+                Filters.eq(SurveyResponse.PROP_SURVEY, survey.id),
+                Filters.eq(SurveyResponse.PROP_USER, event.getUser().getIdLong())));
         for (final Survey.Question question : survey.questions) components.add(question.toLabel(existingResponse
                 .flatMap(response -> response.answer(question.id))
                 .map(answer -> answer.answer)
@@ -415,26 +421,34 @@ public class SurveyCommon {
             return;
         }
 
+        final MagicCollection<SurveyResponse> responseCollection = mongo.database.getMagicCollection(SurveyResponse.class);
+
         // Determine if editing or adding
         final long userId = event.getUser().getIdLong();
-        final Optional<Survey.Response> existing = survey.response(userId);
+        final Bson responseFilter = Filters.and(
+                Filters.eq(SurveyResponse.PROP_SURVEY, survey.id),
+                Filters.eq(SurveyResponse.PROP_USER, userId));
+        final Optional<SurveyResponse> existing = responseCollection.findOne(responseFilter);
         final boolean editing = existing.isPresent();
 
         // Build Answers
-        final List<Survey.Response.Answer> answers = new ArrayList<>();
+        final List<SurveyResponse.Answer> answers = new ArrayList<>();
         for (final Survey.Question question : survey.questions) {
             final ModalMapping value = event.getValue(question.id.toHexString());
-            if (value != null) answers.add(new Survey.Response.Answer(question, value.getAsString()));
+            if (value != null) answers.add(new SurveyResponse.Answer(question, value.getAsString()));
         }
 
-        // Add response to survey
+        // Build update
+        final UpdateBuilder update = new UpdateBuilder();
         final Date now = new Date();
-        final Survey.Response response = new Survey.Response(userId, existing.map(r -> r.created).orElse(now), editing ? now : null, answers);
-        if (editing) existing.ifPresent(r -> survey.responses.remove(r));
-        survey.responses.add(response);
-        mongo.database.getMagicCollection(Survey.class).upsertOne(
-                Filters.eq("_id", survey.id),
-                Updates.set(Survey.PROP_RESPONSES, survey.responses));
+        update.add(Updates.set(SurveyResponse.PROP_ANSWERS, answers));
+        update.add(Updates.setOnInsert(SurveyResponse.PROP_CREATED, now));
+        if (editing) update.add(Updates.set(SurveyResponse.PROP_EDITED, now));
+
+        // Upsert
+        final SurveyResponse response = responseCollection.findOneAndUpsert(
+                responseFilter,
+                update.build());
 
         // Reply
         event.reply(LazyEmoji.YES + " Your response for **" + survey.name + "** has been " + (editing ? "updated" : "recorded")).setEphemeral(true).queue();

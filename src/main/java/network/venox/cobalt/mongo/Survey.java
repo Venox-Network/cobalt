@@ -46,7 +46,6 @@ public class Survey {
     @BsonProperty(PROP_CREATOR) public long creator;
     @BsonProperty(PROP_OPEN) public boolean open;
     @BsonProperty(PROP_QUESTIONS) public List<Question> questions;
-    @BsonProperty(PROP_RESPONSES) public List<Response> responses;
     @BsonProperty(PROP_PANEL) @Nullable public Panel panel;
     @BsonProperty(PROP_NOTIFICATION_CHANNEL) @Nullable public Long notificationChannel;
 
@@ -58,7 +57,6 @@ public class Survey {
         this.created = new Date();
         this.creator = creator;
         this.questions = new ArrayList<>();
-        this.responses = new ArrayList<>();
     }
 
     @NotNull
@@ -70,12 +68,6 @@ public class Survey {
     public Question question(@NotNull ObjectId id) {
         for (final Question question : questions) if (question.id.equals(id)) return question;
         return null;
-    }
-
-    @NotNull
-    public Optional<Response> response(long user) {
-        for (final Response response : responses) if (response.user == user) return Optional.of(response);
-        return Optional.empty();
     }
 
     @NotNull
@@ -148,68 +140,6 @@ public class Survey {
                             .setValue(value)
                             .build())
                     .withDescription(description);
-        }
-    }
-
-    public static class Response {
-        @NotNull public static final String PROP_USER = "user";
-        @NotNull public static final String PROP_CREATED = "created";
-        @NotNull public static final String PROP_EDITED = "edited";
-        @NotNull public static final String PROP_ANSWERS = "answers";
-
-        @BsonProperty(PROP_USER) public long user;
-        @BsonProperty(PROP_CREATED) public Date created;
-        @BsonProperty(PROP_EDITED) @Nullable public Date edited;
-        @BsonProperty(PROP_ANSWERS) public List<Answer> answers;
-
-        public Response() {}
-
-        public Response(long user, @NotNull Date created, @Nullable Date edited, @NotNull List<Answer> answers) {
-            this.user = user;
-            this.created = created;
-            this.edited = edited;
-            this.answers = answers;
-        }
-
-        @NotNull
-        public Optional<Answer> answer(@NotNull ObjectId questionId) {
-            for (final Answer answer : answers) if (answer.id.equals(questionId)) return Optional.of(answer);
-            return Optional.empty();
-        }
-
-        @NotNull
-        public Container toContainer() {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("## <@").append(user).append(">\n");
-            builder.append("**Created:** <t:").append(created.getTime() / 1000).append(":F>\n");
-            if (edited != null) builder.append("**Edited:** <t:").append(edited.getTime() / 1000).append(":F>\n");
-            for (final Answer answer : answers) builder.append(answer.toDisplayString()).append("\n");
-            return Container.of(TextDisplay.of(builder.substring(0, builder.length() - 1)));
-        }
-
-        public static class Answer {
-            @NotNull public static final String PROP_QUESTION_NAME = "question_name";
-            @NotNull public static final String PROP_ANSWER = "answer";
-
-            /**
-             * {@link Question#id Question ID}
-             */
-            @BsonId public ObjectId id;
-            @BsonProperty(PROP_QUESTION_NAME) public String questionName;
-            @BsonProperty(PROP_ANSWER) public String answer;
-
-            public Answer() {}
-
-            public Answer(@NotNull Question question, @NotNull String answer) {
-                this.id = question.id;
-                this.questionName = question.name;
-                this.answer = answer;
-            }
-
-            @NotNull
-            public String toDisplayString() {
-                return "### " + questionName + "\n" + answer;
-            }
         }
     }
 

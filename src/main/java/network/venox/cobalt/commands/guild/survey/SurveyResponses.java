@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.components.textdisplay.TextDisplay;
 import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
+import network.venox.cobalt.mongo.SurveyResponse;
 
 import org.bson.types.ObjectId;
 
@@ -72,19 +73,19 @@ public class SurveyResponses {
             return;
         }
 
-        // No responses
-        if (survey.responses.isEmpty()) {
+        // Get responses
+        final List<SurveyResponse> responses = mongo.database.getMagicCollection(SurveyResponse.class).findMany(Filters.eq(SurveyResponse.PROP_SURVEY, survey.id));
+        if (responses.isEmpty()) {
             event.reply(LazyEmoji.NO + " No responses for survey **" + survey.name + "** yet!").setEphemeral(true).queue();
             return;
         }
 
         // Sort newest first
-        final List<Survey.Response> responses = new ArrayList<>(survey.responses);
         responses.sort((a, b) -> b.created.compareTo(a.created));
 
         // Build Containers
         final List<Container> containers = new ArrayList<>();
-        for (final Survey.Response response : responses) containers.add(response.toContainer().withAccentColor(Mapper.toColor(response.user)).withUniqueId(ID_RESPONSE));
+        for (final SurveyResponse response : responses) containers.add(response.toContainer().withAccentColor(Mapper.toColor(response.user)).withUniqueId(ID_RESPONSE));
 
         // Send paginator
         final PaginatorV2 paginator = paginators.createPaginator(
