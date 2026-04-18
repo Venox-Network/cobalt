@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import network.venox.cobalt.MongoProvider;
@@ -54,6 +55,17 @@ public class MessageListener {
     public MessageListener(@NotNull MongoProvider mongo, @NotNull AutoThread.Manager autoThreadManager) {
         this.mongo = mongo;
         this.autoThreadManager = autoThreadManager;
+    }
+
+    @BEventListener
+    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
+        // Delete Survey panel from database
+        if (event.isFromGuild()) mongo.database.getMagicCollection(Survey.class).updateOne(
+                Filters.and(
+                        Filters.eq(Survey.PROP_GUILD, event.getGuild().getIdLong()),
+                        Filters.eq(Survey.PROP_PANEL + "." + Survey.Panel.PROP_CHANNEL, event.getChannel().getIdLong()),
+                        Filters.eq(Survey.PROP_PANEL + "." + Survey.Panel.PROP_MESSAGE, event.getMessageIdLong())),
+                Updates.unset(Survey.PROP_PANEL));
     }
 
     @BEventListener

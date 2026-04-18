@@ -83,11 +83,11 @@ public class Embed {
                              @SlashOption(description = "The JSON to use for the embed") @Nullable String json) {
         // Get Buttons
         final List<Button> actionRow = new ArrayList<>();
-        actionRow.add(buttons.primary("Export JSON", LazyEmoji.UP_CLEAR_DARK.emoji()).persistent()
+        actionRow.add(buttons.primary("Export JSON", LazyEmoji.UP_CLEAR_DARK).persistent()
                 .bindTo(BUTTON_EXPORT)
                 .build());
         if (!event.getChannel().getType().equals(ChannelType.PRIVATE) && library.isOwner(event.getUser().getIdLong())) {
-            actionRow.add(buttons.success("Send", LazyEmoji.CHAT_CLEAR.emoji()).persistent()
+            actionRow.add(buttons.success("Send", LazyEmoji.CHAT_CLEAR).persistent()
                     .bindTo(BUTTON_SEND)
                     .build());
         }
