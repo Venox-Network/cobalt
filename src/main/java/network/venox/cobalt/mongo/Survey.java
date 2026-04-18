@@ -200,9 +200,9 @@ public class Survey {
 
             public Answer() {}
 
-            public Answer(@NotNull Question questionName, @NotNull String answer) {
-                this.id = questionName.id;
-                this.questionName = questionName.name;
+            public Answer(@NotNull Question question, @NotNull String answer) {
+                this.id = question.id;
+                this.questionName = question.name;
                 this.answer = answer;
             }
 
