@@ -240,7 +240,9 @@ public class SurveyCommon {
                     mongo.database.getMagicCollection(Survey.class).upsertOne(
                             filter,
                             Updates.unset(Survey.PROP_NOTIFICATION_CHANNEL));
-                    button.editMessage(MessageEditData.fromCreateData(getBuilder(survey))).useComponentsV2().queue();
+                    button.editMessage(MessageEditData.fromCreateData(getBuilder(survey)))
+                            .setAllowedMentions(LazyUtilities.NO_MENTIONS)
+                            .useComponentsV2().queue();
                 })
                 .build());
 
@@ -367,7 +369,13 @@ public class SurveyCommon {
             }
 
             if (nameBlank) {
-                // Removing question
+                // Prevent removal if last question and survey open
+                if (survey.open && survey.questions.size() == 1) {
+                    event.reply(LazyEmoji.NO + " You can't remove the last question of an open survey!").setEphemeral(true).queue();
+                    return;
+                }
+                
+                // Remove question
                 survey.questions.remove(question);
             } else {
                 // Editing question
