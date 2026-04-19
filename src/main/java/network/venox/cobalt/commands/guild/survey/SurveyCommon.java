@@ -133,7 +133,7 @@ public class SurveyCommon {
                             .bindTo(MODAL_QUESTION, survey.id.toHexString(), editing ? existing.id.toHexString() : null)
                             .addComponents(
                                     Label.of("Name", editing ? "Unset this field and Submit to remove question (NOT RECOMMENDED, undefined behavior!)" : null, TextInput.create(FIELD_QUESTION_NAME, TextInputStyle.SHORT)
-                                            .setRequired(false)
+                                            .setRequired(!editing)
                                             .setMaxLength(Label.LABEL_MAX_LENGTH)
                                             .setValue(editing ? existing.name : null)
                                             .build()),
