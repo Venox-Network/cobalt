@@ -4,19 +4,15 @@ import io.github.freya022.botcommands.api.components.Buttons;
 import io.github.freya022.botcommands.api.components.SelectMenus;
 import io.github.freya022.botcommands.api.core.annotations.BEventListener;
 import io.github.freya022.botcommands.api.core.service.annotations.BService;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import network.venox.cobalt.listeners.*;
-
 import org.jetbrains.annotations.NotNull;
-
 import xyz.srnyx.javautilities.FileUtility;
-
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.LazyLibrary;
 
@@ -86,6 +82,10 @@ public class Cobalt {
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.GUILD_MESSAGE_TYPING,
                         GatewayIntent.GUILD_VOICE_STATES)
+                .jdaBuilder(jdaBuilder -> jdaBuilder.disableCache(
+                        CacheFlag.ACTIVITY,
+                        CacheFlag.CLIENT_STATUS,
+                        CacheFlag.ONLINE_STATUS))
                 .embedDefault(LazyEmbed.Key.COLOR, 28864)
                 .embedDefault(LazyEmbed.Key.FOOTER_TEXT, "Cobalt")
                 .embedDefault(LazyEmbed.Key.FOOTER_ICON, "https://us-east-1.tixte.net/uploads/cdn.venox.network/zoomed.png")
