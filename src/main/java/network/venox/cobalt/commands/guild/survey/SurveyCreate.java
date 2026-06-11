@@ -52,7 +52,7 @@ public class SurveyCreate {
 
         // Create Survey
         final Survey survey = new Survey(event.getGuild().getIdLong(), member.getIdLong(), name);
-        mongo.database.getMagicCollection(Survey.class).insertOneReturnId(survey);
+        mongo.database.getMagicCollection(Survey.class).insertOneReturnObjectId(survey);
         event.reply(surveyCommon.getBuilder(survey)).useComponentsV2().setEphemeral(true).queue();
     }
 }

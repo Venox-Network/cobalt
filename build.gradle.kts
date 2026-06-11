@@ -8,8 +8,8 @@ import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
 
 plugins {
     application
-    id("xyz.srnyx.gradle-galaxy") version "2.1.0"
-    id("com.gradleup.shadow") version "8.3.9"
+    id("xyz.srnyx.gradle-galaxy") version "3.0.1"
+    id("com.gradleup.shadow") version "9.4.2"
 }
 
 setupLazyLibrary(
@@ -17,13 +17,13 @@ setupLazyLibrary(
         group = "network.venox",
         version = "2.0.0",
         description = "A Discord bot for Venox Network"),
-    jdaConfig = DependencyConfig(version = "6.4.1"),
-    lazyLibraryConfig = DependencyConfig(version = "b5ead96"))
-magicMongo(config = DependencyConfig(version = "2.0.1"))
+    jdaConfig = DependencyConfig(version = "6.4.2"),
+    lazyLibraryConfig = DependencyConfig(version = "cd02170"))
+magicMongo(config = DependencyConfig(version = "3eff81b"))
 
-repository(Repository.DYNOMAKE, Repository.JITPACK)
+repository(Repository.JITPACK)
 dependencies {
-    implementation("space.dynomake:libretranslate-java:1.0.9") // Translate
+    implementation("com.github.stokito:libretranslate-java:1.2.2") // Translate
     implementation("dev.arbjerg:lavaplayer:2.2.6") // TTS
     implementation("net.sf.sociaal:freetts:1.2.2") // TTS
 }

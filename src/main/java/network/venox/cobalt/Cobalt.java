@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import network.venox.cobalt.listeners.*;
-import network.venox.cobalt.mongo.*;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -76,7 +75,7 @@ public class Cobalt {
                 .toList());
     }
 
-    public static void main(@NotNull String[] arguments) {
+    static void main() {
         LazyLibrary.INSTANCE
                 .gatewayIntents(
                         GatewayIntent.SCHEDULED_EVENTS,
