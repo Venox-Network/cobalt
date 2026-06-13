@@ -54,7 +54,7 @@ public class HighlightStats {
         } else {
             builder.append(user.getAsMention()).append(" has");
         }
-        builder.append(" received **").append(count).append("** total highlight(s) since <t:1781322600:f>");
+        builder.append(" received **").append(count).append("** total highlight(s) since <t:1781323200:D>");
 
         // If owner, include total count
         if (library.isOwner(event.getUser().getIdLong())) {
