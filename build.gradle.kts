@@ -18,7 +18,7 @@ setupLazyLibrary(
         version = "2.0.0",
         description = "A Discord bot for Venox Network"),
     jdaConfig = DependencyConfig(version = "6.4.2"),
-    lazyLibraryConfig = DependencyConfig(version = "cd02170"))
+    lazyLibraryConfig = DependencyConfig(version = "b439b8c"))
 magicMongo(config = DependencyConfig(version = "3eff81b"))
 
 repository(Repository.JITPACK)

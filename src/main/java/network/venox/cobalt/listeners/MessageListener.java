@@ -2,10 +2,8 @@ package network.venox.cobalt.listeners;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-
 import io.github.freya022.botcommands.api.core.annotations.BEventListener;
 import io.github.freya022.botcommands.api.core.service.annotations.BService;
-
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -14,20 +12,15 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.*;
-
 import org.jetbrains.annotations.NotNull;
-
 import xyz.srnyx.javautilities.MiscUtility;
 import xyz.srnyx.javautilities.StringUtility;
-
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
-
 import xyz.srnyx.magicmongo.MagicCollection;
 
 import java.awt.*;
@@ -270,7 +263,13 @@ public class MessageListener {
                     // Send embed in DMs
                     coMember.getUser().openPrivateChannel()
                             .flatMap(privateChannel -> privateChannel.sendMessageEmbeds(embed.build()))
-                            .queue();
+                            .queue(
+                                    // Increase highlights_sent in database
+                                    _ -> userCollection.updateOne(
+                                            Filters.eq("_id", otherCoUser.id),
+                                            Updates.inc(CoUser.PROP_HIGHLIGHTS_SENT, 1)),
+                                    LazyUtilities.IGNORE_CANNOT_SEND_TO_USER);
+
                 }, LazyUtilities.IGNORE_UNKNOWN_MEMBER);
                 break;
             }
