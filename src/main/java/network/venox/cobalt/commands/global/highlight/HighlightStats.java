@@ -66,7 +66,7 @@ public class HighlightStats {
                     .map(coUser -> Objects.requireNonNull(coUser.highlightsSent))
                     .reduce(0, Integer::sum);
 
-            builder.append(LazyEmoji.INFO).append(" **").append(totalCount).append("** total highlights have been sent across **").append(users.size()).append("** users");
+            builder.append("\n").append(LazyEmoji.INFO).append(" **").append(totalCount).append("** total highlights have been sent across **").append(users.size()).append("** users");
         }
 
         // Reply
