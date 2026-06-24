@@ -1,5 +1,9 @@
 package network.venox.cobalt.mongo;
-import net.dv8tion.jda.api.JDA;
+
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import io.github.freya022.botcommands.api.core.BContext;
+import io.github.freya022.botcommands.api.core.service.annotations.BService;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -7,16 +11,16 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.RoleAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
-
+import network.venox.cobalt.MongoProvider;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
+import xyz.srnyx.javautilities.parents.Stringable;
+import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
+import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,90 +38,113 @@ public class LimitedMessages {
     @BsonProperty(PROP_ROLE) @Nullable private Long role;
     @BsonProperty(PROP_USERS) @NotNull public Map<String, Integer> users = new HashMap<>();
 
-    @NotNull
-    public Optional<Guild> guild(@NotNull JDA jda) {
-        return Optional.ofNullable(jda.getGuildById(guild));
-    }
+    @BService
+    public static class Manager {
+        @NotNull private final BContext context;
+        @NotNull private final MongoProvider mongo;
 
-    @NotNull
-    public Optional<GuildMessageChannel> channel(@NotNull JDA jda) {
-        return guild(jda).map(guild -> guild.getChannelById(GuildMessageChannel.class, channel));
-    }
-
-    @NotNull
-    public Optional<RestAction<Role>> role(@NotNull JDA jda) {
-        final Guild guild = guild(jda).orElse(null);
-        if (guild == null) return Optional.empty();
-
-        // Return existing role
-        if (role != null) {
-            final Role roleJda = guild.getRoleById(role);
-            if (roleJda != null) return Optional.of(new CompletedRestAction<>(guild.getJDA(), roleJda));
+        public Manager(@NotNull BContext context, @NotNull MongoProvider mongo) {
+            this.context = context;
+            this.mongo = mongo;
         }
 
-        // Create role
-        final GuildMessageChannel channelJda = channel(jda).orElse(null);
-        if (channelJda == null) return Optional.empty();
-        final RoleAction action = guild.createRole()
-                .setName("#" + channelJda.getName())
-                .setMentionable(false)
-                .setHoisted(false)
-                .setPermissions(Permission.EMPTY_PERMISSIONS);
-        return Optional.of(action.onSuccess(roleJda -> {
-            role = roleJda.getIdLong();
-            channelJda.getPermissionContainer().upsertPermissionOverride(roleJda).setDenied(Permission.MESSAGE_SEND).queue();
-        }));
-    }
+        @NotNull
+        public Optional<Guild> guild(@NotNull LimitedMessages limitedMessages) {
+            return Optional.ofNullable(context.getJda().getGuildById(limitedMessages.guild));
+        }
 
-    @NotNull
-    public Optional<Map<Member, Integer>> users(@NotNull JDA jda) {
-        return guild(jda).map(jdaGuild -> users.entrySet().stream()
-                .map(entry -> {
-                    final Member member = jdaGuild.retrieveMemberById(entry.getKey()).complete();
-                    return member == null ? null : Map.entry(member, entry.getValue());
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-    }
+        @NotNull
+        public Optional<GuildMessageChannel> channel(@NotNull LimitedMessages limitedMessages) {
+            return guild(limitedMessages).map(guild -> guild.getChannelById(GuildMessageChannel.class, limitedMessages.channel));
+        }
 
-    public void processMessage(@NotNull Message message) {
-        final Member author = message.getMember();
-        if (author == null) return;
-        final String id = author.getId();
-        final int count = users.getOrDefault(id, 0);
+        @Nullable
+        public RestAction<Role> role(@NotNull LimitedMessages limitedMessages) {
+            final Guild guild = guild(limitedMessages).orElse(null);
+            if (guild == null) return null;
 
-        // Check if user has reached limit
-        if (checkUser(author) && count + 1 == limit) author.getUser().openPrivateChannel()
-                .flatMap(privateChannel -> privateChannel.sendMessage(LazyEmoji.WARNING + " You have reached the message limit of `" + limit + "` in <#" + channel + ">!"))
-                .queue(s -> {}, f -> {});
+            // Return existing role
+            LazyLibrary.LOGGER.error("limitedMessages.role: {}", limitedMessages.role);
+            if (limitedMessages.role != null) {
+                final Role role = guild.getRoleById(limitedMessages.role);
+                LazyLibrary.LOGGER.error("role: {}", limitedMessages.role);
+                if (role != null) return new CompletedRestAction<>(guild.getJDA(), role);
+            }
 
-        // Update user count
-        users.put(id, count + 1);
-    }
+            // Create role
+            LazyLibrary.LOGGER.error("Creating role for {}", Stringable.toString(limitedMessages));
+            return channel(limitedMessages)
+                    .map(channel -> guild.createRole()
+                            .setName("#" + channel.getName())
+                            .setMentionable(false)
+                            .setHoisted(false)
+                            .setPermissions(Permission.EMPTY_PERMISSIONS)
+                            .onSuccess(roleJda -> {
+                                // Update in Mongo
+                                limitedMessages.role = roleJda.getIdLong();
+                                mongo.database.getMagicCollection(LimitedMessages.class).updateOne(
+                                        Filters.eq("_id", limitedMessages.channel),
+                                        Updates.set(LimitedMessages.PROP_ROLE, limitedMessages.role));
 
-    public boolean checkUser(@NotNull Member member) {
-        final JDA jda = member.getJDA();
-        final Guild guild = guild(jda).orElse(null);
-        if (guild == null) return false;
-        final List<Role> roles = member.getRoles();
-        final RestAction<Role> roleAction = role(jda).orElse(null);
+                                // Add channel permission override
+                                channel.getPermissionContainer().upsertPermissionOverride(roleJda).setDenied(Permission.MESSAGE_SEND).queue();
+                            }))
+                    .orElse(null);
+        }
 
-        // Remove role
-        if (users.getOrDefault(member.getId(), 0) + 1 < limit) {
-            if (roleAction != null) roleAction.queue(roleJda -> {
-                if (roles.contains(roleJda)) guild.removeRoleFromMember(member, roleJda).queue();
+        @NotNull
+        public Optional<Map<Member, Integer>> users(@NotNull LimitedMessages limitedMessages) {
+            return guild(limitedMessages).map(jdaGuild -> limitedMessages.users.entrySet().stream()
+                    .map(entry -> {
+                        final Member member = jdaGuild.retrieveMemberById(entry.getKey()).complete();
+                        return member == null ? null : Map.entry(member, entry.getValue());
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        }
+
+        public void processMessage(@NotNull LimitedMessages limitedMessages, @NotNull Message message) {
+            final Member author = message.getMember();
+            if (author == null) return;
+
+            // Update user count
+            final String id = author.getId();
+            final int newCount = limitedMessages.users.getOrDefault(id, 0) + 1;
+            limitedMessages.users.put(id, newCount);
+
+            // Check if user has reached limit
+            if (newCount == limitedMessages.limit && checkUser(limitedMessages, author)) {
+                author.getUser().openPrivateChannel()
+                        .flatMap(privateChannel -> privateChannel.sendMessage(LazyEmoji.WARNING + " You have reached the message limit of `" + limitedMessages.limit + "` in <#" + limitedMessages.channel + ">!"))
+                        .queue(null, LazyUtilities.IGNORE_CANNOT_SEND_TO_USER);
+            }
+        }
+
+        public boolean checkUser(@NotNull LimitedMessages limitedMessages, @NotNull Member member) {
+            final Guild guild = guild(limitedMessages).orElse(null);
+            if (guild == null) return false;
+            final RestAction<Role> roleAction = role(limitedMessages);
+            if (roleAction == null) return false;
+            final List<Role> roles = member.getRoles();
+            // Need to compare with Role inside queue because roleAction can create role (limitedMessages.role would be stale)
+
+            // Remove role
+            if (limitedMessages.users.getOrDefault(member.getId(), 0) < limitedMessages.limit) {
+                roleAction.queue(roleJda -> {
+                    if (roles.contains(roleJda)) guild.removeRoleFromMember(member, roleJda).queue();
+                });
+                return false;
+            }
+
+            // Add role
+            roleAction.queue(roleJda -> {
+                if (!roles.contains(roleJda)) guild.addRoleToMember(member, roleJda).queue();
             });
-            return false;
+            return true;
         }
 
-        // Add role
-        if (roleAction != null) roleAction.queue(roleJda -> {
-            if (!roles.contains(roleJda)) guild.addRoleToMember(member, roleJda).queue();
-        });
-        return true;
-    }
-
-    public void checkAllUsers(@NotNull JDA jda) {
-        users(jda).ifPresent(members -> members.keySet().forEach(this::checkUser));
+        public void checkAllUsers(@NotNull LimitedMessages limitedMessages) {
+            users(limitedMessages).ifPresent(members -> members.keySet().forEach(member -> checkUser(limitedMessages, member)));
+        }
     }
 }

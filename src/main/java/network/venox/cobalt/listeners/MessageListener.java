@@ -39,15 +39,17 @@ public class MessageListener {
 
     @NotNull private final MongoProvider mongo;
     @NotNull private final AutoThread.Manager autoThreadManager;
+    @NotNull private final LimitedMessages.Manager limitedMessagesManager;
 
     /**
      * [user ID, [guild ID, next highlight time]]
      */
     @NotNull public final Map<Long, Map<Long, Long>> highlightCooldowns = new HashMap<>();
 
-    public MessageListener(@NotNull MongoProvider mongo, @NotNull AutoThread.Manager autoThreadManager) {
+    public MessageListener(@NotNull MongoProvider mongo, @NotNull AutoThread.Manager autoThreadManager, @NotNull LimitedMessages.Manager limitedMessagesManager) {
         this.mongo = mongo;
         this.autoThreadManager = autoThreadManager;
+        this.limitedMessagesManager = limitedMessagesManager;
     }
 
     @BEventListener
@@ -139,7 +141,7 @@ public class MessageListener {
         // Limited messages
         mongo.database.getMagicCollection(LimitedMessages.class)
                 .findOne("_id", channelId)
-                .ifPresent(limitedMessages -> limitedMessages.processMessage(message));
+                .ifPresent(limitedMessages -> limitedMessagesManager.processMessage(limitedMessages, message));
 
         // AFK (disable)
         final MagicCollection<CoUser> userCollection = mongo.database.getMagicCollection(CoUser.class);

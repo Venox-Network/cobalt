@@ -2,23 +2,19 @@ package network.venox.cobalt.commands.guild.limitedmessages;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-
 import io.github.freya022.botcommands.api.commands.annotations.Command;
 import io.github.freya022.botcommands.api.commands.annotations.UserPermissions;
 import io.github.freya022.botcommands.api.commands.application.slash.GuildSlashEvent;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.ChannelTypes;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.JDASlashCommand;
 import io.github.freya022.botcommands.api.commands.application.slash.annotations.SlashOption;
-
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-
 import network.venox.cobalt.MongoProvider;
-
+import network.venox.cobalt.mongo.LimitedMessages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import xyz.srnyx.lazylibrary.LazyEmbed;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 
@@ -26,9 +22,11 @@ import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 @Command
 public class LimitedMessagesSet {
     @NotNull private final MongoProvider mongo;
+    @NotNull private final LimitedMessages.Manager limitedMessagesManager;
 
-    public LimitedMessagesSet(@NotNull MongoProvider mongo) {
+    public LimitedMessagesSet(@NotNull MongoProvider mongo, @NotNull LimitedMessages.Manager limitedMessagesManager) {
         this.mongo = mongo;
+        this.limitedMessagesManager = limitedMessagesManager;
     }
 
     @UserPermissions({Permission.MANAGE_CHANNEL, Permission.MESSAGE_MANAGE})
@@ -54,7 +52,7 @@ public class LimitedMessagesSet {
                         Filters.eq(network.venox.cobalt.mongo.LimitedMessages.PROP_GUILD, event.getGuild().getIdLong())),
                 Updates.set(network.venox.cobalt.mongo.LimitedMessages.PROP_LIMIT, limit));
         if (existing != null) {
-            existing.checkAllUsers(event.getJDA());
+            limitedMessagesManager.checkAllUsers(existing);
             event.reply(LazyEmoji.YES + " Updated per-user message limit in " + channel.getAsMention() + " to `" + limit + "`").setEphemeral(true).queue();
             return;
         }
