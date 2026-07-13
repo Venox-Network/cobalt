@@ -16,5 +16,7 @@ jobs:
   build:
     uses: srnyx/tools/.github/workflows/build.yml@main
     with:
-      name: Cobalt
       java: 26
+      pterodactyl-server: e53418e2
+    secrets:
+      PTERODACTYL_TOKEN: ${{ secrets.PTERODACTYL_TOKEN }}
