@@ -17,8 +17,6 @@ import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import xyz.srnyx.javautilities.parents.Stringable;
-import xyz.srnyx.lazylibrary.LazyLibrary;
 import xyz.srnyx.lazylibrary.emoji.LazyEmoji;
 import xyz.srnyx.lazylibrary.utility.LazyUtilities;
 
@@ -35,7 +33,7 @@ public class LimitedMessages {
     @BsonId public long channel;
     @BsonProperty(PROP_GUILD) public long guild;
     @BsonProperty(PROP_LIMIT) public int limit;
-    @BsonProperty(PROP_ROLE) @Nullable private Long role;
+    @BsonProperty(PROP_ROLE) @Nullable public Long role;
     @BsonProperty(PROP_USERS) @NotNull public Map<String, Integer> users = new HashMap<>();
 
     @BService
@@ -64,15 +62,12 @@ public class LimitedMessages {
             if (guild == null) return null;
 
             // Return existing role
-            LazyLibrary.LOGGER.error("limitedMessages.role: {}", limitedMessages.role);
             if (limitedMessages.role != null) {
                 final Role role = guild.getRoleById(limitedMessages.role);
-                LazyLibrary.LOGGER.error("role: {}", limitedMessages.role);
                 if (role != null) return new CompletedRestAction<>(guild.getJDA(), role);
             }
 
             // Create role
-            LazyLibrary.LOGGER.error("Creating role for {}", Stringable.toString(limitedMessages));
             return channel(limitedMessages)
                     .map(channel -> guild.createRole()
                             .setName("#" + channel.getName())
