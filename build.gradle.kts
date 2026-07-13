@@ -8,8 +8,8 @@ import xyz.srnyx.gradlegalaxy.utility.setupLazyLibrary
 
 plugins {
     application
-    id("xyz.srnyx.gradle-galaxy") version "3.0.1"
-    id("com.gradleup.shadow") version "9.4.2"
+    id("xyz.srnyx.gradle-galaxy") version "3.2.0"
+    id("com.gradleup.shadow") version "9.5.1"
 }
 
 setupLazyLibrary(
@@ -24,6 +24,6 @@ magicMongo(config = DependencyConfig(version = "3eff81b"))
 repository(Repository.JITPACK)
 dependencies {
     implementation("com.github.stokito:libretranslate-java:1.2.2") // Translate
-    implementation("dev.arbjerg:lavaplayer:2.2.6") // TTS
+    implementation("dev.arbjerg:lavaplayer:2.2.7") // TTS
     implementation("net.sf.sociaal:freetts:1.2.2") // TTS
 }

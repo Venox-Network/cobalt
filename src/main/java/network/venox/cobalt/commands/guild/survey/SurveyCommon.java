@@ -48,7 +48,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import network.venox.cobalt.CoEmoji;
+import network.venox.cobalt.emoji.CoEmoji;
 import network.venox.cobalt.CoUtility;
 import network.venox.cobalt.MongoProvider;
 import network.venox.cobalt.mongo.Survey;
